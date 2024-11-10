@@ -30,6 +30,8 @@ namespace FinanceApp.Models
 
         public DateTime update_date { get; set; }
         public DateTime entry_date { get; set; }
+        [NotMapped]
+        public string errormessage { get; set; }
 
          
 

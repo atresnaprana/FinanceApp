@@ -1,0 +1,29 @@
+﻿@model FinanceApp.Models.dbAccount
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<div>
+    <h4>Account Info</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            <label>Account No: </label> @Html.DisplayFor(model => model.account_no)
+        </dt>
+        <dt>
+            <label>Account Name: </label>@Html.DisplayFor(model => model.akundk)
+        </dt>
+        <dt>
+            <label>Hierarchy: </label>@Html.DisplayFor(model => model.hierarchy)
+        </dt>
+       
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="id" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-primary">Back to list</a>
+    </form>
+</div>

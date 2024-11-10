@@ -12,56 +12,70 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Authorization;
+using BaseLineProject.Controllers;
+using FinanceApp.Models;
 
-namespace BaseLineProject.Controllers
+namespace FinanceApp.Controllers
 {
-    public class TabPageController : Controller
+    public class AccountController : Controller
     {
         private readonly FormDBContext db;
         private IHostingEnvironment Environment;
-        private readonly ILogger<TabPageController> _logger;
-
-        public TabPageController(FormDBContext db, ILogger<TabPageController> logger, IHostingEnvironment _environment)
+        private readonly ILogger<AccountController> _logger;
+        public AccountController(FormDBContext db, ILogger<AccountController> logger, IHostingEnvironment _environment)
         {
             logger = logger;
             Environment = _environment;
             this.db = db;
         }
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "AccountAdmin")]
         public IActionResult Index()
         {
-            var data = new List<SystemTabModel>();
-            data = db.TabTbl.Where(y => y.FLAG_AKTIF == "1").OrderBy(y => y.TAB_DESC).ToList();
+            var data = new List<dbAccount>();
+            data = db.AccountTbl.Where(y => y.flag_aktif == "1").OrderBy(y => y.account_no).ToList();
             return View(data);
         }
         [HttpGet]
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "AccountAdmin")]
         public IActionResult Create()
-        {           
-            return View();
+        {
+            dbAccount fld = new dbAccount();
+            return View(fld);
         }
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind] SystemTabModel obj)
+        public IActionResult Create([Bind] dbAccount obj)
         {
             if (ModelState.IsValid)
             {
-                obj.ENTRY_DATE = DateTime.Now;
-                obj.UPDATE_DATE = DateTime.Now;
-                obj.ENTRY_USER = User.Identity.Name;
-                obj.UPDATE_USER = User.Identity.Name;
-                obj.FLAG_AKTIF = "1";
+                obj.entry_date = DateTime.Now;
+                obj.update_date = DateTime.Now;
+                obj.entry_user = User.Identity.Name;
+                obj.update_user = User.Identity.Name;
+                obj.flag_aktif = "1";
                 try
                 {
+                    dbAccount edpDt = db.AccountTbl.Where(y => y.account_no == obj.account_no).FirstOrDefault();
+                    if (edpDt != null)
+                    {
+                        obj.errormessage = "nomor akun sudah terdaftar";
 
-                    db.TabTbl.Add(obj);
-                    db.SaveChanges();
-                   
+                    }
+                    else
+                    {
+                        db.AccountTbl.Add(obj);
+                        db.SaveChanges();
+                        return RedirectToAction("Index");
+
+                    }
+
+
 
                 }
                 catch (Exception ex)
                 {
+                    obj.errormessage = ex.InnerException.Message;
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
                     if (!Directory.Exists(filePath))
                     {
@@ -73,28 +87,27 @@ namespace BaseLineProject.Controllers
                     }
                 }
                 //apprDal.AddApproval(objApproval);
-                return RedirectToAction("Index");
             }
             return View(obj);
         }
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "AccountAdmin")]
         public IActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            SystemTabModel fld = db.TabTbl.Find(id);           
+            dbAccount fld = db.AccountTbl.Find(id);
             if (fld == null)
             {
                 return NotFound();
-            }           
+            }
             return View(fld);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public IActionResult Edit(int? id, [Bind] SystemTabModel fld)
+        public IActionResult Edit(int? id, [Bind] dbAccount fld)
         {
             if (id == null)
             {
@@ -102,17 +115,20 @@ namespace BaseLineProject.Controllers
             }
             if (ModelState.IsValid)
             {
-                var editFld = db.TabTbl.Find(id);
-                editFld.TAB_DESC = fld.TAB_DESC;
-                editFld.TAB_TXT = fld.TAB_TXT;
-                editFld.UPDATE_DATE = DateTime.Now;
-                editFld.UPDATE_USER = User.Identity.Name;
+                var editFld = db.AccountTbl.Find(id);
+                editFld.hierarchy = fld.hierarchy;
+                editFld.account_name  = fld.account_name;
+                editFld.akundk = fld.akundk;
+                editFld.akunnrlr = fld.akunnrlr;
+                editFld.update_date = DateTime.Now;
+                editFld.update_user = User.Identity.Name;
                 try
                 {
                     db.SaveChanges();
                 }
                 catch (Exception ex)
                 {
+                    editFld.errormessage = ex.InnerException.Message;
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
                     if (!Directory.Exists(filePath))
                     {
@@ -127,14 +143,15 @@ namespace BaseLineProject.Controllers
             }
             return View(fld);
         }
-        [Authorize(Roles = "SuperAdmin")]
+        
+        [Authorize(Roles = "AccountAdmin")]
         public IActionResult Delete(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            SystemTabModel fld = db.TabTbl.Find(id);
+            dbAccount fld = db.AccountTbl.Find(id);
             if (fld == null)
             {
                 return NotFound();
@@ -146,10 +163,10 @@ namespace BaseLineProject.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteTab(int? id)
         {
-            SystemTabModel fld = db.TabTbl.Find(id);
-            fld.FLAG_AKTIF = "0";
-            fld.UPDATE_DATE = DateTime.Now;
-            fld.UPDATE_USER = User.Identity.Name;
+            dbAccount fld = db.AccountTbl.Find(id);
+            fld.flag_aktif = "0";
+            fld.update_date = DateTime.Now;
+            fld.update_user = User.Identity.Name;
             try
             {
                 db.SaveChanges();

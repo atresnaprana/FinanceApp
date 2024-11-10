@@ -1,0 +1,140 @@
+﻿@model IEnumerable<FinanceApp.Models.dbAccount>
+@{
+    ViewData["Title"] = "System Tab List";
+}
+
+<style>
+    #myPopup {
+        display: none;
+        position: absolute;
+        top: 50px;
+        right: 50%;
+        background-color: blue;
+        height: 100px;
+        width: 100px;
+    }
+
+    #myExit {
+        position: absolute;
+        right: 0px;
+        text-align: right;
+        color: white;
+        background-color: red;
+    }
+
+    .btn-primary2 {
+        color: #ffffff;
+        background-color: #000000;
+        border-color: #000000 !important
+    }
+
+        .btn-primary2:hover {
+            color: #fff;
+            background-color: #be0000;
+            border-color: #be0000 !important
+        }
+</style>
+<p>
+</p>
+<div class="container" id="bootstrap-overrides">
+    <div class="row">
+        <div class="col-sm align-self-end">
+            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
+        </div>
+
+    </div>
+</div>
+<br />
+<table class="table table-striped" id="IndexTbl">
+    <thead>
+        <tr>
+            <th>No. Akun</th>
+            <th>
+                Nama Akun
+            </th>
+            <th>
+                Akun D/K
+            </th>
+            <th>
+                Akun NR/LR
+            </th>
+            <th>
+                Flag Aktif
+            </th>
+            <th>
+                Entry User
+            </th>
+
+            <th>
+                Update User
+            </th>
+            <th>
+                Entry Date
+            </th>
+            <th>
+                Update Date
+            </th>
+            <th>
+                <label>Actions</label>
+            </th>
+        </tr>
+    </thead>
+    <tbody id="tbodyid">
+        @{
+            var i = 1;
+        }
+        @foreach (var dt in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.account_no)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.account_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.akundk)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.akunnrlr)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.flag_aktif)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.entry_user)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.update_user)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.entry_date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.update_date)
+                </td>
+                <td>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
+                        &nbsp;
+                        <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('#IndexTbl').DataTable({
+                stateSave: true,
+            });
+        });
+    </script>
+}

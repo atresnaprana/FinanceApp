@@ -1,0 +1,106 @@
+﻿@model FinanceApp.Models.dbAccount
+
+@{
+    ViewData["Title"] = "Input Data Baru";
+    string errmsg = Model.errormessage;
+
+}
+<style>
+    input.largerCheckbox {
+        width: 20px;
+        height: 20px;
+    }
+</style>
+<h1>Input Data Baru</h1>
+<h3 class="display-5">Form Entry</h3>
+<hr />
+<form asp-action="Create" id="formcreate" enctype="multipart/form-data">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <div class="form-group">
+                    <label class="control-label">Account No:</label>
+                    <input asp-for="account_no" class="form-control" />
+                    <span asp-validation-for="account_no" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Account Name:</label>
+                    <input asp-for="account_name" class="form-control" />
+                    <span asp-validation-for="account_name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Account D/K:</label>
+                    @Html.DropDownListFor(model => model.akundk, new List<SelectListItem>
+                    {
+                    new SelectListItem{ Text="D", Value = "D" },
+                    new SelectListItem{ Text="K", Value = "K" },
+                    new SelectListItem{ Text="-", Value = "-" },
+
+                    }, new { @class = "form-control" })
+                    <span asp-validation-for="akundk" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Account NR/LR:</label>
+                    @Html.DropDownListFor(model => model.akunnrlr, new List<SelectListItem>
+                    {
+                    new SelectListItem{ Text="NR", Value = "NR" },
+                    new SelectListItem{ Text="LR", Value = "LR" },
+                    new SelectListItem{ Text="-", Value = "-" },
+
+                    }, new { @class = "form-control" })
+                    <span asp-validation-for="akundk" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Hierarchy:</label>
+                    @Html.DropDownListFor(model => model.akunnrlr, new List<SelectListItem>
+                    {
+                    new SelectListItem{ Text="hdr", Value = "hdr" },
+                    new SelectListItem{ Text="dtl", Value = "dtl" }
+
+                    }, new { @class = "form-control" })
+                    <span asp-validation-for="akundk" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="button" value="Simpan data baru" onclick="alertfirst()" class="btn btn-red" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div>
+    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            var msg = '@errmsg';
+            if (msg != '') {
+                alert("error:" + msg);
+            }
+           
+        });
+
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+            }
+        function alertfirst() {
+
+            if (confirm("Are you sure saving data?")) {
+                $('#formcreate').submit();
+            } else {
+                return false;
+            }
+
+        }
+    </script>
+}
+
+
