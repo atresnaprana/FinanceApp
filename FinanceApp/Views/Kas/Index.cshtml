@@ -1,0 +1,249 @@
+﻿@model IEnumerable<FinanceApp.Models.dbKas>
+@{
+    ViewData["Title"] = "Data Kas";
+    var edpCode = ViewData["TransDateStr"];
+
+    var isAdmin = User.IsInRole("Admin").ToString();
+}
+
+<style>
+    #myPopup {
+        display: none;
+        position: absolute;
+        top: 50px;
+        right: 50%;
+        background-color: blue;
+        height: 100px;
+        width: 100px;
+    }
+
+    #myExit {
+        position: absolute;
+        right: 0px;
+        text-align: right;
+        color: white;
+        background-color: red;
+    }
+
+    .btn-primary2 {
+        color: #ffffff;
+        background-color: #000000;
+        border-color: #000000 !important
+    }
+
+        .btn-primary2:hover {
+            color: #fff;
+            background-color: #be0000;
+            border-color: #be0000 !important
+        }
+
+</style>
+<p>
+</p>
+<div class="container" id="bootstrap-overrides">
+    <div class="row">
+        <div class="col-sm align-self-end">
+            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
+        </div>
+        <div class="col-sm">
+            <label><b>Pilih Tanggal Transaksi: </b></label>
+            <br />
+            <input type="date" id="transdate" class="form-control" />
+            <br />
+            <br />
+            <input type="button" value="Cari Data" onclick="PopulateTable()" class="btn btn-dark" />
+            <input type="button" value="Reset" onclick="Clear()" class="btn btn-dark" />
+        </div>
+
+    </div>
+</div>
+<br />
+<table class="table table-striped" id="IndexTbl">
+    <thead>
+        <tr>
+            <th>Num.</th>
+            <th>
+                TransDate
+            </th>
+            <th>
+                Nama
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.KTP)
+            </th>
+            <th>
+                No HP
+            </th>
+            <th>
+                Vaksin 1
+            </th>
+            <th>
+                Vaksin 2
+            </th>
+            <th>
+                Sertifikat Vaksin
+            </th>
+            <th>
+                <label>Actions</label>
+            </th>
+        </tr>
+    </thead>
+    <tbody id="tbodyid">
+        @{
+            var i = 1;
+        }
+        @foreach (var dt in Model)
+        {
+            <tr>
+                <td>
+                    @i
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.SS_CODE)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.NAMA_SS)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.KTP)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.HP_SS)
+
+                </td>
+                <td>
+                    @if (dt.VAKSIN1 == "1")
+                    {
+                        <input type="checkbox" name="vaksin1" checked disabled>
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="vaksin1" disabled>
+                    }
+                    @*@Html.DisplayFor(modelItem => dt.VAKSIN1)*@
+                </td>
+                <td>
+                    @if (dt.VAKSIN2 == "1")
+                    {
+                        <input type="checkbox" name="vaksin2" checked disabled>
+                    }
+                    else
+                    {
+                        <input type="checkbox" name="vaksin2" disabled>
+                    }
+                    @*@Html.DisplayFor(modelItem => dt.VAKSIN2)*@
+                </td>
+                <td>
+                    <a href="#" onclick="openpopup('@dt.FOTOSERTIFIKAT1', '@dt.FOTOSERTIFIKAT2')" class="btn btn-sm btn-dark">Lihat Sertifikat</a>
+                </td>
+                <td>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@dt.ID" class="btn btn-sm btn-dark">Edit</a>
+                        &nbsp;
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Delete" asp-route-id="@dt.ID" class="btn btn-sm btn-dark">Delete</a>
+
+                        }
+                    </div>
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('#IndexTbl').DataTable();
+
+        });
+
+        function PopulateTable() {
+            $("#tbodyid").empty();
+            var value = $("#transdate").val();
+            if (value != null && value != "") {
+
+                $.ajax({
+                    url: '@Url.Action("getTbl", "Kas")',
+                    type: "GET",
+                    data: { transdate: value },
+                    //startDate: mFromDate, endDate: mToDate1
+                    dataType: 'json',
+                    success: function (data) {
+                        debugger;
+                        var tr;
+                        //Append each row to html table
+                        for (var i = 0; i < data.length; i++) {
+                            debugger;
+                            var number = parseInt(i) + 1;
+                            tr = $('<tr/>');
+                            tr.append("<td>" + number + "</td>");
+                            tr.append("<td>" + data[i].sS_CODE + "</td>");
+                            tr.append("<td>" + data[i].namA_SS + "</td>");
+                            tr.append("<td>" + data[i].ktp + "</td>");
+                            tr.append("<td>" + data[i].hP_SS + "</td>");
+                            if (data[i].vaksiN1 == "1") {
+                                tr.append("<td><input type='checkbox' name='vaksin1' checked disabled></td>");
+                            } else {
+                                tr.append("<td><input type='checkbox' name='vaksin1' disabled></td>");
+                            }
+                            if (data[i].vaksiN2 == "1") {
+                                tr.append("<td><input type='checkbox' name='vaksin2' checked disabled></td>");
+                            } else {
+                                tr.append("<td><input type='checkbox' name='vaksin2' disabled></td>");
+                            }
+                            //tr.append("<td>" + data[i].vaksiN2 + "</td>");
+                            tr.append("<td><a onclick=\"openpopup(\'" + data[i].fotosertifikaT1 + "\', \'" + data[i].fotosertifikaT2 + "\');\" class='btn btn-sm btn-dark'>Lihat Sertifikat</a>&nbsp;</td>");
+                            var isAdmin = '@isAdmin';
+                            debugger;
+                            if (isAdmin == "True") {
+                                tr.append('<td><a href="/FormVaksin/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/FormVaksin/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
+                            }
+                            else {
+                                tr.append('<td><a href="/FormVaksin/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
+                            }
+                            //tr.append('<button type="button" asp-action="Edit" asp-route-id="' + data[i].id + '" class="btn btn-primary";">Delete</button>');
+                            //tr.append("")
+                            //tr.append("<a asp-action='Edit' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Edit</a>");
+                            //tr.append("<a asp-action='Delete' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Delete</a>");
+                            //tr.append("");
+
+                            $('#IndexTbl').append(tr);
+                            /* location.reload();*/
+                        }
+                    },
+                    error: function () {
+
+                    }
+
+                });
+            } else {
+                alert('Please fill EDP Code');
+            }
+
+        }
+        function Clear() {
+            $("#transdate").val(null);
+            $("#tbodyid").empty();
+            $.ajax({
+                url: '@Url.Action("getTblEmpty", "Kas")',
+                type: "GET",
+                //startDate: mFromDate, endDate: mToDate1
+                dataType: 'json',
+                success: function (data) {
+
+                },
+                error: function () {
+
+                }
+
+            });
+
+        }
+    </script>
+}
+

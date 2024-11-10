@@ -4,14 +4,16 @@ using BaseLineProject.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BaseLineProject.Migrations
 {
     [DbContext(typeof(FormDBContext))]
-    partial class FormDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241110095517_addtblkas")]
+    partial class addtblkas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -396,22 +398,13 @@ namespace BaseLineProject.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("MonthStr")
-                        .HasColumnType("varchar(50)");
-
                     b.Property<int>("Saldo")
                         .HasColumnType("int(20)");
 
                     b.Property<DateTime>("TransDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("TransDateStr")
-                        .HasColumnType("varchar(50)");
-
                     b.Property<string>("Trans_no")
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("YearStr")
                         .HasColumnType("varchar(50)");
 
                     b.Property<DateTime>("entry_date")

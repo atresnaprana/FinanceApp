@@ -20,6 +20,7 @@ namespace BaseLineProject.Data
 
         public DbSet<dbAccount> AccountTbl { get; set; }
 
+        public DbSet<dbKas> KastTbl { get; set; }
 
         public FormDBContext(DbContextOptions<FormDBContext> options) : base(options)
         {
@@ -39,6 +40,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbSliderImg>().ToTable("dbSliderImg");
             modelBuilder.Entity<dbCustomer>().ToTable("dbCustomer");
             modelBuilder.Entity<dbAccount>().ToTable("dbAccount");
+            modelBuilder.Entity<dbKas>().ToTable("dbKas");
 
 
 
@@ -51,6 +53,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbCompanySeq>().HasKey(ug => ug.id).HasName("PK_Company_Seq");
             modelBuilder.Entity<dbCustomerSeq>().HasKey(ug => ug.id).HasName("PK_Cust_Seq");
             modelBuilder.Entity<dbAccount>().HasKey(ug => ug.id).HasName("PK_Account");
+            modelBuilder.Entity<dbAccount>().HasKey(ug => ug.id).HasName("PK_Kas");
 
             //modelBuilder.Entity<dbSalesDtl>().HasKey(ug => new { ug.store_id, ug.invoice, ug.transdate, ug.article }).HasName("PKSalesdtl");
 
@@ -170,6 +173,26 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbAccount>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
             modelBuilder.Entity<dbAccount>().Property(ug => ug.entry_date).HasColumnType("date");
             modelBuilder.Entity<dbAccount>().Property(ug => ug.update_date).HasColumnType("date");
+
+            //dbkas model 
+            modelBuilder.Entity<dbKas>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbKas>().Property(ug => ug.TransDate).HasColumnType("date");
+            modelBuilder.Entity<dbKas>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbKas>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbKas>().Property(ug => ug.Akun_Debit).HasColumnType("int");
+            modelBuilder.Entity<dbKas>().Property(ug => ug.Akun_Credit).HasColumnType("int");
+            modelBuilder.Entity<dbKas>().Property(ug => ug.Debit).HasColumnType("int(20)");
+            modelBuilder.Entity<dbKas>().Property(ug => ug.Credit).HasColumnType("int(20)");
+            modelBuilder.Entity<dbKas>().Property(ug => ug.Saldo).HasColumnType("int(20)");
+            modelBuilder.Entity<dbKas>().Property(ug => ug.TransDateStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbKas>().Property(ug => ug.MonthStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbKas>().Property(ug => ug.YearStr).HasColumnType("varchar(50)").IsRequired(false);
+
+            modelBuilder.Entity<dbKas>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)").IsRequired(false);
+            modelBuilder.Entity<dbKas>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbKas>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
+            modelBuilder.Entity<dbKas>().Property(ug => ug.entry_date).HasColumnType("datetime");
+            modelBuilder.Entity<dbKas>().Property(ug => ug.update_date).HasColumnType("datetime");
 
             #endregion appmodel
 
