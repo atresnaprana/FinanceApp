@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Policy;
 using BaseLineProject.Models;
 using MimeDetective.Storage;
+using FinanceApp.Models;
 
 namespace BaseLineProject.Data
 {
@@ -16,7 +17,8 @@ namespace BaseLineProject.Data
         public DbSet<SystemMenuModel> MenuTbl { get; set; }
         public DbSet<dbSliderImg> SlideTbl { get; set; }
         public DbSet<dbCustomer> CustomerTbl { get; set; }
-        
+
+        public DbSet<dbAccount> AccountTbl { get; set; }
 
 
         public FormDBContext(DbContextOptions<FormDBContext> options) : base(options)
@@ -36,6 +38,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<SystemMenuModel>().ToTable("SystemMenuTbl");
             modelBuilder.Entity<dbSliderImg>().ToTable("dbSliderImg");
             modelBuilder.Entity<dbCustomer>().ToTable("dbCustomer");
+            modelBuilder.Entity<dbAccount>().ToTable("dbAccount");
 
 
 
@@ -47,6 +50,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbCustomer>().HasKey(ug => ug.id).HasName("PK_Customer");
             modelBuilder.Entity<dbCompanySeq>().HasKey(ug => ug.id).HasName("PK_Company_Seq");
             modelBuilder.Entity<dbCustomerSeq>().HasKey(ug => ug.id).HasName("PK_Cust_Seq");
+            modelBuilder.Entity<dbAccount>().HasKey(ug => ug.id).HasName("PK_Account");
 
             //modelBuilder.Entity<dbSalesDtl>().HasKey(ug => new { ug.store_id, ug.invoice, ug.transdate, ug.article }).HasName("PKSalesdtl");
 
@@ -153,6 +157,20 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.FILE_SKT_NAME).HasColumnType("varchar(255)");
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.store_area).HasColumnType("varchar(50)");
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.discount_customer).HasColumnType("varchar(50)");
+
+            //dbaccount model
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.account_no).HasColumnType("int");
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.hierarchy).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.account_name).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.akundk).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.akunnrlr).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)").IsRequired(false);
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.entry_date).HasColumnType("date");
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.update_date).HasColumnType("date");
+
             #endregion appmodel
 
 
