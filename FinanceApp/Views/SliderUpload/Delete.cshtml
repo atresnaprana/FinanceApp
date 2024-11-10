@@ -1,0 +1,26 @@
+﻿@model BaseLineProject.Models.dbSliderImg
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<div>
+    <h4>Tab Info</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            <label>Img Desc: </label> @Html.DisplayFor(model => model.IMG_DESC)
+        </dt>
+        <dt>
+            <label>ID: </label>@Html.DisplayFor(model => model.ID)
+        </dt>
+       
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ID" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-primary">Back to list</a>
+    </form>
+</div>

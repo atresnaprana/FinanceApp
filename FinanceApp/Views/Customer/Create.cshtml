@@ -1,0 +1,459 @@
+﻿@model BaseLineProject.Models.dbCustomer
+@{
+    ViewData["Title"] = "Create";
+    var errmsg = "";
+    if(Model != null)
+    {
+        if (!string.IsNullOrEmpty(Model.errmsg))
+        {
+            errmsg = Model.errmsg;
+        }
+    }
+
+}
+<style>
+    input.largerCheckbox {
+        width: 20px;
+        height: 20px;
+    }
+
+    #panel, #flip {
+        padding: 5px;
+        text-align: center;
+        background-color: #e5eecc;
+        border: solid 1px #c3c3c3;
+    }
+
+    #panel {
+        padding: 50px;
+        display: none;
+    }
+</style>
+<h1>Create</h1>
+<h3>Customer Create</h3>
+<hr />
+<form asp-action="Create" id="formcreate" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-sm">
+            <div class="row">
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label class="control-label">Name</label>
+                        <input asp-for="CUST_NAME" class="form-control" />
+                        <span asp-validation-for="CUST_NAME" class="text-danger"></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Company</label>
+                <input asp-for="COMPANY" class="form-control" />
+                <span asp-validation-for="COMPANY" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">address</label>
+                <textarea asp-for="address" class="form-control"></textarea>
+                <span asp-validation-for="address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">city</label>
+                <input asp-for="city" class="form-control" />
+                <span asp-validation-for="city" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="province" class="control-label"></label>
+                <input asp-for="province" class="form-control" />
+                <span asp-validation-for="province" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="postal" class="control-label"></label>
+                <input asp-for="postal" class="form-control" />
+                <span asp-validation-for="postal" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-sm">
+            <div class="form-group">
+                <label class="control-label">Register Dates</label>
+                <input type="date" asp-for="REG_DATE" class="form-control" />
+                <span asp-validation-for="REG_DATE" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">NPWP</label>
+                <input asp-for="NPWP" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                <span asp-validation-for="NPWP" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Bank Name</label>
+                <input asp-for="BANK_NAME" class="form-control" />
+                <span asp-validation-for="BANK_NAME" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Bank No.</label>
+                <input asp-for="BANK_NUMBER" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                <span asp-validation-for="BANK_NUMBER" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Branch</label>
+                <input asp-for="BANK_BRANCH" class="form-control" />
+                <span asp-validation-for="BANK_BRANCH" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Bank Country</label>
+                <input asp-for="BANK_COUNTRY" class="form-control" />
+                <span asp-validation-for="BANK_COUNTRY" class="text-danger"></span>
+            </div>
+
+
+        </div>
+        <div class="col-sm">
+            <div class="form-group">
+
+                <label class="control-label">KTP</label>
+                <input asp-for="KTP" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                <span asp-validation-for="KTP" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="control-label">Area</label>
+                    <br />
+                    @Html.DropDownListFor(model => model.store_area, new List<SelectListItem>
+                     {
+                         new SelectListItem{ Text="JAWA", Value = "JAWA" },
+                         new SelectListItem{ Text="SUMATRA", Value = "SUMATRA" },
+                         new SelectListItem{ Text="BALI-NUSATENGGARA", Value = "BALI-NUSATENGGARA" },
+                         new SelectListItem{ Text="KASUPA", Value = "KASUPA" }
+
+                     }, new { @class = "form-control" })
+                    <span asp-validation-for="store_area" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label class="control-label">Phone 1</label>
+                        <input asp-for="PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                        <span asp-validation-for="PHONE1" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label class="control-label">Phone 2</label>
+                        <input asp-for="PHONE2" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                        <span asp-validation-for="PHONE2" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="display:none;">
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label class="control-label">VA Note</label>
+                        <input asp-for="VA1NOTE" class="form-control" value="BNI" />
+                        <span asp-validation-for="VA1NOTE" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label class="control-label">VA </label>
+                        <input asp-for="VA1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                        <span asp-validation-for="VA1" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="display:none;">
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label class="control-label">VA 2 Note</label>
+                        <input asp-for="VA2NOTE" class="form-control" />
+                        <span asp-validation-for="VA2NOTE" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <div class="form-group">
+                        <label class="control-label">VA 2 </label>
+                        <input asp-for="VA2" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                        <span asp-validation-for="VA2" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <div class="form-group">
+                <div id="flip">Click to slide down panel</div>
+                <div id="panel">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label"> KTP</label>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileKtp" />
+                                                    <a href="#" id="fileKTPName"></a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label"> Akta Perusahaan</label>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileAkta" />
+                                                    <a href="#" id="fileAktaName"></a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label">Rekening Bank</label>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileRekening" />
+                                                    <a href="#" id="fileRekeningName"></a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm">
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label">NPWP</label>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileNPWP" />
+                                                    <a href="#" id="fileNPWPName"></a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label">TDP</label>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileTdp" />
+                                                    <a href="#" id="fileTDPName"></a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label">SIUP</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileSIUP" />
+                                                    <a href="#" id="fileSIUPName"></a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm">
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label">NIB</label>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileNIB" />
+                                                    <a href="#" id="fileNIBName"></a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label">SPPKP / PKP</label>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileSPPKP" />
+                                                    <a href="#" id="fileSPPKPName"></a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label class="control-label">SKT</label>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <input type="file" asp-for="fileSKT" />
+                                                    <a href="#" id="fileSKTName"></a>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <div class="form-group">
+                <input type="button" value="Simpan Data" onclick="alertfirst()" class="btn btn-red" />
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+
+<div>
+    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
+</div>
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+    $(document).ready(function () {
+        
+        $("#flip").click(function () {
+            $("#panel").slideToggle();
+            //$("#panel").slideUp("slow");
+        });
+        var errmsg = '@errmsg';
+        if (errmsg != "" && errmsg != null) {
+            alert(errmsg);
+        }
+       
+
+    });
+    
+    function allowOnlyNumber(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+    function alertfirst() {
+        var pass = $("#Password").val();
+        if (pass == "" || pass == null) {
+            alert("empty password");
+        } else {
+            if (confirm("Are you sure saving data?")) {
+                $('#formcreate').submit();
+            } else {
+                return false;
+            }
+        }
+       
+    }
+
+
+    </script>
+}

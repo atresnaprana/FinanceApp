@@ -1,0 +1,28 @@
+﻿@model BaseLineProject.Models.SystemTabModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<div>
+    <h4>Tab Info</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            <label>Tab Desc: </label> @Html.DisplayFor(model => model.TAB_DESC)
+        </dt>
+        <dt>
+            <label>Role: </label>@Html.DisplayFor(model => model.ROLE_ID)
+        </dt>
+        <dt>
+            <label>Tab Txt: </label>@Html.DisplayFor(model => model.TAB_TXT)
+        </dt>
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ID" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-primary">Back to list</a>
+    </form>
+</div>

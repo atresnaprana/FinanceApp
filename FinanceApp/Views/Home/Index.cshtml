@@ -1,0 +1,103 @@
+﻿@model IEnumerable<BaseLineProject.Models.dbSliderImg>
+
+@{
+    ViewData["Title"] = "Beranda";
+
+    @using System;
+    @using System.Globalization;
+    CultureInfo myCI = new CultureInfo("en-US");
+    Calendar myCal = myCI.Calendar;
+
+    // Gets the DTFI properties required by GetWeekOfYear.
+    CalendarWeekRule myCWR = myCI.DateTimeFormat.CalendarWeekRule;
+    DayOfWeek myFirstDOW = myCI.DateTimeFormat.FirstDayOfWeek;
+
+    var weekofyear = myCal.GetWeekOfYear(DateTime.Now, myCWR, myFirstDOW);
+    var date = DateTime.Now;
+    var datenowstr = date.ToString("dddd, dd MMMM yyyy");
+}
+
+
+
+<div class="text-title">
+    <div class="slideshow-container">
+
+        @foreach (var dt in Model)
+        {
+            <div class="mySlides fade">
+                <div class="numbertext"></div>
+                <img src="@dt.imgUrl" style="width:100%">
+                @*<div class="text">Caption Text</div>*@
+            </div>
+        }
+        <!--<div class="mySlides fade">
+        <div class="numbertext"></div>
+        <img src="~/images/banner2.JPG" style="width:100%">-->
+        @*<div class="text">Caption Text</div>*@
+        <!--</div>
+
+        <div class="mySlides fade">
+            <div class="numbertext"></div>
+            <img src="~/images/banner1.JPG" style="width:100%">-->
+        @*<div class="text">Caption Two</div>*@
+        <!--</div>-->
+
+
+    </div>
+    <br>
+
+    <div style="text-align:center">
+        @foreach (var dt in Model)
+        {
+            <span class="dot"></span>
+        }
+        @*<span class="dot"></span>
+        <span class="dot"></span>*@
+        @*<span class="dot"></span>*@
+    </div>
+
+    <p></p><p></p>
+    <h1 class="display-4">Selamat datang di OnPos!</h1> <p></p>
+    <h1 class="display-5"><span><label id="dateTxt" class="text-blue"></label><label class="text-blue"> - Week</label> <label id="weekofyear" class="text-blue"></label></span></h1>
+    @*<img src="~/images/banner1.jpg" width="900" height="339" />*@
+
+
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $("#dateTxt").text('@datenowstr');
+            $("#weekofyear").text('@weekofyear');
+
+        });
+    </script>
+
+    @*Slideshow*@
+    <script>
+        var slideIndex = 0;
+        showSlides();
+
+        function showSlides() {
+            var i;
+            var slides = document.getElementsByClassName("mySlides");
+            var dots = document.getElementsByClassName("dot");
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1 }
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            slides[slideIndex - 1].style.display = "block";
+            dots[slideIndex - 1].className += " active";
+            setTimeout(showSlides, 5000); // Change image every 2 seconds
+        }
+    </script>
+
+}

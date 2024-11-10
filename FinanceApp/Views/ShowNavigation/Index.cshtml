@@ -1,0 +1,76 @@
+﻿@model List<SystemTabModel>
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-bata box-shadow mb-3">
+    <div class="container">
+        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img src="~/images/logolandscape.png" width="100px" /></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row">
+
+            <ul class="navbar-nav flex-grow-1">
+                @*<li class="nav-item">
+                <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                </li>*@
+                @*<li class="nav-item">
+                <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </li>*@
+                @if (User.Identity.IsAuthenticated)
+                {
+                    @foreach (var fld in Model)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@fld.TAB_TXT</a>
+                            <div class="dropdown-menu">
+                                @foreach (var chld in fld.menuList)
+                                {
+                                    <a class="dropdown-item" href="@chld.MENU_LINK">@chld.MENU_TXT</a>
+                                }
+                                @*<a class="dropdown-item" asp-area="" asp-controller="ExportDataRD" asp-action="Index">Download Data RD</a>*@
+
+
+                            </div>
+                        </li>
+                    }
+
+                    @*@if (User.IsInRole("Admin"))
+                {
+
+                <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Reports</a>
+                <div class="dropdown-menu">
+                <a class="dropdown-item" asp-area="" asp-controller="ExportData" asp-action="Index">Download Data SS</a>
+                <a class="dropdown-item" asp-area="" asp-controller="ExportDataRD" asp-action="Index">Download Data RD</a>
+
+
+                </div>
+                </li>
+                <li class="nav-item text-bold">
+                <a class="nav-link text-light" asp-area="" asp-controller="XstoreEdit" asp-action="Index">Data Toko</a>
+                </li>
+                <li class="nav-item text-bold">
+
+                <a class="nav-link text-light" asp-area="" asp-controller="FormDataRD" asp-action="Index">Data RD</a>
+
+                </li>
+                <li class="nav-item text-bold">
+                <a class="nav-link text-light" asp-area="" asp-controller="CreateRole" asp-action="Index">Create Role</a>
+                </li>
+                <li class="nav-item text-bold">
+                <a class="nav-link text-light" asp-area="" asp-controller="TabPage" asp-action="Index">Tab Input</a>
+                </li>
+                <li class="nav-item text-bold">
+                <a class="nav-link text-light" asp-area="" asp-controller="MenuPage" asp-action="Index">Menu Input</a>
+                </li>
+
+                }*@
+
+                }
+            </ul>
+
+            @*Moved Loginpartial to correct menu order in collapsed view*@
+            <partial name="_LoginPartial" />
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,354 @@
+﻿@page
+@model BaseLineProject.Areas.Identity.RegisterCustomerModel
+@{
+    ViewData["Title"] = "Daftar";
+}
+
+@*<h1 class="display-4">@ViewData["Title"]</h1>*@
+<style>
+
+
+    #panel, #flip {
+        padding: 5px;
+        text-align: center;
+        background-color: #e5eecc;
+        border: solid 1px #c3c3c3;
+    }
+
+    #panel {
+        padding: 50px;
+        display: none;
+    }
+</style>
+<form asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-sm">
+            <h4>Daftar akun baru</h4>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Input.Email"></label>
+                <input asp-for="Input.Email" class="form-control" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Password"></label>
+                <input asp-for="Input.Password" class="form-control" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.ConfirmPassword"></label>
+                <input asp-for="Input.ConfirmPassword" class="form-control" />
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.CUST_NAME"></label>
+                <input asp-for="Input.CUST_NAME" class="form-control" />
+                <span asp-validation-for="Input.CUST_NAME" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <i>
+                    <label>- Password must have at least 1 unique character </label>
+                    <label>- Password must have at least 1 Upper case letter </label>
+                    <label>- Password must have at least 6 characters </label>
+                </i>
+
+
+            </div>
+        </div>
+        <div class="col-sm">
+            <h4 style="color:white">|</h4>
+            <hr />
+            <div class="form-group">
+                <label asp-for="Input.COMPANY"></label>
+                <input asp-for="Input.COMPANY" class="form-control" />
+                <span asp-validation-for="Input.COMPANY" class="text-danger"></span>
+            </div>
+            @*<div class="form-group">
+            <label asp-for="Input.KTP"></label>
+            <input asp-for="Input.KTP" class="form-control" />
+            <span asp-validation-for="Input.KTP" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+            <label asp-for="Input.NPWP"></label>
+            <input asp-for="Input.NPWP" class="form-control" />
+            <span asp-validation-for="Input.NPWP" class="text-danger"></span>
+            </div>*@
+            <div class="form-group">
+                <label asp-for="Input.PHONE1"></label>
+                <input asp-for="Input.PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                <span asp-validation-for="Input.PHONE1" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-sm">
+            <h4 style="color:white">|</h4>
+            <hr />
+            <div class="form-group">
+                <label asp-for="Input.Address"></label>
+                <textarea asp-for="Input.Address" class="form-control"></textarea>
+                <span asp-validation-for="Input.Address" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.City"></label>
+                <input asp-for="Input.City" class="form-control" />
+                <span asp-validation-for="Input.City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Province"></label>
+                <input asp-for="Input.Province" class="form-control" />
+                <span asp-validation-for="Input.Province" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Postal"></label>
+                <input asp-for="Input.Postal" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                <span asp-validation-for="Input.Postal" class="text-danger"></span>
+            </div>
+            @*<div class="form-group">
+            <label class="control-label">Area</label>
+            <br />
+            @Html.DropDownListFor(model => model.Input.store_area, new List<SelectListItem>
+            {
+            new SelectListItem{ Text="JAWA", Value = "JAWA" },
+            new SelectListItem{ Text="SUMATRA", Value = "SUMATRA" },
+            new SelectListItem{ Text="BALI-NUSATENGGARA", Value = "BALI-NUSATENGGARA" },
+            new SelectListItem{ Text="KASUPA", Value = "KASUPA" }
+
+            }, new { @class = "form-control" })
+            <span asp-validation-for="Input.store_area" class="text-danger"></span>
+            </div>*@
+        </div>
+    </div>
+    @*<div class="row">
+    <div class="col-sm">
+    <div class="form-group">
+    <div id="flip">Click to slide down panel</div>
+    <div id="panel">
+    <div class="container">
+    <div class="row">
+    <div class="col-sm">
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileKtp"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileKtp" />
+    <span asp-validation-for="Input.fileKtp" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileAkta"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileAkta" />
+    <span asp-validation-for="Input.fileAkta" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileRekening"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileRekening" />
+    <span asp-validation-for="Input.fileRekening" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    </div>
+    <div class="col-sm">
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileNPWP"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileNPWP" />
+    <span asp-validation-for="Input.fileNPWP" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileTdp"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileTdp" />
+    <span asp-validation-for="Input.fileTdp" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileSIUP"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileSIUP" />
+    <span asp-validation-for="Input.fileSIUP" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    </div>
+    <div class="col-sm">
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileNIB"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileNIB" />
+    <span asp-validation-for="Input.fileNIB" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileSPPKP"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileSPPKP" />
+    <span asp-validation-for="Input.fileSPPKP" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    <div class="row">
+    <div class="form-group">
+    <div class="row">
+    <div class="col-sm-2">
+    <div class="form-group">
+    <label asp-for="Input.fileSKT"></label>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+    <input type="file" asp-for="Input.fileSKT" />
+    <span asp-validation-for="Input.fileSKT" class="text-danger"></span>
+
+    </div>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    </div>*@
+    <button type="submit" class="btn btn-red">Daftar</button>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+         $(document).ready(function () {
+            //$("#flip").click(function () {
+            //    $("#panel").slideToggle();
+            //    //$("#panel").slideUp("slow");
+            //});
+
+
+
+        });
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+    </script>
+}

@@ -1,0 +1,28 @@
+﻿@model BaseLineProject.Models.dbCustomer
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<div>
+    <h4>Book Info</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            <label>Nama: </label> @Html.DisplayFor(model => model.CUST_NAME)
+        </dt>
+        <dt>
+            <label>Company: </label>@Html.DisplayFor(model => model.COMPANY)
+        </dt>
+        <dt>
+            <label>NPWP: </label>@Html.DisplayFor(model => model.NPWP)
+        </dt>
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="id" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-primary">Back to list</a>
+    </form>
+</div>

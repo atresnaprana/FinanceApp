@@ -1,0 +1,26 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityRole
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<div>
+    <h4>Data Info</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            <label>id: </label> @Html.DisplayFor(model => model.Id)
+        </dt>
+        <dt>
+            <label>Name: </label>@Html.DisplayFor(model => model.Name)
+        </dt>
+
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-primary">Back to list</a>
+    </form>
+</div>

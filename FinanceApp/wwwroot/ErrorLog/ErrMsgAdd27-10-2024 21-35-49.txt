@@ -1,0 +1,9 @@
+MailKit.Security.AuthenticationException: 535: 5.7.139 Authentication unsuccessful, basic authentication is disabled. [SG3P274CA0016.SGPP274.PROD.OUTLOOK.COM 2024-10-27T14:26:51.692Z 08DCF614E797D7C0]
+ ---> MailKit.Net.Smtp.SmtpCommandException: 5.7.139 Authentication unsuccessful, basic authentication is disabled. [SG3P274CA0016.SGPP274.PROD.OUTLOOK.COM 2024-10-27T14:26:51.692Z 08DCF614E797D7C0]
+   --- End of inner exception stack trace ---
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, Boolean doAsync, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.Authenticate(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at MailKit.MailService.Authenticate(Encoding encoding, String userName, String password, CancellationToken cancellationToken)
+   at MailKit.MailService.Authenticate(String userName, String password, CancellationToken cancellationToken)
+   at BaseLineProject.Services.MailService.SendVerifyEmailAsync(WelcomeRequest request) in C:\Users\a_tre\source\repos\BaseLineProject\BaseLineProject\Services\MailService.cs:line 133
+   at BaseLineProject.Areas.Identity.Pages.Account.RegisterModel.SendVerifyEmail(String Email, String callbackurl) in C:\Users\a_tre\source\repos\BaseLineProject\BaseLineProject\Areas\Identity\Pages\Account\Register.cshtml.cs:line 174
