@@ -169,6 +169,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbAccount>().Property(ug => ug.akundk).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbAccount>().Property(ug => ug.akunnrlr).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbAccount>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)").IsRequired(false);
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.account_Type).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbAccount>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbAccount>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
             modelBuilder.Entity<dbAccount>().Property(ug => ug.entry_date).HasColumnType("date");

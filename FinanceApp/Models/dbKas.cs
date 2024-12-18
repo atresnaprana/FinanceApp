@@ -39,5 +39,14 @@ namespace FinanceApp.Models
         public DateTime entry_date { get; set; }
         [NotMapped]
         public string errormessage { get; set; }
+        [NotMapped]
+        public List<dbAccount> dddbacc { get; set; }
+        [NotMapped]
+        public string akuntype { get; set; }
+
+        [NotMapped]
+        public string shorttransno { get; set; }
+        [NotMapped]
+        public int lasttransno { get; set; }
     }
 }

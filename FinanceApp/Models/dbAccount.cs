@@ -22,6 +22,8 @@ namespace FinanceApp.Models
         public string akundk { get; set; }
 
         public string akunnrlr { get; set; }
+        public string account_Type { get; set; }
+
 
         public string entry_user { get; set; }
         public string update_user { get; set; }
