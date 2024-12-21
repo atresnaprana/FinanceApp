@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<FinanceApp.Models.dbKas>
 @{
     ViewData["Title"] = "Data Kas";
-    var edpCode = ViewData["TransDateStr"];
+    var TransDateStr = ViewData["TransDateStr"];
 
     var isAdmin = User.IsInRole("SuperAdmin").ToString();
 }
@@ -105,7 +105,7 @@
                     @i
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => dt.TransDate)
+                    @Html.DisplayFor(modelItem => dt.TransDateStr)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => dt.Description)
@@ -122,15 +122,15 @@
 
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => dt.Debit)
+                    @Html.DisplayFor(modelItem => dt.DebitStr)
 
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => dt.Credit)
+                    @Html.DisplayFor(modelItem => dt.CreditStr)
 
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => dt.Saldo)
+                    @Html.DisplayFor(modelItem => dt.SaldoStr)
 
                 </td>
               
@@ -157,6 +157,10 @@
     <script>
         $(document).ready(function () {
             $('#IndexTbl').DataTable();
+            var stringdatevalue = '@TransDateStr'
+            if(stringdatevalue != ""){
+                $("#transdate").val(stringdatevalue);
+            }
 
         });
 
@@ -186,9 +190,9 @@
                             tr.append("<td>" + data[i].trans_no + "</td>");
                             tr.append("<td>" + data[i].akun_Debit + "</td>");
                             tr.append("<td>" + data[i].akun_Credit + "</td>");
-                            tr.append("<td>" + data[i].debit + "</td>");
-                            tr.append("<td>" + data[i].credit + "</td>");
-                            tr.append("<td>" + data[i].saldo + "</td>");
+                            tr.append("<td>" + data[i].debitStr + "</td>");
+                            tr.append("<td>" + data[i].creditStr + "</td>");
+                            tr.append("<td>" + data[i].saldoStr + "</td>");
 
                             //tr.append("<td>" + data[i].vaksiN2 + "</td>");
                             var isAdmin = '@isAdmin';

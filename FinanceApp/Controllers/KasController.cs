@@ -38,26 +38,34 @@ namespace FinanceApp.Controllers
                 .Select(c => c.Value);
             var data = new List<dbKas>();
             var transdatestr = HttpContext.Session.GetString(SessionKeyName);
-
-            //if (!string.IsNullOrEmpty(edpCode) && !string.IsNullOrEmpty(SSCode))
-            //{
-            //    data = db.SSTable.Where(y => y.FLAG_AKTIF == 1 && y.EDP_CODE == edpCode && y.SS_CODE == SSCode).ToList();
-            //    ViewData["EdpCode"] = edpCode;
-            //    ViewData["SSCode"] = SSCode;
-
-            //}
-            //else
-            //if (!string.IsNullOrEmpty(edpCode) && string.IsNullOrEmpty(SSCode))
-            //{
-            //    data = db.SSTable.Where(y => y.FLAG_AKTIF == 1 && y.EDP_CODE == edpCode).ToList();
-            //    ViewData["EdpCode"] = edpCode;
-            //    ViewData["SSCode"] = 0;
-            //}
-            //else
-            //{
-            //    ViewData["EdpCode"] = 0;
-            //    ViewData["SSCode"] = 0;
-            //}
+            if (!string.IsNullOrEmpty(transdatestr))
+            {
+                ViewData["TransDateStr"] = transdatestr;
+                List<dbKas> TblDt = new List<dbKas>();
+                TblDt = db.KastTbl.Where(y => y.flag_aktif == "1").ToList();
+                var tbldt2 = TblDt.Select(y => new dbKas()
+                {
+                    TransDate = y.TransDate,
+                    TransDateStr = y.TransDate.ToString("yyyy-MM-dd"),
+                    Description = y.Description,
+                    Trans_no = y.Trans_no,
+                    Akun_Debit = y.Akun_Debit,
+                    Akun_Credit = y.Akun_Credit,
+                    Debit = y.Debit,
+                    Credit = y.Credit,
+                    Saldo = y.Saldo,
+                    DebitStr = y.Debit.ToString("#,##0.00"),
+                    CreditStr = y.Credit.ToString("#,##0.00"),
+                    SaldoStr = y.Saldo.ToString("#,##0.00"),
+                    id = y.id
+                }).Where(y => y.TransDateStr == transdatestr).ToList();
+                data = tbldt2;
+            }
+            else
+            {
+                ViewData["TransDateStr"] = null;
+            }
+           
             return View(data);
         }
 
@@ -78,9 +86,12 @@ namespace FinanceApp.Controllers
                 Debit = y.Debit,
                 Credit = y.Credit,
                 Saldo = y.Saldo,
+                DebitStr = y.Debit.ToString("#,##0.00"),
+                CreditStr = y.Credit.ToString("#,##0.00"),
+                SaldoStr = y.Saldo.ToString("#,##0.00"),
                 id = y.id
             }).Where(y => y.TransDateStr == transdate).ToList();
-            return Json(TblDt);
+            return Json(tbldt2);
         }
         public JsonResult getTblEmpty()
         {
@@ -108,13 +119,14 @@ namespace FinanceApp.Controllers
             var number = "0001";
             var trans_nodata = existingsales.Select(y => new dbKas()
             {
+                Trans_no = y.Trans_no,
                 shorttransno = y.Trans_no.Substring(0, 8),
-                lasttransno = Convert.ToInt32(y.Trans_no.Substring(6, 4))
+                lasttransno = Convert.ToInt32(y.Trans_no.Substring(8, 4))
 
 
             }).ToList();
             
-            var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno == DateTime.Now.ToString("ddMMyy")).ToList();
+            var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno.Split("K_")[1] == DateTime.Now.ToString("ddMMyy")).ToList();
 
             if (checkinvoicecurrent.Count > 0)
             {
@@ -184,20 +196,30 @@ namespace FinanceApp.Controllers
             {
                 return NotFound();
             }
-            SystemMenuModel fld = db.MenuTbl.Find(id);
+            dbKas fld = db.KastTbl.Find(id);
             if (fld == null)
             {
                 return NotFound();
             }
             else
             {
-                List<SystemTabModel> tablist = new List<SystemTabModel>();
-                tablist = db.TabTbl.Where(y => y.FLAG_AKTIF == "1").ToList().Select(y => new SystemTabModel()
+                List<dbAccount> acclist = new List<dbAccount>();
+                acclist = db.AccountTbl.Where(y => y.flag_aktif == "1").ToList().Select(y => new dbAccount()
                 {
-                    ID = y.ID,
-                    TAB_DESC = y.TAB_TXT + " - " + y.TAB_DESC
+                    account_no = y.account_no,
+                    account_name = y.account_no.ToString() + " - " + y.account_name
                 }).ToList();
-                fld.ddTab = tablist;
+                fld.dddbacc = acclist;
+                if(fld.Akun_Credit != 0){
+                    fld.akuntype = "K";
+                }
+                if(fld.Akun_Debit != 0)
+                {
+                    fld.akuntype = "D";
+
+                }
+                ViewData["akuntype"] = fld.akuntype;
+
             }
             return View(fld);
         }

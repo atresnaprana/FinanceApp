@@ -48,5 +48,11 @@ namespace FinanceApp.Models
         public string shorttransno { get; set; }
         [NotMapped]
         public int lasttransno { get; set; }
+        [NotMapped]
+        public string DebitStr { get; set; }
+        [NotMapped]
+        public string CreditStr { get; set; }
+        [NotMapped]
+        public String SaldoStr { get; set; }
     }
 }
