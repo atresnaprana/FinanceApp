@@ -17,11 +17,13 @@ namespace FinanceApp.Models
         public DateTime TransDate { get; set; }
         public string Trans_no { get; set; }
         public string Description { get; set; }
-
+        [Required]
         public int Akun_Debit { get; set; }
+        [Required]
         public int Akun_Credit { get; set; }
-
+        [Required]
         public int Debit { get; set; }
+        [Required]
         public int Credit { get; set; }
         public int Saldo { get; set; }
 

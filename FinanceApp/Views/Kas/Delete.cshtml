@@ -1,0 +1,29 @@
+﻿@model FinanceApp.Models.dbKas
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete Kas</h1>
+
+<div>
+    <h4>Tab Info</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            <label>Trans No: </label> @Html.DisplayFor(model => model.Trans_no)
+        </dt>
+        <dt>
+            <label>Trans date: </label>@Html.DisplayFor(model => model.TransDate)
+        </dt>
+        <dt>
+            <label>Description: </label>@Html.DisplayFor(model => model.Description)
+        </dt>
+
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="id" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-primary">Back to list</a>
+    </form>
+</div>

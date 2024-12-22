@@ -1,6 +1,6 @@
-﻿@model IEnumerable<FinanceApp.Models.dbKas>
+﻿@model IEnumerable<FinanceApp.Models.dbJpb>
 @{
-    ViewData["Title"] = "Data Kas";
+    ViewData["Title"] = "Data Jurnal Pembelian";
     var TransDateStr = ViewData["TransDateStr"];
 
     var isAdmin = User.IsInRole("SuperAdmin").ToString();
@@ -38,7 +38,7 @@
 
 
 </style>
-<h1>Data Kas</h1>
+<h1>Data Jurnal Pembelian</h1>
 <br />
 <div class="container" id="bootstrap-overrides">
     <div class="row">
@@ -71,22 +71,24 @@
             <th>
                 Trans no
             </th>
-           
+
             <th>
                 Akun Debit
             </th>
             <th>
-               Akun Kredit
+                Akun Kredit
             </th>
             <th>
-               Debit 
+                Akun Debit Discount
             </th>
             <th>
-               Kredit
-
+                Akun Kredit Discount
             </th>
             <th>
-                Saldo
+               Nilai Pembelian
+            </th>
+            <th>
+                Potongan Pembelian
 
             </th>
             <th>
@@ -122,27 +124,27 @@
 
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => dt.DebitStr)
+                    @Html.DisplayFor(modelItem => dt.Akun_Debit_disc)
 
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => dt.CreditStr)
+                    @Html.DisplayFor(modelItem => dt.Akun_Credit_disc)
 
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => dt.SaldoStr)
+                    @Html.DisplayFor(modelItem => dt.ValueStr)
 
                 </td>
-              
+                <td>
+                    @Html.DisplayFor(modelItem => dt.ValueDiscStr)
+
+                </td>
                 <td>
                     <div>
                         <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
                         &nbsp;
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
+                        <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
 
-                        }
                     </div>
                 </td>
             </tr>
@@ -170,7 +172,7 @@
             if (value != null && value != "") {
 
                 $.ajax({
-                    url: '@Url.Action("getTbl", "Kas")',
+                    url: '@Url.Action("getTbl", "Jpb")',
                     type: "GET",
                     data: { transdate: value },
                     //startDate: mFromDate, endDate: mToDate1
@@ -190,20 +192,21 @@
                             tr.append("<td>" + data[i].trans_no + "</td>");
                             tr.append("<td>" + data[i].akun_Debit + "</td>");
                             tr.append("<td>" + data[i].akun_Credit + "</td>");
-                            tr.append("<td>" + data[i].debitStr + "</td>");
-                            tr.append("<td>" + data[i].creditStr + "</td>");
-                            tr.append("<td>" + data[i].saldoStr + "</td>");
+                            tr.append("<td>" + data[i].akun_Debit_disc + "</td>");
+                            tr.append("<td>" + data[i].akun_Credit_disc + "</td>");
+                            tr.append("<td>" + data[i].valueStr + "</td>");
+                            tr.append("<td>" + data[i].valueDiscStr + "</td>");
 
                             //tr.append("<td>" + data[i].vaksiN2 + "</td>");
                             var isAdmin = '@isAdmin';
                             debugger;
                             if (isAdmin == "True")
                             {
-                                tr.append('<td><a href="/Kas/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Kas/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
+                                tr.append('<td><a href="/Jpb/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Jpb/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
                             }
                             else
                             {
-                                tr.append('<td><a href="/Kas/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
+                                tr.append('<td><a href="/Jpb/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
                             }
                             //tr.append('<button type="button" asp-action="Edit" asp-route-id="' + data[i].id + '" class="btn btn-primary";">Delete</button>');
                             //tr.append("")
@@ -229,7 +232,7 @@
             $("#transdate").val(null);
             $("#tbodyid").empty();
               $.ajax({
-                    url: '@Url.Action("getTblEmpty", "Kas")',
+                    url: '@Url.Action("getTblEmpty", "Jpb")',
                     type: "GET",
                     //startDate: mFromDate, endDate: mToDate1
                     dataType: 'json',

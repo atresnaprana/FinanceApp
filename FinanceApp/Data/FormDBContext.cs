@@ -21,6 +21,10 @@ namespace BaseLineProject.Data
         public DbSet<dbAccount> AccountTbl { get; set; }
 
         public DbSet<dbKas> KastTbl { get; set; }
+        public DbSet<dbBank> BankTbl { get; set; }
+        public DbSet<dbJm> JmTbl { get; set; }
+        public DbSet<dbJpb> JpbTbl { get; set; }
+        public DbSet<dbJpn> JpnTbl { get; set; }
 
         public FormDBContext(DbContextOptions<FormDBContext> options) : base(options)
         {
@@ -41,6 +45,10 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbCustomer>().ToTable("dbCustomer");
             modelBuilder.Entity<dbAccount>().ToTable("dbAccount");
             modelBuilder.Entity<dbKas>().ToTable("dbKas");
+            modelBuilder.Entity<dbBank>().ToTable("dbBank");
+            modelBuilder.Entity<dbJm>().ToTable("dbJm");
+            modelBuilder.Entity<dbJpn>().ToTable("dbJpn");
+            modelBuilder.Entity<dbJpb>().ToTable("dbJpb");
 
 
 
@@ -194,6 +202,88 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbKas>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
             modelBuilder.Entity<dbKas>().Property(ug => ug.entry_date).HasColumnType("datetime");
             modelBuilder.Entity<dbKas>().Property(ug => ug.update_date).HasColumnType("datetime");
+
+            //dbbank model 
+            modelBuilder.Entity<dbBank>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbBank>().Property(ug => ug.TransDate).HasColumnType("date");
+            modelBuilder.Entity<dbBank>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbBank>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbBank>().Property(ug => ug.Akun_Debit).HasColumnType("int");
+            modelBuilder.Entity<dbBank>().Property(ug => ug.Akun_Credit).HasColumnType("int");
+            modelBuilder.Entity<dbBank>().Property(ug => ug.Debit).HasColumnType("int(20)");
+            modelBuilder.Entity<dbBank>().Property(ug => ug.Credit).HasColumnType("int(20)");
+            modelBuilder.Entity<dbBank>().Property(ug => ug.Saldo).HasColumnType("int(20)");
+            modelBuilder.Entity<dbBank>().Property(ug => ug.TransDateStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbBank>().Property(ug => ug.MonthStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbBank>().Property(ug => ug.YearStr).HasColumnType("varchar(50)").IsRequired(false);
+
+            modelBuilder.Entity<dbBank>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)").IsRequired(false);
+            modelBuilder.Entity<dbBank>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbBank>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
+            modelBuilder.Entity<dbBank>().Property(ug => ug.entry_date).HasColumnType("datetime");
+            modelBuilder.Entity<dbBank>().Property(ug => ug.update_date).HasColumnType("datetime");
+
+            //dbjm model 
+            modelBuilder.Entity<dbJm>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbJm>().Property(ug => ug.TransDate).HasColumnType("date");
+            modelBuilder.Entity<dbJm>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJm>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbJm>().Property(ug => ug.Akun_Debit).HasColumnType("int");
+            modelBuilder.Entity<dbJm>().Property(ug => ug.Akun_Credit).HasColumnType("int");
+            modelBuilder.Entity<dbJm>().Property(ug => ug.Debit).HasColumnType("int(20)");
+            modelBuilder.Entity<dbJm>().Property(ug => ug.Credit).HasColumnType("int(20)");
+            modelBuilder.Entity<dbJm>().Property(ug => ug.Saldo).HasColumnType("int(20)");
+            modelBuilder.Entity<dbJm>().Property(ug => ug.TransDateStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJm>().Property(ug => ug.MonthStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJm>().Property(ug => ug.YearStr).HasColumnType("varchar(50)").IsRequired(false);
+
+            modelBuilder.Entity<dbJm>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)").IsRequired(false);
+            modelBuilder.Entity<dbJm>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbJm>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
+            modelBuilder.Entity<dbJm>().Property(ug => ug.entry_date).HasColumnType("datetime");
+            modelBuilder.Entity<dbJm>().Property(ug => ug.update_date).HasColumnType("datetime");
+
+            //dbJpb model 
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.TransDate).HasColumnType("date");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Akun_Debit).HasColumnType("int");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Akun_Credit).HasColumnType("int");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Akun_Debit_disc).HasColumnType("int");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Akun_Credit_disc).HasColumnType("int");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Value).HasColumnType("int(20)");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Value_Disc).HasColumnType("int(20)");
+
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.TransDateStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.MonthStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.YearStr).HasColumnType("varchar(50)").IsRequired(false);
+
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)").IsRequired(false);
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.entry_date).HasColumnType("datetime");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.update_date).HasColumnType("datetime");
+
+            //dbJpn model 
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.TransDate).HasColumnType("date");
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.Akun_Debit).HasColumnType("int");
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.Akun_Credit).HasColumnType("int");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Akun_Debit_disc).HasColumnType("int");
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.Akun_Credit_disc).HasColumnType("int");
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.TransDateStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.MonthStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.YearStr).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.Value).HasColumnType("int(20)");
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.Value_Disc).HasColumnType("int(20)");
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)").IsRequired(false);
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.entry_date).HasColumnType("datetime");
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.update_date).HasColumnType("datetime");
 
             #endregion appmodel
 

@@ -9,6 +9,12 @@
   <ItemGroup>
     <Compile Remove="Data\Migrations\20241027083124_test.cs" />
     <Compile Remove="Data\Migrations\20241027083124_test.Designer.cs" />
+    <Compile Remove="Migrations\20241222081812_chktbl.cs" />
+    <Compile Remove="Migrations\20241222081812_chktbl.Designer.cs" />
+    <Compile Remove="Migrations\20241222094322_modtbl.cs" />
+    <Compile Remove="Migrations\20241222094322_modtbl.Designer.cs" />
+    <Compile Remove="Migrations\20241222095158_removecol.cs" />
+    <Compile Remove="Migrations\20241222095158_removecol.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

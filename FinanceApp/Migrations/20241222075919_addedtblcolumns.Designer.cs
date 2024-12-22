@@ -4,14 +4,16 @@ using BaseLineProject.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BaseLineProject.Migrations
 {
     [DbContext(typeof(FormDBContext))]
-    partial class FormDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241222075919_addedtblcolumns")]
+    partial class addedtblcolumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -509,20 +511,23 @@ namespace BaseLineProject.Migrations
                     b.Property<int>("Akun_Credit")
                         .HasColumnType("int");
 
-                    b.Property<int>("Akun_Credit_disc")
-                        .HasColumnType("int");
-
                     b.Property<int>("Akun_Debit")
                         .HasColumnType("int");
 
-                    b.Property<int>("Akun_Debit_disc")
-                        .HasColumnType("int");
+                    b.Property<int>("Credit")
+                        .HasColumnType("int(20)");
+
+                    b.Property<int>("Debit")
+                        .HasColumnType("int(20)");
 
                     b.Property<string>("Description")
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("MonthStr")
                         .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Saldo")
+                        .HasColumnType("int(20)");
 
                     b.Property<DateTime>("TransDate")
                         .HasColumnType("date");
@@ -532,12 +537,6 @@ namespace BaseLineProject.Migrations
 
                     b.Property<string>("Trans_no")
                         .HasColumnType("varchar(50)");
-
-                    b.Property<int>("Value")
-                        .HasColumnType("int(20)");
-
-                    b.Property<int>("Value_Disc")
-                        .HasColumnType("int(20)");
 
                     b.Property<string>("YearStr")
                         .HasColumnType("varchar(50)");
@@ -573,20 +572,23 @@ namespace BaseLineProject.Migrations
                     b.Property<int>("Akun_Credit")
                         .HasColumnType("int");
 
-                    b.Property<int>("Akun_Credit_disc")
-                        .HasColumnType("int");
-
                     b.Property<int>("Akun_Debit")
                         .HasColumnType("int");
 
-                    b.Property<int>("Akun_Debit_disc")
-                        .HasColumnType("int");
+                    b.Property<int>("Credit")
+                        .HasColumnType("int(20)");
+
+                    b.Property<int>("Debit")
+                        .HasColumnType("int(20)");
 
                     b.Property<string>("Description")
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("MonthStr")
                         .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Saldo")
+                        .HasColumnType("int(20)");
 
                     b.Property<DateTime>("TransDate")
                         .HasColumnType("date");
@@ -596,12 +598,6 @@ namespace BaseLineProject.Migrations
 
                     b.Property<string>("Trans_no")
                         .HasColumnType("varchar(50)");
-
-                    b.Property<int>("Value")
-                        .HasColumnType("int(20)");
-
-                    b.Property<int>("Value_Disc")
-                        .HasColumnType("int(20)");
 
                     b.Property<string>("YearStr")
                         .HasColumnType("varchar(50)");

@@ -10,23 +10,13 @@
         height: 20px;
     }
 </style>
-<h1>Edit Data</h1>
+<h1>Edit Data Kas</h1>
 <h3 class="display-5">Form Edit</h3>
 <hr />
 <form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
     <div class="container">
         <div class="row">
             <div class="col-sm">
-                <div class="form-group">
-                    <label class="control-label">Debit / Credit:</label>
-                    <br />
-                    @Html.DropDownListFor(model => model.akuntype, new List<SelectListItem>
-                    {
-                    new SelectListItem{ Text="Debit", Value = "D" },
-                    new SelectListItem{ Text="Kredit", Value = "K" },
-                    })
-                    <span asp-validation-for="akuntype" class="text-danger"></span>
-                </div>
 
                 <div class="form-group">
                     <label class="control-label">Tanggal Transaksi:</label>
@@ -76,7 +66,7 @@
                     <span asp-validation-for="Saldo" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <input type="button" value="Simpan data baru" onclick="alertfirst()" class="btn btn-red" />
+                    <input type="button" value="Ubah Data" onclick="alertfirst()" class="btn btn-red" />
                 </div>
             </div>
         </div>
@@ -109,58 +99,10 @@
                 dropdownAutoWidth: true,
                 width: 'auto'
             });
-            if (akuntypeori == "D") {
-                $('#Akun_Debit').prop('disabled', false);
-                $('#Akun_Credit').prop('disabled', true);
-                // $('#Akun_Debit').val($('#Akun_Debit option:first').val()).trigger('change');
-                $("#Akun_Credit").val(null);
-                $("#Akun_Credit").trigger('change');
-                $('#Credit').prop('readonly', true);
-                $('#Debit').prop('readonly', false);
-
-            } else {
-                $('#Akun_Credit').prop('disabled', false);
-                $('#Akun_Debit').prop('disabled', true);
-                // $('#Akun_Credit').val($('#Akun_Credit option:first').val()).trigger('change');
-                $("#Akun_Debit").val(null);
-                $("#Akun_Debit").trigger('change');
-                $('#Credit').prop('readonly', false);
-                $('#Debit').prop('readonly', true);
-
-            }
+            
        
 
-            $("#akuntype").select2({
-                placeholder: "Pilih Tipe Akun",
-                initSelection: function (element, callback) {
-                },
-                dropdownAutoWidth: true,
-                width: 'auto'
-            });
-            $('#akuntype').prop('disabled', true);
-
-            $("#akuntype").on('change', function () {
-                var akuntype = $("#akuntype").val();
-                if (akuntype == "D") {
-                    $('#Akun_Debit').prop('disabled', false);
-                    $('#Akun_Credit').prop('disabled', true);
-                    $('#Akun_Debit').val($('#Akun_Debit option:first').val()).trigger('change');
-                    $("#Akun_Credit").val(null);
-                    $("#Akun_Credit").trigger('change');
-                    $('#Credit').prop('readonly', true);
-                    $('#Debit').prop('readonly', false);
-
-                } else {
-                    $('#Akun_Credit').prop('disabled', false);
-                    $('#Akun_Debit').prop('disabled', true);
-                    $('#Akun_Credit').val($('#Akun_Credit option:first').val()).trigger('change');
-                    $("#Akun_Debit").val(null);
-                    $("#Akun_Debit").trigger('change');
-                    $('#Credit').prop('readonly', false);
-                    $('#Debit').prop('readonly', true);
-
-                }
-            });
+           
 
         });
 
