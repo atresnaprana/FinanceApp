@@ -1,0 +1,163 @@
+﻿@model FinanceApp.Models.dbJpn
+
+@{
+    ViewData["Title"] = "Input Data Baru";
+}
+<style>
+    input.largerCheckbox {
+        width: 20px;
+        height: 20px;
+    }
+</style>
+<h1>Input Data Jurnal Penjualan Baru</h1>
+<h3 class="display-5">Form Entry</h3>
+<hr />
+<form asp-action="Create" id="formcreate" enctype="multipart/form-data">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <div class="form-group">
+                    <label class="control-label">Tanggal Transaksi:</label>
+                    <input type="date" asp-for="TransDate" class="form-control" />
+                    <span asp-validation-for="TransDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Trans No:</label>
+                    <input asp-for="Trans_no" class="form-control" readonly />
+                    <span asp-validation-for="Trans_no" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description:</label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+
+            </div>
+            <div class="col-sm">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label class="control-label">Akun Debit :</label>
+                                <br />
+                                @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
+                                @Html.DropDownListFor(m => m.Akun_Debit, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
+                                <span asp-validation-for="Akun_Debit" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Akun Kredit :</label>
+                                <br />
+                                @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
+                                @Html.DropDownListFor(m => m.Akun_Credit, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
+                                <span asp-validation-for="Akun_Credit" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label class="control-label">Akun Debit Disc :</label>
+                                <br />
+                                @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
+                                @Html.DropDownListFor(m => m.Akun_Debit_disc, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
+                                <span asp-validation-for="Akun_Debit" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Akun Kredit Disc :</label>
+                                <br />
+                                @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
+                                @Html.DropDownListFor(m => m.Akun_Credit_disc, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
+                                <span asp-validation-for="Akun_Credit" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Value:</label>
+                    <input asp-for="Value" class="form-control" />
+                    <span asp-validation-for="Value" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Value Disc:</label>
+                    <input asp-for="Value_Disc" class="form-control" />
+                    <span asp-validation-for="Value_Disc" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="button" value="Simpan data baru" onclick="alertfirst()" class="btn btn-red" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div>
+    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $("#Akun_Debit").select2({
+                placeholder: "Pilih Akun",
+                initSelection: function (element, callback) {
+                },
+                dropdownAutoWidth: true,
+                width: 'auto'
+            });
+            $("#Akun_Debit").val(null);
+            $("#Akun_Debit").trigger('change');
+            $("#Akun_Credit").select2({
+                placeholder: "Pilih Akun",
+                initSelection: function (element, callback) {
+                },
+                dropdownAutoWidth: true,
+                width: 'auto'
+            });
+            $("#Akun_Credit").val(null);
+            $("#Akun_Credit").trigger('change');
+
+             $("#Akun_Debit_disc").select2({
+                placeholder: "Pilih Akun",
+                initSelection: function (element, callback) {
+                },
+                dropdownAutoWidth: true,
+                width: 'auto'
+            });
+            $("#Akun_Debit_disc").val(null);
+            $("#Akun_Debit_disc").trigger('change');
+
+            $("#Akun_Credit_disc").select2({
+                placeholder: "Pilih Akun",
+                initSelection: function (element, callback) {
+                },
+                dropdownAutoWidth: true,
+                width: 'auto'
+            });
+            $("#Akun_Credit_disc").val(null);
+            $("#Akun_Credit_disc").trigger('change');
+
+        });
+
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        function alertfirst() {
+
+            if (confirm("Are you sure saving data?")) {
+                $('#formcreate').submit();
+            } else {
+                return false;
+            }
+
+        }
+    </script>
+}
+
+
