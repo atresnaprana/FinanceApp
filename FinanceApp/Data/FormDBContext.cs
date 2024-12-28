@@ -232,7 +232,6 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbJm>().Property(ug => ug.Akun_Credit).HasColumnType("int");
             modelBuilder.Entity<dbJm>().Property(ug => ug.Debit).HasColumnType("int(20)");
             modelBuilder.Entity<dbJm>().Property(ug => ug.Credit).HasColumnType("int(20)");
-            modelBuilder.Entity<dbJm>().Property(ug => ug.Saldo).HasColumnType("int(20)");
             modelBuilder.Entity<dbJm>().Property(ug => ug.TransDateStr).HasColumnType("varchar(50)").IsRequired(false);
             modelBuilder.Entity<dbJm>().Property(ug => ug.MonthStr).HasColumnType("varchar(50)").IsRequired(false);
             modelBuilder.Entity<dbJm>().Property(ug => ug.YearStr).HasColumnType("varchar(50)").IsRequired(false);

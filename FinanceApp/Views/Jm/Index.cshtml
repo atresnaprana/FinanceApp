@@ -1,0 +1,239 @@
+﻿@model IEnumerable<FinanceApp.Models.dbJm>
+@{
+    ViewData["Title"] = "Data Jurnal Memorial";
+    var TransDateStr = ViewData["TransDateStr"];
+
+    var isAdmin = User.IsInRole("SuperAdmin").ToString();
+}
+
+<style>
+    #myPopup {
+        display: none;
+        position: absolute;
+        top: 50px;
+        right: 50%;
+        background-color: blue;
+        height: 100px;
+        width: 100px;
+    }
+
+    #myExit {
+        position: absolute;
+        right: 0px;
+        text-align: right;
+        color: white;
+        background-color: red;
+
+    }
+    .btn-primary2 {
+        color: #ffffff;
+        background-color: #000000;
+        border-color: #000000 !important
+    }
+    .btn-primary2:hover {
+        color: #fff;
+        background-color: #be0000;
+        border-color: #be0000 !important
+    }
+
+
+</style>
+<h1>Data Kas</h1>
+<br />
+<div class="container" id="bootstrap-overrides">
+    <div class="row">
+        <div class="col-sm align-self-end">
+            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
+        </div>
+        <div class="col-sm">
+            <label><b>Pilih Tanggal Transaksi: </b></label>
+            <br />
+            <input type="date" id="transdate" class="form-control" />
+            <br />
+            <br />
+            <input type="button" value="Cari Data" onclick="PopulateTable()" class="btn btn-dark" />
+            <input type="button" value="Reset" onclick="Clear()" class="btn btn-dark" />
+        </div>
+
+    </div>
+</div>
+<br />
+<table class="table table-striped" id="IndexTbl">
+    <thead>
+        <tr>
+            <th>id.</th>
+            <th>
+                TransDate
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Trans no
+            </th>
+
+            <th>
+                Akun Debit
+            </th>
+            <th>
+                Akun Kredit
+            </th>
+            <th>
+                Debit
+            </th>
+            <th>
+                Kredit
+
+            </th>
+            <th>
+                <label>Actions</label>
+            </th>
+        </tr>
+    </thead>
+    <tbody id="tbodyid">
+        @{
+            var i = 1;
+        }
+        @foreach (var dt in Model)
+        {
+            <tr>
+                <td>
+                    @i
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.TransDateStr)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.Trans_no)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.Akun_Debit)
+
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.Akun_Credit)
+
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.DebitStr)
+
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.CreditStr)
+
+                </td>
+            
+                <td>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
+                        &nbsp;
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
+
+                        }
+                    </div>
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('#IndexTbl').DataTable();
+            var stringdatevalue = '@TransDateStr'
+            if(stringdatevalue != ""){
+                $("#transdate").val(stringdatevalue);
+            }
+
+        });
+
+        function PopulateTable() {
+            $("#tbodyid").empty();
+            var value = $("#transdate").val();
+            if (value != null && value != "") {
+
+                $.ajax({
+                    url: '@Url.Action("getTbl", "Jm")',
+                    type: "GET",
+                    data: { transdate: value },
+                    //startDate: mFromDate, endDate: mToDate1
+                    dataType: 'json',
+                    success: function (data) {
+                        debugger;
+                        var tr;
+                        //Append each row to html table
+                        for (var i = 0; i < data.length; i++) {
+                            debugger;
+                            console.log(data[i]);
+                            var number = parseInt(i) + 1;
+                            tr = $('<tr/>');
+                            tr.append("<td>" + number + "</td>");
+                            tr.append("<td>" + data[i].transDateStr + "</td>");
+                            tr.append("<td>" + data[i].description + "</td>");
+                            tr.append("<td>" + data[i].trans_no + "</td>");
+                            tr.append("<td>" + data[i].akun_Debit + "</td>");
+                            tr.append("<td>" + data[i].akun_Credit + "</td>");
+                            tr.append("<td>" + data[i].debitStr + "</td>");
+                            tr.append("<td>" + data[i].creditStr + "</td>");
+
+                            //tr.append("<td>" + data[i].vaksiN2 + "</td>");
+                            var isAdmin = '@isAdmin';
+                            debugger;
+                            if (isAdmin == "True")
+                            {
+                                tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Jm/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
+                            }
+                            else
+                            {
+                                tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
+                            }
+                            //tr.append('<button type="button" asp-action="Edit" asp-route-id="' + data[i].id + '" class="btn btn-primary";">Delete</button>');
+                            //tr.append("")
+                            //tr.append("<a asp-action='Edit' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Edit</a>");
+                            //tr.append("<a asp-action='Delete' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Delete</a>");
+                            //tr.append("");
+
+                            $('#IndexTbl').append(tr);
+                           /* location.reload();*/
+                        }
+                    },
+                    error: function () {
+
+                    }
+
+                });
+            } else {
+                alert('Please fill EDP Code');
+            }
+
+        }
+        function Clear() {
+            $("#transdate").val(null);
+            $("#tbodyid").empty();
+              $.ajax({
+                url: '@Url.Action("getTblEmpty", "Jm")',
+                    type: "GET",
+                    //startDate: mFromDate, endDate: mToDate1
+                    dataType: 'json',
+                    success: function (data) {
+
+                    },
+                    error: function () {
+
+                    }
+
+                });
+
+        }
+    </script>
+}
+

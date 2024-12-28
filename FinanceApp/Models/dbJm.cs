@@ -20,7 +20,6 @@ namespace FinanceApp.Models
 
         public int Debit { get; set; }
         public int Credit { get; set; }
-        public int Saldo { get; set; }
 
         public string entry_user { get; set; }
         public string update_user { get; set; }

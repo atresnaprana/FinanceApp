@@ -1,0 +1,123 @@
+﻿@model FinanceApp.Models.dbJm
+
+@{
+    ViewData["Title"] = "Edit Data";
+    var akuntypedata = ViewData["akuntype"];
+}
+<style>
+    input.largerCheckbox {
+        width: 20px;
+        height: 20px;
+    }
+</style>
+<h1>Edit Data Jurnal Memorial</h1>
+<h3 class="display-5">Form Edit</h3>
+<hr />
+<form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+
+                <div class="form-group">
+                    <label class="control-label">Tanggal Transaksi:</label>
+                    <input type="date" asp-for="TransDate" class="form-control" />
+                    <span asp-validation-for="TransDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Trans No:</label>
+                    <input asp-for="Trans_no" class="form-control" readonly />
+                    <span asp-validation-for="Trans_no" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description:</label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+            </div>
+            <div class="col-sm">
+                <div class="form-group">
+                    <label class="control-label">Akun Debit :</label>
+                    <br />
+                    @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
+                    @Html.DropDownListFor(m => m.Akun_Debit, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
+                    <span asp-validation-for="Akun_Debit" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Akun Kredit :</label>
+                    <br />
+                    @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
+                    @Html.DropDownListFor(m => m.Akun_Credit, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
+                    <span asp-validation-for="Akun_Credit" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Debit:</label>
+                    <input asp-for="Debit" class="form-control" />
+                    <span asp-validation-for="Debit" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Credit:</label>
+                    <input asp-for="Credit" class="form-control" />
+                    <span asp-validation-for="Credit" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <input type="button" value="Ubah Data" onclick="alertfirst()" class="btn btn-red" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div>
+    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            var akuntypeori = '@akuntypedata';
+            $("#Akun_Debit").select2({
+                placeholder: "Pilih Akun",
+                initSelection: function (element, callback) {
+                },
+                dropdownAutoWidth: true,
+                width: 'auto'
+            });
+
+            $("#Akun_Credit").select2({
+                placeholder: "Pilih Akun",
+                initSelection: function (element, callback) {
+                },
+                dropdownAutoWidth: true,
+                width: 'auto'
+            });
+
+
+
+
+
+        });
+
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        function alertfirst() {
+
+            if (confirm("Are you sure saving data?")) {
+                $('#formcreate').submit();
+            } else {
+                return false;
+            }
+
+        }
+    </script>
+}
+
+
