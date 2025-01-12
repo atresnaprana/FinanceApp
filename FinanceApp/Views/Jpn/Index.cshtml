@@ -143,8 +143,8 @@
                     <div>
                         <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
                         &nbsp;
-                        <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
-
+@*                         <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
+ *@
                     </div>
                 </td>
             </tr>
@@ -202,7 +202,7 @@
                             debugger;
                             if (isAdmin == "True")
                             {
-                                tr.append('<td><a href="/Jpn/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Jpn/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
+                                // tr.append('<td><a href="/Jpn/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Jpn/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
                             }
                             else
                             {

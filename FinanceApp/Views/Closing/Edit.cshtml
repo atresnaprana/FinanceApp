@@ -1,0 +1,89 @@
+﻿@model FinanceApp.Models.dbClosing
+
+@{
+    ViewData["Title"] = "Edit Data";
+}
+<style>
+    input.largerCheckbox {
+        width: 20px;
+        height: 20px;
+    }
+</style>
+<h1>Edit Data</h1>
+<h3 class="display-5">Form Edit</h3>
+<hr />
+<form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <div class="form-group">
+                    <label class="control-label">Description:</label>
+                    <br />
+                    @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
+                    <input asp-for="description" class="form-control" />
+                    <span asp-validation-for="description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Periode:</label>
+                    <input asp-for="periode" class="form-control" />
+                    <span asp-validation-for="periode" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">year:</label>
+                    <input asp-for="year" class="form-control" />
+                    <span asp-validation-for="year" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">From: </label>
+                    <input type="date" asp-for="datefrom" class="form-control" />
+                    <span asp-validation-for="datefrom" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">To: </label>
+                    <input type="date" asp-for="dateto" class="form-control" />
+                    <span asp-validation-for="dateto" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">is closed: </label>
+                    <br />
+                    <input asp-for="isclosebool" class="largerCheckbox" />
+                    <span asp-validation-for="isclosebool" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="button" value="Simpan perubahan" onclick="alertfirst()" class="btn btn-red" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div>
+    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        function alertfirst() {
+
+            if (confirm("Are you sure saving data?")) {
+                $('#formcreate').submit();
+            } else {
+                return false;
+            }
+
+        }
+    </script>
+}
+
+

@@ -111,9 +111,9 @@ namespace FinanceApp.Controllers
             dbJm fld = new dbJm();
             fld.TransDate = DateTime.Now;
             fld.dddbacc = acclist.OrderBy(y => y.account_no).ToList();
-            var existingsales = db.KastTbl.ToList();
+            var existingsales = db.JmTbl.ToList();
             var number = "0001";
-            var trans_nodata = existingsales.Select(y => new dbKas()
+            var trans_nodata = existingsales.Select(y => new dbJm()
             {
                 Trans_no = y.Trans_no,
                 shorttransno = y.Trans_no.Substring(0, 9),
@@ -155,6 +155,44 @@ namespace FinanceApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                var transdate = obj.TransDate;
+
+
+                var existingsales = db.JmTbl.ToList();
+                var number = "0001";
+                var trans_nodata = existingsales.Select(y => new dbJm()
+                {
+                    Trans_no = y.Trans_no,
+                    shorttransno = y.Trans_no.Substring(0, 9),
+                    lasttransno = Convert.ToInt32(y.Trans_no.Substring(9, 4))
+
+
+                }).ToList();
+
+                var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno.Split("JM_")[1] == transdate.ToString("ddMMyy")).ToList();
+
+                if (checkinvoicecurrent.Count > 0)
+                {
+                    var chkinvnum = checkinvoicecurrent.Max(y => y.lasttransno) + 1;
+                    if (chkinvnum.ToString().Length == 1)
+                    {
+                        number = "000" + chkinvnum.ToString();
+                    }
+                    else if (chkinvnum.ToString().Length == 2)
+                    {
+                        number = "00" + chkinvnum.ToString();
+                    }
+                    else if (chkinvnum.ToString().Length == 3)
+                    {
+                        number = "0" + chkinvnum.ToString();
+                    }
+                    else if (chkinvnum.ToString().Length == 4)
+                    {
+                        number = chkinvnum.ToString();
+                    }
+                }
+                obj.Trans_no = "JM_" + transdate.ToString("ddMMyy") + number;
+
                 obj.entry_date = DateTime.Now;
                 obj.update_date = DateTime.Now;
                 obj.entry_user = User.Identity.Name;

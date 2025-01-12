@@ -25,6 +25,8 @@ namespace BaseLineProject.Data
         public DbSet<dbJm> JmTbl { get; set; }
         public DbSet<dbJpb> JpbTbl { get; set; }
         public DbSet<dbJpn> JpnTbl { get; set; }
+        public DbSet<dbClosing> ClosingTbl { get; set; }
+
 
         public FormDBContext(DbContextOptions<FormDBContext> options) : base(options)
         {
@@ -49,6 +51,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbJm>().ToTable("dbJm");
             modelBuilder.Entity<dbJpn>().ToTable("dbJpn");
             modelBuilder.Entity<dbJpb>().ToTable("dbJpb");
+            modelBuilder.Entity<dbClosing>().ToTable("dbClosing");
 
 
 
@@ -61,7 +64,11 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbCompanySeq>().HasKey(ug => ug.id).HasName("PK_Company_Seq");
             modelBuilder.Entity<dbCustomerSeq>().HasKey(ug => ug.id).HasName("PK_Cust_Seq");
             modelBuilder.Entity<dbAccount>().HasKey(ug => ug.id).HasName("PK_Account");
-            modelBuilder.Entity<dbAccount>().HasKey(ug => ug.id).HasName("PK_Kas");
+            modelBuilder.Entity<dbKas>().HasKey(ug => ug.id).HasName("PK_Kas");
+            modelBuilder.Entity<dbClosing>().HasKey(ug => ug.id).HasName("PK_Closing");
+            modelBuilder.Entity<dbJm>().HasKey(ug => ug.id).HasName("PK_JM");
+            modelBuilder.Entity<dbJpb>().HasKey(ug => ug.id).HasName("PK_JPB");
+            modelBuilder.Entity<dbJpn>().HasKey(ug => ug.id).HasName("PK_JPN");
 
             //modelBuilder.Entity<dbSalesDtl>().HasKey(ug => new { ug.store_id, ug.invoice, ug.transdate, ug.article }).HasName("PKSalesdtl");
 
@@ -283,6 +290,20 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbJpn>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
             modelBuilder.Entity<dbJpn>().Property(ug => ug.entry_date).HasColumnType("datetime");
             modelBuilder.Entity<dbJpn>().Property(ug => ug.update_date).HasColumnType("datetime");
+
+            //dbClosing model
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.description).HasColumnType("varchar(100)").IsRequired(false);
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.periode).HasColumnType("int");
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.year).HasColumnType("int");
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.datefrom).HasColumnType("datetime");
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.dateto).HasColumnType("datetime");
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.isclosed).HasColumnType("varchar(1)").IsRequired(false);
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.entry_date).HasColumnType("datetime");
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.update_date).HasColumnType("datetime");
+
 
             #endregion appmodel
 
