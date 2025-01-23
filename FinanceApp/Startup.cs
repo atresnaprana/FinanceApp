@@ -19,6 +19,7 @@ using System.IO;
 using BaseLineProject.Services;
 using DinkToPdf;
 using System.Text;
+using Rotativa.AspNetCore;
 
 namespace BaseLineProject
 {
@@ -105,6 +106,29 @@ namespace BaseLineProject
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+            // Configure Rotativa
+            var wkhtmltopdfPath = GetWkHtmlToPdfPath(env);
+            //if (!File.Exists(wkhtmltopdfPath))
+            //{
+            //    throw new FileNotFoundException($"wkhtmltopdf.exe was not found at {wkhtmltopdfPath}");
+            //}
+            RotativaConfiguration.Setup(wkhtmltopdfPath);
+        }
+        private string GetWkHtmlToPdfPath(IWebHostEnvironment env)
+        {
+            // Check if the platform is Windows or Linux
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                // Windows: Use the wkhtmltopdf.exe located in wwwroot/Rotativa
+                //var path = Path.Combine(env.WebRootPath, "Rotativa", "wkhtmltopdf.exe");
+                var path = env.WebRootPath;
+                return path;
+            }
+            else
+            {
+                // Linux: Use the wkhtmltopdf installed in the system
+                return "wkhtmltopdf"; // Assume it's in PATH for Linux
+            }
         }
     }
 }
