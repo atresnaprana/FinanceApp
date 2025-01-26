@@ -159,71 +159,88 @@ namespace FinanceApp.Controllers
         {
             if (ModelState.IsValid)
             {
-
-                var transdate = obj.TransDate;
-
-                var existingsales = db.JpbTbl.ToList();
-                var number = "0001";
-                var trans_nodata = existingsales.Select(y => new dbJpb()
+                var dataclosing = db.ClosingTbl.Where(y => y.datefrom <= obj.TransDate && y.dateto >= obj.TransDate && y.isclosed == "Y").ToList();
+                if(dataclosing.Count()== 0)
                 {
-                    Trans_no = y.Trans_no,
-                    shorttransno = y.Trans_no.Substring(0, 10),
-                    lasttransno = Convert.ToInt32(y.Trans_no.Substring(10, 4))
+                    var transdate = obj.TransDate;
+
+                    var existingsales = db.JpbTbl.ToList();
+                    var number = "0001";
+                    var trans_nodata = existingsales.Select(y => new dbJpb()
+                    {
+                        Trans_no = y.Trans_no,
+                        shorttransno = y.Trans_no.Substring(0, 10),
+                        lasttransno = Convert.ToInt32(y.Trans_no.Substring(10, 4))
 
 
-                }).ToList();
+                    }).ToList();
 
-                var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno.Split("JPB_")[1] == transdate.ToString("ddMMyy")).ToList();
+                    var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno.Split("JPB_")[1] == transdate.ToString("ddMMyy")).ToList();
 
-                if (checkinvoicecurrent.Count > 0)
-                {
-                    var chkinvnum = checkinvoicecurrent.Max(y => y.lasttransno) + 1;
-                    if (chkinvnum.ToString().Length == 1)
+                    if (checkinvoicecurrent.Count > 0)
                     {
-                        number = "000" + chkinvnum.ToString();
+                        var chkinvnum = checkinvoicecurrent.Max(y => y.lasttransno) + 1;
+                        if (chkinvnum.ToString().Length == 1)
+                        {
+                            number = "000" + chkinvnum.ToString();
+                        }
+                        else if (chkinvnum.ToString().Length == 2)
+                        {
+                            number = "00" + chkinvnum.ToString();
+                        }
+                        else if (chkinvnum.ToString().Length == 3)
+                        {
+                            number = "0" + chkinvnum.ToString();
+                        }
+                        else if (chkinvnum.ToString().Length == 4)
+                        {
+                            number = chkinvnum.ToString();
+                        }
                     }
-                    else if (chkinvnum.ToString().Length == 2)
+                    obj.Trans_no = "JPB_" + transdate.ToString("ddMMyy") + number;
+
+                    obj.entry_date = DateTime.Now;
+                    obj.update_date = DateTime.Now;
+                    obj.entry_user = User.Identity.Name;
+                    obj.update_user = User.Identity.Name;
+                    obj.flag_aktif = "1";
+                    try
                     {
-                        number = "00" + chkinvnum.ToString();
+
+                        db.JpbTbl.Add(obj);
+                        db.SaveChanges();
+
+
                     }
-                    else if (chkinvnum.ToString().Length == 3)
+                    catch (Exception ex)
                     {
-                        number = "0" + chkinvnum.ToString();
+                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                        if (!Directory.Exists(filePath))
+                        {
+                            Directory.CreateDirectory(filePath);
+                        }
+                        using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                        {
+                            outputFile.WriteLine(ex.ToString());
+                        }
                     }
-                    else if (chkinvnum.ToString().Length == 4)
-                    {
-                        number = chkinvnum.ToString();
-                    }
+                    //apprDal.AddApproval(objApproval);
+                    return RedirectToAction("Index");
                 }
-                obj .Trans_no = "JPB_" + transdate.ToString("ddMMyy") + number;
-
-                obj.entry_date = DateTime.Now;
-                obj.update_date = DateTime.Now;
-                obj.entry_user = User.Identity.Name;
-                obj.update_user = User.Identity.Name;
-                obj.flag_aktif = "1";
-                try
+                else
                 {
-
-                    db.JpbTbl.Add(obj);
-                    db.SaveChanges();
-
-
-                }
-                catch (Exception ex)
-                {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
-                    if (!Directory.Exists(filePath))
+                    obj.errormessage = "Periode sudah di closing";
+                    List<dbAccount> acclist = new List<dbAccount>();
+                    acclist = db.AccountTbl.Where(y => y.flag_aktif == "1").ToList().Select(y => new dbAccount()
                     {
-                        Directory.CreateDirectory(filePath);
-                    }
-                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
-                    {
-                        outputFile.WriteLine(ex.ToString());
-                    }
+                        account_no = y.account_no,
+                        account_name = y.account_no.ToString() + " - " + y.account_name
+                    }).ToList();
+                    obj.dddbacc = acclist.OrderBy(y => y.account_no).ToList();
+                  
+                    return View(obj);
                 }
-                //apprDal.AddApproval(objApproval);
-                return RedirectToAction("Index");
+                
             }
             return View(obj);
         }

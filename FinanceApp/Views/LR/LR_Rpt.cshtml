@@ -1,6 +1,101 @@
-﻿@{
+﻿@model FinanceApp.Models.LRModel
+
+@{
     ViewData["Title"] = "PDF Example";
 }
+<style>
+    table, th, td {
+      border: 1px solid black;
+    }
+</style>
+<center>
+    <h1>Report Laba Rugi</h1>
+    <br />
+    <h3>Tahun @Model.year</h3>
+    <br />
+    @if (!Model.isYearly)
+    {
+        <h3>Periode: @Model.month</h3>
+        <br />
+    }
+    <table>
+        <tr>
+            <th>Account No</th>
+            <th>Description</th>
+            <th>Value</th>
+            <th>Total</th>
 
-<h1>@ViewData["Title"]</h1>
-<p>This is a sample PDF generated using Rotativa in ASP.NET Core 3.1.</p>
+        </tr>
+        @{
+            string previousFirstDigit = null; // Track the previous first digit
+        }
+        @foreach (var dt in Model.ReportModel)
+        {
+            // Extract the first digit of the current akun value
+            string currentFirstDigit = dt.akun.Substring(0, 1);
+
+            // Check if the first digit has changed
+            if (previousFirstDigit != currentFirstDigit && previousFirstDigit != null)
+            {
+                // Create an additional HTML element when the first digit changes
+                <tr class="first-digit-change">
+                    <td></td>
+                    <td>Sub total</td>
+                    <td></td>
+                    @{
+                        var subtotal = Model.ReportModel.Where(y => y.akun.Substring(0, 1) == previousFirstDigit).Sum(y => y.totalint);
+                    }
+                    <td>@subtotal.ToString("#,##0.00;(#,##0.00)")</td>
+                </tr>
+                if (previousFirstDigit == "5")
+                {
+                    string[] codearr = new string[] { "4", "5" };
+                    var subtotal2 = Model.ReportModel.Where(y => codearr.Contains(y.akun.Substring(0, 1))).Sum(y => y.totalint);
+                    <tr class="first-digit-change">
+                        <td></td>
+                        <td>HPP </td>
+                        <td></td>
+
+                        <td>@subtotal2.ToString("#,##0.00;(#,##0.00)")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>@dt.akun </td>
+                    <td>@dt.description</td>
+                    @if (dt.total != "(0,00)")
+                    {
+                        <td>@dt.total</td>
+
+                    }
+                    else
+                    {
+                        <td></td>
+
+                    }
+                    <td></td>
+                </tr>
+            }
+           
+            previousFirstDigit = currentFirstDigit;
+
+        }
+        <tr class="first-digit-change">
+            <td></td>
+            <td>Laba Bersih Usaha</td>
+            <td></td>
+            @{
+                var subtotal3 = Model.ReportModel.Sum(y => y.totalint);
+            }
+            <td>@subtotal3.ToString("#,##0.00")</td>
+        </tr>
+
+    </table>
+</center>
+
+<br />
+<br />
+<p>Generated on @DateTime.Now</p>
+

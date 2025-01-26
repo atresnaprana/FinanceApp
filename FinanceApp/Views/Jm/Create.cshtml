@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Input Data Baru";
+    var msg = Model.errormessage;
+
 }
 <style>
     input.largerCheckbox {
@@ -94,7 +96,10 @@
             });
             $("#Akun_Credit").val(null);
             $("#Akun_Credit").trigger('change');
-
+            var msg = '@msg';
+            if (msg != "") {
+                alert(msg);
+            }
 
         });
 

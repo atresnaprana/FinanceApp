@@ -19,9 +19,9 @@ namespace FinanceApp.Models
         [Required]
         public int Akun_Credit { get; set; }
 
-        public int Akun_Debit_disc { get; set; }
+        public int? Akun_Debit_disc { get; set; }
 
-        public int Akun_Credit_disc { get; set; }
+        public int? Akun_Credit_disc { get; set; }
         [Required]
 
         public int Value { get; set; }

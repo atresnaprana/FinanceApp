@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Input Data Baru";
+    var msg = Model.errormessage;
+
 }
 <style>
     input.largerCheckbox {
@@ -59,14 +61,14 @@
                                 <br />
                                 @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
                                 @Html.DropDownListFor(m => m.Akun_Debit_disc, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
-                                <span asp-validation-for="Akun_Debit" class="text-danger"></span>
+                                <span asp-validation-for="Akun_Debit_disc" class="text-danger"></span>
                             </div>
                             <div class="form-group">
                                 <label class="control-label">Akun Kredit Disc :</label>
                                 <br />
                                 @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
                                 @Html.DropDownListFor(m => m.Akun_Credit_disc, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
-                                <span asp-validation-for="Akun_Credit" class="text-danger"></span>
+                                <span asp-validation-for="Akun_Credit_disc" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -139,6 +141,10 @@
             });
             $("#Akun_Credit_disc").val(null);
             $("#Akun_Credit_disc").trigger('change');
+            var msg = '@msg';
+            if (msg != "") {
+                alert(msg);
+            }
 
         });
 

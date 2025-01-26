@@ -50,5 +50,6 @@ namespace FinanceApp.Models
         public string CreditStr { get; set; }
         [NotMapped]
         public String SaldoStr { get; set; }
+      
     }
 }

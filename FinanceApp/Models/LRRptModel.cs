@@ -10,6 +10,7 @@ namespace FinanceApp.Models
         public string debit { get; set; }
         public string credit { get; set; }
         public string total { get; set; }
+        public decimal totalint { get; set; }
 
 
     }

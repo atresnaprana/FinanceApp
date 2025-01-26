@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Input Data Baru";
+    var msg = ViewBag.Message;
 }
 <style>
     input.largerCheckbox {
@@ -48,7 +49,7 @@
                     <span asp-validation-for="isYearly" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <input type="button" value="Download Report" class="btn btn-red" />
+                    <input type="button" value="Download Report" onclick="alertfirst()" class="btn btn-red" />
                 </div>
 
             </div>
@@ -66,7 +67,10 @@
     }
     <script>
         $(document).ready(function () {
-            
+            var msg = '@msg';
+            if(msg != "" ){
+                alert(msg);
+            }
 
         });
 
