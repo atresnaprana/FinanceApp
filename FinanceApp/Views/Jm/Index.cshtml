@@ -127,15 +127,7 @@
                 </td>
             
                 <td>
-                    <div>
-                        <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
-                        &nbsp;
-                        @if (User.IsInRole("Admin"))
-                        {
-@*                             <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
- *@
-                        }
-                    </div>
+                   
                 </td>
             </tr>
             i++;
@@ -190,11 +182,15 @@
                             debugger;
                             if (isAdmin == "True")
                             {
+                                tr.append("<td></td>");
+
                                 // tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Jm/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
                             }
                             else
                             {
-                                tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
+                                tr.append("<td></td>");
+                                // tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
+
                             }
                             //tr.append('<button type="button" asp-action="Edit" asp-route-id="' + data[i].id + '" class="btn btn-primary";">Delete</button>');
                             //tr.append("")

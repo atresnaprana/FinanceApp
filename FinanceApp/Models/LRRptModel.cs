@@ -11,6 +11,7 @@ namespace FinanceApp.Models
         public string credit { get; set; }
         public string total { get; set; }
         public decimal totalint { get; set; }
+        public string akundk { get; set; }
 
 
     }

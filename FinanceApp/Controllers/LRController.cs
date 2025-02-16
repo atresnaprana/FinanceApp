@@ -96,6 +96,7 @@ namespace FinanceApp.Controllers
                         LRRptModel fld = new LRRptModel();
                         fld.akun = dt.account_no.ToString();
                         fld.description = dt.account_name;
+                        fld.akundk = dt.akundk;
                         if (dt.akundk == "K")
                         {
                             var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
@@ -162,6 +163,8 @@ namespace FinanceApp.Controllers
                         LRRptModel fld = new LRRptModel();
                         fld.akun = dt.account_no.ToString();
                         fld.description = dt.account_name;
+                        fld.akundk = dt.akundk;
+
                         if (dt.akundk == "K")
                         {
                             var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
@@ -219,7 +222,6 @@ namespace FinanceApp.Controllers
 
         }
 
-       
         private byte[] GeneratePdfV2(LRModel obj)
         {
             using var stream = new MemoryStream();
@@ -227,52 +229,51 @@ namespace FinanceApp.Controllers
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4); // Change from A2 to A4 for better scaling
-                    page.Margin(20);
+                    page.Size(PageSizes.A4);
+                    page.Margin(10); // Reduced margin
 
                     page.Header().Column(col =>
                     {
                         col.Item().Text("Report Laba Rugi")
                             .Bold()
-                            .FontSize(15)
+                            .FontSize(12) // Reduced font size
                             .AlignCenter();
-                        col.Item().Text("Tahun: " + obj.year)
-                            .FontSize(10)
+                        col.Item().Text($"Tahun: {obj.year}")
+                            .FontSize(8)
                             .AlignCenter();
 
                         if (!obj.isYearly)
                         {
-                            col.Item().Text("Periode: " + obj.month)
-                                .FontSize(10)
+                            col.Item().Text($"Periode: {obj.month}")
+                                .FontSize(8)
                                 .AlignCenter();
                         }
 
-                        col.Item().Text("Generated on: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
-                            .FontSize(10)
+                        col.Item().Text($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}")
+                            .FontSize(8)
                             .AlignCenter();
                         col.Item().Text("Company XYZ - Financial Report")
-                            .FontSize(10)
+                            .FontSize(8)
                             .AlignCenter();
                     });
-
+                   
                     page.Content().Table(table =>
                     {
-                        // Define Columns (Adjusted for better fit)
+                        // Adjusted column widths
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.RelativeColumn(1); // Account No
-                            columns.RelativeColumn(3); // Description
-                            columns.RelativeColumn(2); // Value
-                            columns.RelativeColumn(2); // Total
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(1.5f); // Reduced Value column width
+                            columns.RelativeColumn(1.5f); // Reduced Total column width
                         });
 
-                        // Table Header
                         table.Header(header =>
                         {
-                            header.Cell().Border(1).Padding(5).Text("Account No").Bold().FontSize(10);
-                            header.Cell().Border(1).Padding(5).Text("Description").Bold().FontSize(10);
-                            header.Cell().Border(1).Padding(5).Text("Value").Bold().FontSize(10);
-                            header.Cell().Border(1).Padding(5).Text("Total").Bold().FontSize(10);
+                            header.Cell().Border(1).Padding(2).Text("Account No").Bold().FontSize(8);
+                            header.Cell().Border(1).Padding(2).Text("Description").Bold().FontSize(8);
+                            header.Cell().Border(1).Padding(2).Text("Value").Bold().FontSize(8);
+                            header.Cell().Border(1).Padding(2).Text("Total").Bold().FontSize(8);
                         });
 
                         string previousFirstDigit = null;
@@ -286,115 +287,123 @@ namespace FinanceApp.Controllers
                             {
                                 var subtotal = obj.ReportModel.Where(y => y.akun.StartsWith(previousFirstDigit)).Sum(y => y.totalint);
 
-                                table.Cell().Border(1).Padding(5).Text("").FontSize(8);
-                                table.Cell().Border(1).Padding(5).Text("Sub Total").FontSize(8).Bold();
-                                table.Cell().Border(1).Padding(5).Text("").FontSize(8);
-                                table.Cell().Border(1).Padding(5).Text(subtotal.ToString("#,##0.00;(#,##0.00)")).FontSize(8);
+                                table.Cell().Border(1).Padding(2).Text("").FontSize(7);
+                                table.Cell().Border(1).Padding(2).Text("Sub Total").FontSize(7).Bold();
+                                table.Cell().Border(1).Padding(2).Text("").FontSize(7);
+                                table.Cell().Border(1).Padding(2).Text(subtotal.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
 
                                 if (previousFirstDigit == "5")
                                 {
                                     string[] codearr = { "4", "5" };
                                     var subtotal2 = obj.ReportModel.Where(y => codearr.Contains(y.akun.Substring(0, 1))).Sum(y => y.totalint);
 
-                                    table.Cell().Border(1).Padding(5).Text("").FontSize(8);
-                                    table.Cell().Border(1).Padding(5).Text("HPP").FontSize(8).Bold();
-                                    table.Cell().Border(1).Padding(5).Text("").FontSize(8);
-                                    table.Cell().Border(1).Padding(5).Text(subtotal2.ToString("#,##0.00;(#,##0.00)")).FontSize(8);
+                                    table.Cell().Border(1).Padding(2).Text("").FontSize(7);
+                                    table.Cell().Border(1).Padding(2).Text("HPP").FontSize(7).Bold();
+                                    table.Cell().Border(1).Padding(2).Text("").FontSize(7);
+                                    table.Cell().Border(1).Padding(2).Text(subtotal2.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
                                 }
                             }
 
-                            // Data row
-                            table.Cell().Border(1).Padding(5).Text(dt.akun).FontSize(8);
-                            table.Cell().Border(1).Padding(5).Text(dt.description).FontSize(8);
-                            table.Cell().Border(1).Padding(5).Text(dt.total != "(0,00)" ? dt.total : "").FontSize(8);
-                            table.Cell().Border(1).Padding(5).Text("").FontSize(8);
+                            table.Cell().Border(1).Padding(2).Text(dt.akun).FontSize(7);
+                            table.Cell().Border(1).Padding(2).Text(dt.description).FontSize(7);
+                            table.Cell().Border(1).Padding(2).Text(dt.akundk != "-" ? dt.total : "").FontSize(7).AlignRight();
+                            table.Cell().Border(1).Padding(2).Text("").FontSize(7);
 
                             previousFirstDigit = currentFirstDigit;
                         }
 
-                        // Final Total Row
                         var subtotal3 = obj.ReportModel.Sum(y => y.totalint);
-                        table.Cell().Border(1).Padding(5).Text("").FontSize(8);
-                        table.Cell().Border(1).Padding(5).Text("Laba Bersih Usaha").FontSize(8).Bold();
-                        table.Cell().Border(1).Padding(5).Text("").FontSize(8);
-                        table.Cell().Border(1).Padding(5).Text(subtotal3.ToString("#,##0.00;(#,##0.00)")).FontSize(8);
+                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
+                        table.Cell().Border(1).Padding(2).Text("Laba Bersih Usaha").FontSize(7).Bold();
+                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
+                        table.Cell().Border(1).Padding(2).Text(subtotal3.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
                     });
 
                     page.Footer()
                         .AlignCenter()
-                        .Text("Generated using QuestPDF").FontSize(8);
+                        .Text("Generated using QuestPDF").FontSize(7); // Smaller footer font
                 });
             }).GeneratePdf(stream);
 
             return stream.ToArray();
         }
 
+       
 
 
         public IActionResult DownloadTablePdf()
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
-            byte[] pdfBytes = GenerateTablePdf();
+            byte[] pdfBytes = GenerateTrialBalancePdf();
 
             return File(pdfBytes, "application/pdf", "table.pdf");
         }
 
-        private byte[] GenerateTablePdf()
+        private byte[] GenerateTrialBalancePdf()
         {
             using var stream = new MemoryStream();
             Document.Create(container =>
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
-                    page.Margin(30);
+                    page.Size(PageSizes.A4.Landscape()); // Set to Landscape
+                    page.Margin(10); // Reduced margin
                     page.Header().Column(col =>
                     {
-                        col.Item().Text("Report Laba Rugi")
+                        col.Item().Text("Trial Balance Report")
                             .Bold()
-                            .FontSize(15)
+                            .FontSize(12) // Reduced font size
                             .AlignCenter();
 
-                        col.Item().Text("Generated on: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
-                            .FontSize(10)
+                        col.Item().Text("Generated on: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm"))
+                            .FontSize(8)
                             .AlignCenter();
 
                         col.Item().Text("Company XYZ - Financial Report")
-                            .FontSize(10)
+                            .FontSize(8)
                             .AlignCenter();
                     });
 
                     page.Content().Table(table =>
                     {
-                        // Define Columns
+                        // Define Columns for Side-by-Side Format
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.ConstantColumn(50);  // ID column
-                            columns.RelativeColumn();   // Name column
-                            columns.RelativeColumn();   // Role column
+                            columns.RelativeColumn(1);  // ID column (left)
+                            columns.RelativeColumn(3);  // Account Name (left)
+                            columns.RelativeColumn(1.5f);  // Debit (left)
+                            columns.RelativeColumn(1);  // ID column (right)
+                            columns.RelativeColumn(3);  // Account Name (right)
+                            columns.RelativeColumn(1.5f);  // Credit (right)
                         });
 
                         // Header Row
                         table.Header(header =>
                         {
-                            header.Cell().Border(1).Padding(5).Text("ID").Bold();
-                            header.Cell().Border(1).Padding(5).Text("Name").Bold();
-                            header.Cell().Border(1).Padding(5).Text("Role").Bold();
+                            header.Cell().Border(1).Padding(2).Text("ID").Bold().FontSize(8);
+                            header.Cell().Border(1).Padding(2).Text("Account Name").Bold().FontSize(8);
+                            header.Cell().Border(1).Padding(2).Text("Debit").Bold().FontSize(8);
+                            header.Cell().Border(1).Padding(2).Text("ID").Bold().FontSize(8);
+                            header.Cell().Border(1).Padding(2).Text("Account Name").Bold().FontSize(8);
+                            header.Cell().Border(1).Padding(2).Text("Credit").Bold().FontSize(8);
                         });
-
-                        // Data Rows
+                        // Sample Data Rows - Side by Side
                         for (int i = 1; i <= 5; i++)
                         {
-                            table.Cell().Border(1).Padding(5).Text(i.ToString());
-                            table.Cell().Border(1).Padding(5).Text($"User {i}");
-                            table.Cell().Border(1).Padding(5).Text("Developer");
+                            table.Cell().Border(1).Padding(2).Text(i.ToString()).FontSize(7);
+                            table.Cell().Border(1).Padding(2).Text($"Account {i}").FontSize(7);
+                            table.Cell().Border(1).Padding(2).Text((i * 1000).ToString("C2")).FontSize(7).AlignRight(); // Debit Value
+
+                            table.Cell().Border(1).Padding(2).Text((i + 5).ToString()).FontSize(7);
+                            table.Cell().Border(1).Padding(2).Text($"Account {i + 5}").FontSize(7);
+                            table.Cell().Border(1).Padding(2).Text((i % 2 == 0 ? (i * 800).ToString("C2") : "-")).FontSize(7).AlignRight(); // Credit Value
                         }
                     });
 
                     page.Footer()
                         .AlignCenter()
-                        .Text("Generated using QuestPDF");
+                        .Text("Generated using QuestPDF").FontSize(7); // Smaller footer font
                 });
             }).GeneratePdf(stream);
 
