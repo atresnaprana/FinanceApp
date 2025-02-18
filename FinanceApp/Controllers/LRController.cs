@@ -52,6 +52,11 @@ namespace FinanceApp.Controllers
             ViewBag.Message = message;
             return View();
         }
+        public IActionResult GeneratePreview(string message)
+        {
+            ViewBag.Message = message;
+            return View();
+        }
         public IActionResult LR_Rpt(LRModel datas)
         {
             // Pass any necessary data to the view via the ViewData or ViewBag
@@ -88,6 +93,7 @@ namespace FinanceApp.Controllers
                     obj.jpndata = datajpn;
                     obj.jmdata = datajm;
                     obj.closingdata = dataclosing;
+                    obj.ispreview = false;
 
                     List<LRRptModel> rptdata = new List<LRRptModel>();
                     
@@ -155,6 +161,7 @@ namespace FinanceApp.Controllers
                     obj.jpndata = datajpn;
                     obj.jmdata = datajm;
                     obj.closingdata = dataclosing;
+                    obj.ispreview = false;
 
                     List<LRRptModel> rptdata = new List<LRRptModel>();
 
@@ -234,10 +241,21 @@ namespace FinanceApp.Controllers
 
                     page.Header().Column(col =>
                     {
-                        col.Item().Text("Report Laba Rugi")
-                            .Bold()
-                            .FontSize(12) // Reduced font size
-                            .AlignCenter();
+                        if(obj.ispreview == true)
+                        {
+                            col.Item().Text("Report Laba Rugi (PREVIEW)")
+                           .Bold()
+                           .FontSize(12) // Reduced font size
+                           .AlignCenter();
+                        }
+                        else
+                        {
+                            col.Item().Text("Report Laba Rugi")
+                           .Bold()
+                           .FontSize(12) // Reduced font size
+                           .AlignCenter();
+                        }
+                       
                         col.Item().Text($"Tahun: {obj.year}")
                             .FontSize(8)
                             .AlignCenter();
@@ -328,87 +346,141 @@ namespace FinanceApp.Controllers
             return stream.ToArray();
         }
 
-       
 
-
-        public IActionResult DownloadTablePdf()
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GeneratePreview([Bind] LRModel obj)
         {
+            var year = obj.year;
+            var month = obj.month;
+            var isyearly = obj.isYearly;
+            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode == month && y.isclosed == "Y").ToList();
             QuestPDF.Settings.License = LicenseType.Community;
+            QuestPDF.Settings.EnableDebugging = true;
 
-            byte[] pdfBytes = GenerateTrialBalancePdf();
+            // Render the "Index" view as a PDF
 
-            return File(pdfBytes, "application/pdf", "table.pdf");
-        }
-
-        private byte[] GenerateTrialBalancePdf()
-        {
-            using var stream = new MemoryStream();
-            Document.Create(container =>
+            if (isyearly)
             {
-                container.Page(page =>
+                var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000).ToList();
+                var datajpb = db.JpbTbl.Where(y => y.TransDate.Year == year).ToList();
+                var datajpn = db.JpnTbl.Where(y => y.TransDate.Year == year).ToList();
+                var datajm = db.JmTbl.Where(y => y.TransDate.Year == year).ToList();
+                obj.akundata = dataacc;
+                obj.jpbdata = datajpb;
+                obj.jpndata = datajpn;
+                obj.jmdata = datajm;
+                obj.closingdata = dataclosing;
+
+                List<LRRptModel> rptdata = new List<LRRptModel>();
+
+                foreach (var dt in dataacc)
                 {
-                    page.Size(PageSizes.A4.Landscape()); // Set to Landscape
-                    page.Margin(10); // Reduced margin
-                    page.Header().Column(col =>
+                    LRRptModel fld = new LRRptModel();
+                    fld.akun = dt.account_no.ToString();
+                    fld.description = dt.account_name;
+                    fld.akundk = dt.akundk;
+                    if (dt.akundk == "K")
                     {
-                        col.Item().Text("Trial Balance Report")
-                            .Bold()
-                            .FontSize(12) // Reduced font size
-                            .AlignCenter();
+                        var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Credit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
+                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
 
-                        col.Item().Text("Generated on: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm"))
-                            .FontSize(8)
-                            .AlignCenter();
 
-                        col.Item().Text("Company XYZ - Financial Report")
-                            .FontSize(8)
-                            .AlignCenter();
-                    });
+                    }
+                    else
 
-                    page.Content().Table(table =>
                     {
-                        // Define Columns for Side-by-Side Format
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.RelativeColumn(1);  // ID column (left)
-                            columns.RelativeColumn(3);  // Account Name (left)
-                            columns.RelativeColumn(1.5f);  // Debit (left)
-                            columns.RelativeColumn(1);  // ID column (right)
-                            columns.RelativeColumn(3);  // Account Name (right)
-                            columns.RelativeColumn(1.5f);  // Credit (right)
-                        });
+                        var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Debit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
 
-                        // Header Row
-                        table.Header(header =>
-                        {
-                            header.Cell().Border(1).Padding(2).Text("ID").Bold().FontSize(8);
-                            header.Cell().Border(1).Padding(2).Text("Account Name").Bold().FontSize(8);
-                            header.Cell().Border(1).Padding(2).Text("Debit").Bold().FontSize(8);
-                            header.Cell().Border(1).Padding(2).Text("ID").Bold().FontSize(8);
-                            header.Cell().Border(1).Padding(2).Text("Account Name").Bold().FontSize(8);
-                            header.Cell().Border(1).Padding(2).Text("Credit").Bold().FontSize(8);
-                        });
-                        // Sample Data Rows - Side by Side
-                        for (int i = 1; i <= 5; i++)
-                        {
-                            table.Cell().Border(1).Padding(2).Text(i.ToString()).FontSize(7);
-                            table.Cell().Border(1).Padding(2).Text($"Account {i}").FontSize(7);
-                            table.Cell().Border(1).Padding(2).Text((i * 1000).ToString("C2")).FontSize(7).AlignRight(); // Debit Value
+                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
+                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
 
-                            table.Cell().Border(1).Padding(2).Text((i + 5).ToString()).FontSize(7);
-                            table.Cell().Border(1).Padding(2).Text($"Account {i + 5}").FontSize(7);
-                            table.Cell().Border(1).Padding(2).Text((i % 2 == 0 ? (i * 800).ToString("C2") : "-")).FontSize(7).AlignRight(); // Credit Value
-                        }
-                    });
+                    }
 
-                    page.Footer()
-                        .AlignCenter()
-                        .Text("Generated using QuestPDF").FontSize(7); // Smaller footer font
-                });
-            }).GeneratePdf(stream);
 
-            return stream.ToArray();
+                    rptdata.Add(fld);
+                }
+                obj.ReportModel = rptdata;
+                obj.ispreview = true;
+                byte[] pdfBytes = GeneratePdfV2(obj);
+                var FileName = "LabaRugi" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                return File(pdfBytes, "application/pdf", FileName);
+
+
+            }
+            else
+            {
+                var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000).ToList();
+                var datajpb = db.JpbTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
+                var datajpn = db.JpnTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
+                var datajm = db.JmTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
+                obj.akundata = dataacc;
+                obj.jpbdata = datajpb;
+                obj.jpndata = datajpn;
+                obj.jmdata = datajm;
+                obj.closingdata = dataclosing;
+
+                List<LRRptModel> rptdata = new List<LRRptModel>();
+
+                foreach (var dt in dataacc)
+                {
+                    LRRptModel fld = new LRRptModel();
+                    fld.akun = dt.account_no.ToString();
+                    fld.description = dt.account_name;
+                    fld.akundk = dt.akundk;
+
+                    if (dt.akundk == "K")
+                    {
+                        var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Credit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
+                        fld.totalint = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+
+                    }
+                    else
+
+                    {
+                        var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Debit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
+
+                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
+                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+                    }
+
+
+                    rptdata.Add(fld);
+                }
+                obj.ReportModel = rptdata;
+                obj.ispreview = true;
+                byte[] pdfBytes = GeneratePdfV2(obj);
+                var FileName = "LabaRugi" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                return File(pdfBytes, "application/pdf", FileName);
+
+            }
+
         }
+
+
+
+
 
 
 

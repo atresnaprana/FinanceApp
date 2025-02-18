@@ -1,7 +1,7 @@
 ﻿@model FinanceApp.Models.LRModel
 
 @{
-    ViewData["Title"] = "Generate Neraca";
+    ViewData["Title"] = "Preview";
     var msg = ViewBag.Message;
 }
 <style>
@@ -10,9 +10,9 @@
         height: 20px;
     }
 </style>
-<h1>Download Neraca</h1>
+<h1>Download Report Laba rugi (Preview)</h1>
 <hr />
-<form asp-action="GeneratePdf" id="formcreate" enctype="multipart/form-data">
+<form asp-action="GeneratePreview" id="formcreate" enctype="multipart/form-data">
     <div class="container">
         <div class="row">
             <div class="col-sm">

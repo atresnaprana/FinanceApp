@@ -20,8 +20,8 @@ namespace FinanceApp.Controllers
     public class JpnController : Controller
     {
         private readonly FormDBContext db;
-        public const string SessionKeyName = "TransDateStrJpn";
-
+        public const string SessionKeyNameFrom = "TransDateStrJpnFrom";
+        public const string SessionKeyNameTo = "TransDateStrJpnTo";
         private IHostingEnvironment Environment;
         private readonly ILogger<JpnController> _logger;
 
@@ -37,10 +37,14 @@ namespace FinanceApp.Controllers
                 .Where(c => c.Type == ClaimTypes.Role)
                 .Select(c => c.Value);
             var data = new List<dbJpn>();
-            var transdatestr = HttpContext.Session.GetString(SessionKeyName);
-            if (!string.IsNullOrEmpty(transdatestr))
+            var datefromstr = HttpContext.Session.GetString(SessionKeyNameFrom);
+            var datetostr = HttpContext.Session.GetString(SessionKeyNameTo);
+            var datefrom = Convert.ToDateTime(datefromstr);
+            var dateto = Convert.ToDateTime(datetostr);
+            if (!string.IsNullOrEmpty(datefromstr) && !string.IsNullOrEmpty(datetostr))
             {
-                ViewData["TransDateStr"] = transdatestr;
+                ViewData["datefromstr"] = datefromstr;
+                ViewData["datetostr"] = datetostr;
                 List<dbJpn> TblDt = new List<dbJpn>();
                 TblDt = db.JpnTbl.Where(y => y.flag_aktif == "1").ToList();
                 var tbldt2 = TblDt.Select(y => new dbJpn()
@@ -58,19 +62,23 @@ namespace FinanceApp.Controllers
                     ValueStr = y.Value.ToString("#,##0.00"),
                     ValueDiscStr = y.Value_Disc.ToString("#,##0.00"),
                     id = y.id
-                }).Where(y => y.TransDateStr == transdatestr).ToList();
+                }).Where(y => y.TransDate >= datefrom && y.TransDate <= dateto).ToList();
                 data = tbldt2;
             }
             else
             {
-                ViewData["TransDateStr"] = null;
+                ViewData["datefromstr"] = null;
+                ViewData["datetostr"] = null;
             }
             return View(data);
         }
 
-        public JsonResult getTbl(string transdate)
+        public JsonResult getTbl(string from, string to)
         {
-            HttpContext.Session.SetString(SessionKeyName, transdate);
+            HttpContext.Session.SetString(SessionKeyNameFrom, from);
+            HttpContext.Session.SetString(SessionKeyNameTo, to);
+            var datefrom = Convert.ToDateTime(from);
+            var dateto = Convert.ToDateTime(to);
 
             //Creating List    
             List<dbJpn> TblDt = new List<dbJpn>();
@@ -90,12 +98,13 @@ namespace FinanceApp.Controllers
                 ValueStr = y.Value.ToString("#,##0.00"),
                 ValueDiscStr = y.Value_Disc.ToString("#,##0.00"),
                 id = y.id
-            }).Where(y => y.TransDateStr == transdate).ToList();
+            }).Where(y => y.TransDate >= datefrom && y.TransDate <= dateto).ToList();
             return Json(tbldt2);
         }
         public JsonResult getTblEmpty()
         {
-            HttpContext.Session.SetString(SessionKeyName, "");
+            HttpContext.Session.SetString(SessionKeyNameFrom, "");
+            HttpContext.Session.SetString(SessionKeyNameTo, "");
 
             //Creating List    
             List<dbJpn> TblDt = new List<dbJpn>();

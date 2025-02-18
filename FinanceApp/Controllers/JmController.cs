@@ -68,7 +68,8 @@ namespace FinanceApp.Controllers
             }
             else
             {
-                ViewData["TransDateStr"] = null;
+                ViewData["datefromstr"] = null;
+                ViewData["datetostr"] = null;
             }
 
             return View(data);

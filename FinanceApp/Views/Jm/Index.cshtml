@@ -205,7 +205,6 @@
             if (valuefrom != null && valuefrom != "" && valueto != null && valueto != "") {
                 let fromDate = $("#datefrom").val();
                 let toDate = $("#dateto").val();
-                debugger;
                 if (new Date(fromDate) > new Date(toDate)) {
                     alert("Error: The 'From' date cannot be later than the 'To' date.");
                 }else{
@@ -216,7 +215,6 @@
                         //startDate: mFromDate, endDate: mToDate1
                         dataType: 'json',
                         success: function (data) {
-                            debugger;
                             var tr;
                             //Append each row to html table
                             for (var i = 0; i < data.length; i++) {

@@ -8,6 +8,7 @@ namespace FinanceApp.Models
         public int year { get; set; }
         public int month { get; set; }
         public bool isYearly { get; set; }
+        public bool ispreview { get; set; }
         public List<LRRptModel> ReportModel { get; set; }
         public List<TBModel> TB_D { get; set; }
         public List<TBModel> TB_K { get; set; }
