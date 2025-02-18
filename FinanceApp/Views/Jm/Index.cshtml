@@ -1,7 +1,8 @@
 ﻿@model IEnumerable<FinanceApp.Models.dbJm>
 @{
     ViewData["Title"] = "Data Jurnal Memorial";
-    var TransDateStr = ViewData["TransDateStr"];
+    var datefromstr = ViewData["datefromstr"];
+    var datetostr = ViewData["datetostr"];
 
     var isAdmin = User.IsInRole("SuperAdmin").ToString();
 }
@@ -48,7 +49,22 @@
         <div class="col-sm">
             <label><b>Pilih Tanggal Transaksi: </b></label>
             <br />
-            <input type="date" id="transdate" class="form-control" />
+            <table
+                ><tr>
+                    <td>
+                        <label>dari: </label>
+                        <br />
+                        <input type="date" id="datefrom" class="form-control" />
+
+                    </td>
+                    <td>
+                        <label>ke: </label>
+                        <br />
+                        <input type="date" id="dateto" class="form-control" />
+
+                    </td>
+                  </tr>
+             </table>
             <br />
             <br />
             <input type="button" value="Cari Data" onclick="PopulateTable()" class="btn btn-dark" />
@@ -139,83 +155,126 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
+        var tables;
         $(document).ready(function () {
-            $('#IndexTbl').DataTable();
-            var stringdatevalue = '@TransDateStr'
-            if(stringdatevalue != ""){
-                $("#transdate").val(stringdatevalue);
+            tables = $('#IndexTbl').DataTable({
+                "sPaginationType": "full_numbers",
+                "bJQueryUI": true,
+                "bProcessing": true,
+                "aLengthMenu": [[10, 50, 100, 200, -1], ["10", "50", "100", "200", "All"]],
+                "stateSave": true,
+                "oSelectorOpts": { filter: 'applied' },
+                dom: "<'row'<'col-sm-12'B>>" +
+                    "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Export to Excel',
+                        title: 'dataJM',
+                        exportOptions: {
+                            columns: ':visible'
+                            //,modifier: {
+                            //    page: 'current'
+                            //}
+                        }
+                    }
+                ],
+                "columnDefs": [{
+                    "className": "dt-center",
+                    "targets": [0, 1]
+                }],
+            });
+            var stringdatevaluefrom = '@datefromstr'
+            if(stringdatevaluefrom != ""){
+                $("#datefrom").val(stringdatevaluefrom);
+            }
+            var stringdatevalueto = '@datetostr'
+            if (stringdatevalueto != "") {
+                $("#dateto").val(stringdatevalueto);
             }
 
         });
 
         function PopulateTable() {
-            $("#tbodyid").empty();
-            var value = $("#transdate").val();
-            if (value != null && value != "") {
-
-                $.ajax({
-                    url: '@Url.Action("getTbl", "Jm")',
-                    type: "GET",
-                    data: { transdate: value },
-                    //startDate: mFromDate, endDate: mToDate1
-                    dataType: 'json',
-                    success: function (data) {
-                        debugger;
-                        var tr;
-                        //Append each row to html table
-                        for (var i = 0; i < data.length; i++) {
+            // $("#tbodyid").empty();
+            tables.clear().draw();
+            var valuefrom = $("#datefrom").val();
+            var valueto = $("#dateto").val();
+            if (valuefrom != null && valuefrom != "" && valueto != null && valueto != "") {
+                let fromDate = $("#datefrom").val();
+                let toDate = $("#dateto").val();
+                debugger;
+                if (new Date(fromDate) > new Date(toDate)) {
+                    alert("Error: The 'From' date cannot be later than the 'To' date.");
+                }else{
+                    $.ajax({
+                        url: '@Url.Action("getTbl", "Jm")',
+                        type: "GET",
+                        data: { from: valuefrom, to: valueto },
+                        //startDate: mFromDate, endDate: mToDate1
+                        dataType: 'json',
+                        success: function (data) {
                             debugger;
-                            console.log(data[i]);
-                            var number = parseInt(i) + 1;
-                            tr = $('<tr/>');
-                            tr.append("<td>" + number + "</td>");
-                            tr.append("<td>" + data[i].transDateStr + "</td>");
-                            tr.append("<td>" + data[i].description + "</td>");
-                            tr.append("<td>" + data[i].trans_no + "</td>");
-                            tr.append("<td>" + data[i].akun_Debit + "</td>");
-                            tr.append("<td>" + data[i].akun_Credit + "</td>");
-                            tr.append("<td>" + data[i].debitStr + "</td>");
-                            tr.append("<td>" + data[i].creditStr + "</td>");
+                            var tr;
+                            //Append each row to html table
+                            for (var i = 0; i < data.length; i++) {
+                                debugger;
+                                console.log(data[i]);
+                                var number = parseInt(i) + 1;
+                                tr = $('<tr/>');
+                                tr.append("<td>" + number + "</td>");
+                                tr.append("<td>" + data[i].transDateStr + "</td>");
+                                tr.append("<td>" + data[i].description + "</td>");
+                                tr.append("<td>" + data[i].trans_no + "</td>");
+                                tr.append("<td>" + data[i].akun_Debit + "</td>");
+                                tr.append("<td>" + data[i].akun_Credit + "</td>");
+                                tr.append("<td>" + data[i].debitStr + "</td>");
+                                tr.append("<td>" + data[i].creditStr + "</td>");
 
-                            //tr.append("<td>" + data[i].vaksiN2 + "</td>");
-                            var isAdmin = '@isAdmin';
-                            debugger;
-                            if (isAdmin == "True")
-                            {
-                                tr.append("<td></td>");
+                                //tr.append("<td>" + data[i].vaksiN2 + "</td>");
+                                var isAdmin = '@isAdmin';
+                                debugger;
+                                if (isAdmin == "True") {
+                                    tr.append("<td></td>");
 
-                                // tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Jm/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
+                                    // tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Jm/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
+                                }
+                                else {
+                                    tr.append("<td></td>");
+                                    // tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
+
+                                }
+                                //tr.append('<button type="button" asp-action="Edit" asp-route-id="' + data[i].id + '" class="btn btn-primary";">Delete</button>');
+                                //tr.append("")
+                                //tr.append("<a asp-action='Edit' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Edit</a>");
+                                //tr.append("<a asp-action='Delete' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Delete</a>");
+                                //tr.append("");
+
+                                // $('#IndexTbl').append(tr);
+                                tables.row.add(tr).draw(); // This ensures the row is added to DataTable
+
+                                /* location.reload();*/
                             }
-                            else
-                            {
-                                tr.append("<td></td>");
-                                // tr.append('<td><a href="/Jm/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
+                        },
+                        error: function () {
 
-                            }
-                            //tr.append('<button type="button" asp-action="Edit" asp-route-id="' + data[i].id + '" class="btn btn-primary";">Delete</button>');
-                            //tr.append("")
-                            //tr.append("<a asp-action='Edit' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Edit</a>");
-                            //tr.append("<a asp-action='Delete' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Delete</a>");
-                            //tr.append("");
-
-                            $('#IndexTbl').append(tr);
-                           /* location.reload();*/
                         }
-                    },
-                    error: function () {
 
-                    }
-
-                });
+                    });
+                }
+                
             } else {
-                alert('Please fill EDP Code');
+                alert('Please fill date range Code');
             }
 
         }
         function Clear() {
-            $("#transdate").val(null);
-            $("#tbodyid").empty();
-              $.ajax({
+            $("#datefrom").val(null);
+            $("#dateto").val(null);
+            tables.clear().draw();
+            $.ajax({
                 url: '@Url.Action("getTblEmpty", "Jm")',
                     type: "GET",
                     //startDate: mFromDate, endDate: mToDate1

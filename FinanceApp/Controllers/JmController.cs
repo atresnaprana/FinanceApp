@@ -14,13 +14,15 @@ using System.Security.Claims;
 using BaseLineProject.Data;
 using FinanceApp.Models;
 using BaseLineProject.Models;
+using MimeDetective.Storage.Xml.v2;
 
 namespace FinanceApp.Controllers
 {
     public class JmController : Controller
     {
         private readonly FormDBContext db;
-        public const string SessionKeyName = "TransDateStrJm";
+        public const string SessionKeyNameFrom = "TransDateStrJmFrom";
+        public const string SessionKeyNameTo = "TransDateStrJmTo";
 
         private IHostingEnvironment Environment;
         private readonly ILogger<KasController> _logger;
@@ -37,10 +39,15 @@ namespace FinanceApp.Controllers
                 .Where(c => c.Type == ClaimTypes.Role)
                 .Select(c => c.Value);
             var data = new List<dbJm>();
-            var transdatestr = HttpContext.Session.GetString(SessionKeyName);
-            if (!string.IsNullOrEmpty(transdatestr))
+            var datefromstr = HttpContext.Session.GetString(SessionKeyNameFrom);
+            var datetostr = HttpContext.Session.GetString(SessionKeyNameTo);
+            var datefrom = Convert.ToDateTime(datefromstr);
+            var dateto = Convert.ToDateTime(datetostr);
+            if (!string.IsNullOrEmpty(datefromstr) && !string.IsNullOrEmpty(datetostr))
             {
-                ViewData["TransDateStr"] = transdatestr;
+                ViewData["datefromstr"] = datefromstr;
+                ViewData["datetostr"] = datetostr;
+
                 List<dbJm> TblDt = new List<dbJm>();
                 TblDt = db.JmTbl.Where(y => y.flag_aktif == "1").ToList();
                 var tbldt2 = TblDt.Select(y => new dbJm()
@@ -56,7 +63,7 @@ namespace FinanceApp.Controllers
                     DebitStr = y.Debit.ToString("#,##0.00"),
                     CreditStr = y.Credit.ToString("#,##0.00"),
                     id = y.id
-                }).Where(y => y.TransDateStr == transdatestr).ToList();
+                }).Where(y => y.TransDate >= datefrom && y.TransDate <= dateto).ToList();
                 data = tbldt2;
             }
             else
@@ -67,15 +74,19 @@ namespace FinanceApp.Controllers
             return View(data);
         }
 
-        public JsonResult getTbl(string transdate)
+        public JsonResult getTbl(string from, string to)
         {
-            HttpContext.Session.SetString(SessionKeyName, transdate);
+            HttpContext.Session.SetString(SessionKeyNameFrom, from);
+            HttpContext.Session.SetString(SessionKeyNameTo, to);
+            var datefrom = Convert.ToDateTime(from);
+            var dateto = Convert.ToDateTime(to);
 
             //Creating List    
             List<dbJm> TblDt = new List<dbJm>();
             TblDt = db.JmTbl.Where(y => y.flag_aktif == "1").ToList();
             var tbldt2 = TblDt.Select(y => new dbJm()
             {
+                TransDate = y.TransDate,
                 TransDateStr = y.TransDate.ToString("yyyy-MM-dd"),
                 Description = y.Description,
                 Trans_no = y.Trans_no,
@@ -86,12 +97,13 @@ namespace FinanceApp.Controllers
                 DebitStr = y.Debit.ToString("#,##0.00"),
                 CreditStr = y.Credit.ToString("#,##0.00"),
                 id = y.id
-            }).Where(y => y.TransDateStr == transdate).ToList();
+            }).Where(y => y.TransDate >= datefrom && y.TransDate <= dateto).ToList();
             return Json(tbldt2);
         }
         public JsonResult getTblEmpty()
         {
-            HttpContext.Session.SetString(SessionKeyName, "");
+            HttpContext.Session.SetString(SessionKeyNameFrom, "");
+            HttpContext.Session.SetString(SessionKeyNameTo, "");
 
             //Creating List    
             List<dbJm> TblDt = new List<dbJm>();
