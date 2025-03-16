@@ -178,6 +178,7 @@ namespace BaseLineProject.Data
 
             //dbaccount model
             modelBuilder.Entity<dbAccount>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbAccount>().Property(ug => ug.company_id).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbAccount>().Property(ug => ug.account_no).HasColumnType("int");
             modelBuilder.Entity<dbAccount>().Property(ug => ug.hierarchy).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbAccount>().Property(ug => ug.account_name).HasColumnType("varchar(255)").IsRequired(false);
@@ -192,6 +193,7 @@ namespace BaseLineProject.Data
 
             //dbkas model 
             modelBuilder.Entity<dbKas>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbKas>().Property(ug => ug.company_id).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbKas>().Property(ug => ug.TransDate).HasColumnType("date");
             modelBuilder.Entity<dbKas>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
             modelBuilder.Entity<dbKas>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
@@ -212,6 +214,7 @@ namespace BaseLineProject.Data
 
             //dbbank model 
             modelBuilder.Entity<dbBank>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbBank>().Property(ug => ug.company_id).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbBank>().Property(ug => ug.TransDate).HasColumnType("date");
             modelBuilder.Entity<dbBank>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
             modelBuilder.Entity<dbBank>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
@@ -232,6 +235,7 @@ namespace BaseLineProject.Data
 
             //dbjm model 
             modelBuilder.Entity<dbJm>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbJm>().Property(ug => ug.company_id).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbJm>().Property(ug => ug.TransDate).HasColumnType("date");
             modelBuilder.Entity<dbJm>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
             modelBuilder.Entity<dbJm>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
@@ -251,6 +255,7 @@ namespace BaseLineProject.Data
 
             //dbJpb model 
             modelBuilder.Entity<dbJpb>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbJpb>().Property(ug => ug.company_id).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbJpb>().Property(ug => ug.TransDate).HasColumnType("date");
             modelBuilder.Entity<dbJpb>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
             modelBuilder.Entity<dbJpb>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
@@ -273,6 +278,7 @@ namespace BaseLineProject.Data
 
             //dbJpn model 
             modelBuilder.Entity<dbJpn>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbJpn>().Property(ug => ug.company_id).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbJpn>().Property(ug => ug.TransDate).HasColumnType("date");
             modelBuilder.Entity<dbJpn>().Property(ug => ug.Trans_no).HasColumnType("varchar(50)").IsRequired(false);
             modelBuilder.Entity<dbJpn>().Property(ug => ug.Description).HasColumnType("varchar(255)").IsRequired(false);
@@ -294,6 +300,7 @@ namespace BaseLineProject.Data
             //dbClosing model
             modelBuilder.Entity<dbClosing>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
             modelBuilder.Entity<dbClosing>().Property(ug => ug.description).HasColumnType("varchar(100)").IsRequired(false);
+            modelBuilder.Entity<dbClosing>().Property(ug => ug.company_id).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbClosing>().Property(ug => ug.periode).HasColumnType("int");
             modelBuilder.Entity<dbClosing>().Property(ug => ug.year).HasColumnType("int");
             modelBuilder.Entity<dbClosing>().Property(ug => ug.datefrom).HasColumnType("datetime");

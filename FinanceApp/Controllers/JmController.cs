@@ -50,6 +50,8 @@ namespace FinanceApp.Controllers
 
                 List<dbJm> TblDt = new List<dbJm>();
                 TblDt = db.JmTbl.Where(y => y.flag_aktif == "1").ToList();
+                var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
                 var tbldt2 = TblDt.Select(y => new dbJm()
                 {
                     TransDate = y.TransDate,
@@ -62,8 +64,9 @@ namespace FinanceApp.Controllers
                     Credit = y.Credit,
                     DebitStr = y.Debit.ToString("#,##0.00"),
                     CreditStr = y.Credit.ToString("#,##0.00"),
-                    id = y.id
-                }).Where(y => y.TransDate >= datefrom && y.TransDate <= dateto).ToList();
+                    id = y.id,
+                    company_id = y.company_id
+                }).Where(y => y.TransDate >= datefrom && y.TransDate <= dateto && y.company_id == datas.COMPANY_ID).ToList();
                 data = tbldt2;
             }
             else
@@ -81,6 +84,7 @@ namespace FinanceApp.Controllers
             HttpContext.Session.SetString(SessionKeyNameTo, to);
             var datefrom = Convert.ToDateTime(from);
             var dateto = Convert.ToDateTime(to);
+            var data = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
 
             //Creating List    
             List<dbJm> TblDt = new List<dbJm>();
@@ -97,8 +101,9 @@ namespace FinanceApp.Controllers
                 Credit = y.Credit,
                 DebitStr = y.Debit.ToString("#,##0.00"),
                 CreditStr = y.Credit.ToString("#,##0.00"),
-                id = y.id
-            }).Where(y => y.TransDate >= datefrom && y.TransDate <= dateto).ToList();
+                id = y.id,
+                company_id = y.company_id
+            }).Where(y => y.TransDate >= datefrom && y.TransDate <= dateto && y.company_id == data.COMPANY_ID).ToList();
             return Json(tbldt2);
         }
         public JsonResult getTblEmpty()
@@ -122,8 +127,11 @@ namespace FinanceApp.Controllers
                 account_name = y.account_no.ToString() + " - " + y.account_name
             }).ToList();
             dbJm fld = new dbJm();
+            var data = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+              
             fld.TransDate = DateTime.Now;
             fld.dddbacc = acclist.OrderBy(y => y.account_no).ToList();
+            fld.company_id = data.COMPANY_ID;
             var existingsales = db.JmTbl.ToList();
             var number = "0001";
             var trans_nodata = existingsales.Select(y => new dbJm()

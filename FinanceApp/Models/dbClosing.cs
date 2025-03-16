@@ -9,6 +9,8 @@ namespace FinanceApp.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
+        public string company_id { get; set; }
+
         public string description { get; set; }
         public int periode { get; set; }
         public int year { get; set; }

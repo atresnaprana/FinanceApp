@@ -76,116 +76,11 @@ namespace BaseLineProject.Controllers
                 objCust.UPDATE_DATE = DateTime.Now;
                 objCust.ENTRY_USER = User.Identity.Name;
                 objCust.UPDATE_USER = User.Identity.Name;
-                if (objCust.fileKtp != null)
-                {
-                    objCust.FILE_KTP_NAME = objCust.fileKtp.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileKtp.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_KTP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (objCust.fileAkta != null)
-                {
-                    objCust.FILE_AKTA_NAME = objCust.fileAkta.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileAkta.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_AKTA = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (objCust.fileRekening != null)
-                {
-                    objCust.FILE_REKENING_NAME = objCust.fileRekening.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileRekening.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_REKENING = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (objCust.fileNPWP != null)
-                {
-                    objCust.FILE_NPWP_NAME = objCust.fileNPWP.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileNPWP.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_NPWP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (objCust.fileTdp != null)
-                {
-                    objCust.FILE_TDP_NAME = objCust.fileTdp.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileTdp.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_TDP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (objCust.fileSIUP != null)
-                {
-                    objCust.FILE_SIUP_NAME = objCust.fileSIUP.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileSIUP.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_SIUP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (objCust.fileNIB != null)
-                {
-                    objCust.FILE_NIB_NAME = objCust.fileNIB.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileNIB.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_NIB = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (objCust.fileSPPKP != null)
-                {
-                    objCust.FILE_SPPKP_NAME = objCust.fileSPPKP.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileSPPKP.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_SPPKP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (objCust.fileSKT != null)
-                {
-                    objCust.FILE_SKT_NAME = objCust.fileSKT.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        objCust.fileSKT.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        objCust.FILE_SKT = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
+                objCust.REG_DATE = DateTime.Now;
                 objCust.FLAG_AKTIF = "1";
-
+                var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+                objCust.COMPANY = currentcompany.COMPANY;
+                objCust.COMPANY_ID = currentcompany.COMPANY_ID;
 
                 try
                 {
@@ -199,13 +94,30 @@ namespace BaseLineProject.Controllers
                         createuser(user, objCust.Password);
                         db.CustomerTbl.Add(objCust);
                         db.SaveChanges();
-                        SendVerifyEmail(objCust.Email.Trim());
-                        //if (result.Result )
-                        //{
-                        //    db.CustomerTbl.Add(objCust);
-                        //    db.SaveChanges();
 
-                        //}
+                        string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
+
+                        using (MySqlConnection conn = new MySqlConnection(mySqlConnectionStr))
+                        {
+                            conn.Open();
+                            string query = @"update AspNetUsers set EmailConfirmed = '1' where UserName  = '" + objCust.Email.Trim() + "'";
+
+                            MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    //pricedt.articleprice = Convert.ToInt32(reader["price"]);
+
+                                }
+                            }
+                            conn.Close();
+                        }
+                        var getuser = _userManager.FindByEmailAsync(objCust.Email.Trim());
+                        IdentityUser userdata = getuser.Result;
+                        addrole(userdata);
+                        SendWelcomeMail(objCust.Email.Trim());
 
                     }
                     else
@@ -255,7 +167,7 @@ namespace BaseLineProject.Controllers
         public async Task<bool> addrole(IdentityUser user)
         {
             var success = false;
-            var result1 = await _userManager.AddToRoleAsync(user, "CustomerIndustrial");
+            var result1 = await _userManager.AddToRoleAsync(user, "Accounting");
             if (result1.Succeeded)
             {
                 success = true;
@@ -525,132 +437,7 @@ namespace BaseLineProject.Controllers
             }
             return View(fld);
         }
-        public IActionResult DownloadKTP([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();           
-            if(custdata != null)
-            {
-               
-            }
-            var file = custdata.FILE_KTP;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_KTP_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_KTP_NAME);
-        }
-        public IActionResult DownloadAkta([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();
-            if (custdata != null)
-            {
-
-            }
-            var file = custdata.FILE_AKTA;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_AKTA_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_AKTA_NAME);
-        }
-        public IActionResult DownloadRekening([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();
-            if (custdata != null)
-            {
-
-            }
-            var file = custdata.FILE_REKENING;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_REKENING_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_REKENING_NAME);
-        }
-        public IActionResult DownloadNPWP([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();
-            if (custdata != null)
-            {
-
-            }
-            var file = custdata.FILE_NPWP;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_NPWP_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_NPWP_NAME);
-        }
-        public IActionResult DownloadTDP([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();
-            if (custdata != null)
-            {
-
-            }
-            var file = custdata.FILE_TDP;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_TDP_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_TDP_NAME);
-        }
-        public IActionResult DownloadSIUP([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();
-            if (custdata != null)
-            {
-
-            }
-            var file = custdata.FILE_SIUP;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_SIUP_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_SIUP_NAME);
-        }
-        public IActionResult DownloadNIB([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();
-            if (custdata != null)
-            {
-
-            }
-            var file = custdata.FILE_NIB;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_NIB_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_NIB_NAME);
-        }
-        public IActionResult DownloadSPPKP([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();
-            if (custdata != null)
-            {
-
-            }
-            var file = custdata.FILE_SPPKP;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_SPPKP_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_SPPKP_NAME);
-        }
-        public IActionResult DownloadSKT([FromQuery(Name = "iddata")] string id)
-        {
-            var custdata = db.CustomerTbl.Where(y => y.id == Convert.ToInt32(id)).FirstOrDefault();
-            if (custdata != null)
-            {
-
-            }
-            var file = custdata.FILE_SKT;
-            var memory = new MemoryStream(file);
-            string[] stringParts = custdata.FILE_SKT_NAME.Split(new char[] { '.' });
-            string strType = stringParts[1];
-            memory.Position = 0;
-            return File(memory, GetContentType(strType), custdata.FILE_SKT_NAME);
-        }
+       
         private string GetContentType(string exts)
         {
             var types = GetMimeTypes();
@@ -804,20 +591,9 @@ namespace BaseLineProject.Controllers
             request.UserName = Email;
             request.ToEmail = Email;
             //request.ToEmail = Input.Email;
-            var fileUrl = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot");
-            var files = Path.Combine(fileUrl, "FileCodeofConduct.pdf");
-            List<IFormFile> fileList = new List<IFormFile>();
+            
 
-
-            using (var stream = System.IO.File.OpenRead(files))
-            {
-                var file = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
-
-
-                fileList.Add(file);
-
-                request.Attachments = fileList;
-            }
+           
             try
             {
                 await mailService.SendVerifyEmailAsync(request);

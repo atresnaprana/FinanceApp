@@ -59,30 +59,16 @@
                 Tanggal Daftar
             </th>
             <th>
-                Customer EDP
+                Name
             </th>
             <th>
-                Nama Customer
+                Username
             </th>
             <th>
                 Perusahaan
             </th>
-            <th>
-                NPWP
-            </th>
-            <th>
-                Kota
-            </th>
-
-            <th>
-                Bank
-            </th>
-            <th>
-                Legal Approval
-            </th>
-            <th>
-                Finance Approval
-            </th>
+            
+            
             <th>
                 <label>Actions</label>
             </th>
@@ -104,64 +90,28 @@
                     @dt.REG_DATE.Date.ToString("dd/MM/yyyy");
                 }
             </td>
-
+            
             <td>
-                @Html.DisplayFor(modelItem => dt.EDP)
+                @Html.DisplayFor(modelItem => dt.Email)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => dt.CUST_NAME)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => dt.COMPANY)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => dt.NPWP)
 
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => dt.city)
-
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => dt.BANK_NAME)
-
-            </td>
-            <td align="center">
-                @if (dt.isApproved == "1")
-                {
-
-
-                    <input type="checkbox" class="largerCheckbox" checked="checked" disabled="disabled" />
-
-                }
-                else
-                {
-                    <input type="checkbox" class="largerCheckbox"  disabled="disabled" />
-
-                }
-
-            </td>
-            <td align="center">
-                @if (dt.isApproved2 == "1")
-                {
-
-
-                    <input type="checkbox" class="largerCheckbox" checked="checked" disabled="disabled" />
-
-                }
-                else
-                {
-                    <input type="checkbox" class="largerCheckbox" disabled="disabled" />
-
-                }
-            </td>
+            
+            
+            
             <td>
                 <div>
-                    <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
                     &nbsp;
-                    @if (User.IsInRole("Admin"))
+                    @if (User.IsInRole("AccountAdmin"))
                     {
-                        <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
+                        <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
+
+                        <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Deactivate</a>
 
                     }
                 </div>

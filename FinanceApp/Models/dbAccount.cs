@@ -13,6 +13,7 @@ namespace FinanceApp.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
+        public string company_id { get; set; }
 
         public int account_no { get; set; }
         public string hierarchy { get; set; }

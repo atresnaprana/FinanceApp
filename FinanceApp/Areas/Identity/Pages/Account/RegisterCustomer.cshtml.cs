@@ -30,7 +30,6 @@ namespace BaseLineProject.Areas.Identity
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<RegisterCustomerModel> _logger;
-        private readonly IEmailSender _emailSender;
         private readonly IMailService mailService;
 
         public RegisterCustomerModel(
@@ -38,13 +37,11 @@ namespace BaseLineProject.Areas.Identity
            UserManager<IdentityUser> userManager,
            SignInManager<IdentityUser> signInManager,
            ILogger<RegisterCustomerModel> logger,
-           IEmailSender emailSender,
            IMailService mailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _emailSender = emailSender;
             this.db = db;
             this.mailService = mailService;
 
@@ -325,8 +322,8 @@ namespace BaseLineProject.Areas.Identity
                             values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                             protocol: Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {
