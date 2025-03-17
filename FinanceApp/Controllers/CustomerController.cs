@@ -36,16 +36,19 @@ namespace BaseLineProject.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         public IConfiguration Configuration { get; }
         private readonly IMailService mailService;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public string EmailConfirmationUrl { get; set; }
 
-        public CustomerController(FormDBContext db, ILogger<CustomerController> logger, IHostingEnvironment _environment, UserManager<IdentityUser> userManager, IConfiguration configuration, IMailService mailService)
+        public CustomerController(FormDBContext db, ILogger<CustomerController> logger, RoleManager<IdentityRole> roleManager, IHostingEnvironment _environment, UserManager<IdentityUser> userManager, IConfiguration configuration, IMailService mailService)
         {
             _userManager = userManager;
             logger = logger;
             Environment = _environment;
             this.db = db;
             Configuration = configuration;
+            _roleManager = roleManager;
+
             this.mailService = mailService;
 
         }
@@ -67,7 +70,7 @@ namespace BaseLineProject.Controllers
         [Authorize(Roles = "SuperAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind] dbCustomer objCust)
+        public async Task<IActionResult> Create([Bind] dbCustomer objCust)
         {
             if (ModelState.IsValid)
             {
@@ -91,33 +94,35 @@ namespace BaseLineProject.Controllers
 
                     if (validateisexist.Result == null)
                     {
-                        createuser(user, objCust.Password);
+                        //createuser(user, objCust.Password);
+                        var res = await UserSetup(user, objCust.Password);                        
                         db.CustomerTbl.Add(objCust);
                         db.SaveChanges();
-
-                        string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
-
-                        using (MySqlConnection conn = new MySqlConnection(mySqlConnectionStr))
-                        {
-                            conn.Open();
-                            string query = @"update AspNetUsers set EmailConfirmed = '1' where UserName  = '" + objCust.Email.Trim() + "'";
-
-                            MySqlCommand cmd = new MySqlCommand(query, conn);
-
-                            using (var reader = cmd.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    //pricedt.articleprice = Convert.ToInt32(reader["price"]);
-
-                                }
-                            }
-                            conn.Close();
-                        }
-                        var getuser = _userManager.FindByEmailAsync(objCust.Email.Trim());
-                        IdentityUser userdata = getuser.Result;
-                        addrole(userdata);
+                        //var getuser = _userManager.FindByEmailAsync(objCust.Email.Trim());
+                        //IdentityUser userdata = getuser.Result;
+                        //ConfirmEmailAsync(objCust.Email.Trim());
+                        //ApplyUserSettings(userdata);
                         SendWelcomeMail(objCust.Email.Trim());
+                        //addrole(userdata);
+                        //string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
+
+                        //using (MySqlConnection conn = new MySqlConnection(mySqlConnectionStr))
+                        //{
+                        //    conn.Open();
+                        //    string query = "UPDATE AspNetUsers SET EmailConfirmed = '1' WHERE UserName = @UserName";
+
+                        //    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        //    {
+                        //        cmd.Parameters.AddWithValue("@UserName", objCust.Email.Trim());
+
+                        //        int rowsAffected = cmd.ExecuteNonQuery(); // Executes the update
+                        //        if (rowsAffected == 0)
+                        //        {
+                        //            Console.WriteLine("No records were updated. Check if the username exists.");
+                        //        }
+                        //    }
+                        //}
+
 
                     }
                     else
@@ -153,17 +158,45 @@ namespace BaseLineProject.Controllers
             }
             return View(objCust);
         }
-        public async Task<bool> createuser(IdentityUser user, string userpass)
+        public async Task<bool> UserSetup(IdentityUser user, string userpass)
         {
-            var success = false;
-            var result = await _userManager.CreateAsync(user, userpass);
-
-            if (result.Succeeded)
+            if (user == null)
             {
-                success = true;
+                return false; // User object is null
             }
-            return success;
+
+            // Step 1: Create user
+            var createResult = await _userManager.CreateAsync(user, userpass);
+            if (!createResult.Succeeded)
+            {
+                return false; // User creation failed
+            }
+
+            // Step 2: Ensure role exists before adding user to role
+            var roleExists = await _roleManager.RoleExistsAsync("Accounting");
+            if (!roleExists)
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Accounting")); // Create role if not exists
+            }
+
+            // Step 3: Assign role to user
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, "Accounting");
+            if (!addToRoleResult.Succeeded)
+            {
+                return false; // Role assignment failed
+            }
+
+            // Step 4: Confirm email and update user
+            user.EmailConfirmed = true;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                return false; // Email confirmation update failed
+            }
+
+            return true; // All operations succeeded
         }
+
         public async Task<bool> addrole(IdentityUser user)
         {
             var success = false;
