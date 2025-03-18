@@ -52,14 +52,32 @@ namespace BaseLineProject.Controllers
             this.mailService = mailService;
 
         }
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "AccountAdmin")]
         public IActionResult Index()
         {
            
             var data = new List<dbCustomer>();
-            data = db.CustomerTbl.Where(y => y.FLAG_AKTIF == "1").OrderBy(y => y.id).ToList();
+            var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            var companyid = currentcompany.COMPANY_ID;
+            data = db.CustomerTbl.Where(y => y.COMPANY_ID == companyid).OrderBy(y => y.id).ToList();
             return View(data);
         }
+
+        [Authorize(Roles = "SuperAdmin")]
+        public IActionResult ActivateUser()
+        {
+
+            var data = new List<dbCustomer>();
+            List<IdentityUser> users = _userManager.Users.Where(y => y.EmailConfirmed == false).ToList();
+            List<string> usrlist = new List<string>();
+            foreach(var dt in users)
+            {
+                usrlist.Add(dt.UserName);
+            }
+            data = db.CustomerTbl.Where(y => usrlist.Contains(y.Email)).OrderBy(y => y.id).ToList();
+            return View(data);
+        }
+
         [HttpGet]
         [Authorize]
         public IActionResult Create()
@@ -67,7 +85,7 @@ namespace BaseLineProject.Controllers
 
             return View();
         }
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "AccountAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind] dbCustomer objCust)
@@ -196,7 +214,7 @@ namespace BaseLineProject.Controllers
 
             return true; // All operations succeeded
         }
-
+         
         public async Task<bool> addrole(IdentityUser user)
         {
             var success = false;
@@ -207,7 +225,7 @@ namespace BaseLineProject.Controllers
             }
             return success;
         }
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = "AccountAdmin")]
         public IActionResult Edit(int id)
         {
             //if (string.IsNullOrEmpty(id))
@@ -216,31 +234,7 @@ namespace BaseLineProject.Controllers
             //}
 
             dbCustomer fld = db.CustomerTbl.Find(id);
-            if(fld.BL_FLAG == "1")
-            {
-                fld.isBlackList = true;
-            }
-            else
-            {
-                fld.isBlackList = false;
-
-            }
-            if (fld.isApproved == "1")
-            {
-                fld.isApproveBool = true;
-            }
-            else
-            {
-                fld.isApproveBool = false;
-            }
-            if (fld.isApproved2 == "1")
-            {
-                fld.isApproveBool2 = true;
-            }
-            else
-            {
-                fld.isApproveBool2 = false;
-            }
+            
             if (fld == null)
             {
                 return NotFound();
@@ -260,192 +254,17 @@ namespace BaseLineProject.Controllers
             {
                 var editFld = db.CustomerTbl.Find(id);
                 editFld.CUST_NAME = fld.CUST_NAME;
-                editFld.COMPANY = fld.COMPANY;
-                editFld.NPWP = fld.NPWP;
-                editFld.address = fld.address;
-                editFld.city = fld.city;
-                editFld.province = fld.province;
-                editFld.postal = fld.postal;
-                editFld.Email = fld.Email;
-                editFld.BANK_NAME = fld.BANK_NAME;
-                editFld.BANK_NUMBER = fld.BANK_NUMBER;
-                editFld.BANK_BRANCH = fld.BANK_BRANCH;
-                editFld.BANK_COUNTRY = fld.BANK_COUNTRY;
-                editFld.REG_DATE = fld.REG_DATE;
-                editFld.Email = fld.Email;
-                editFld.KTP = fld.KTP;
+                if (User.IsInRole("AccountAdmin"))
+                {
+                    editFld.COMPANY = fld.COMPANY;
+                    var findallaccountrelated = db.CustomerTbl.Where(y => y.COMPANY_ID == editFld.COMPANY_ID).ToList();
+                    foreach(var col in findallaccountrelated)
+                    {
+                        col.COMPANY = fld.COMPANY;
+                    }
+                }
                 editFld.PHONE1 = fld.PHONE1;
-                editFld.PHONE2 = fld.PHONE2;
-                editFld.VA1 = fld.VA1;
-                editFld.VA2 = fld.VA2;
-                editFld.VA1NOTE = fld.VA1NOTE;
-                editFld.VA2NOTE = fld.VA2NOTE;
-                editFld.discount_customer = fld.discount_customer;
 
-                //editFld.FLAG_AKTIF = "0";
-                if (fld.isBlackList == true)
-                {
-                    editFld.BL_FLAG = "1";
-                }
-                else
-                {
-                    editFld.BL_FLAG = "0";
-
-                }
-
-                if (fld.fileKtp != null)
-                {
-                    editFld.FILE_KTP_NAME = fld.fileKtp.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileKtp.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_KTP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.fileAkta != null)
-                {
-                    editFld.FILE_AKTA_NAME = fld.fileAkta.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileAkta.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_AKTA = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.fileRekening != null)
-                {
-                    editFld.FILE_REKENING_NAME = fld.fileRekening.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileRekening.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_REKENING = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.fileNPWP != null)
-                {
-                    editFld.FILE_NPWP_NAME = fld.fileNPWP.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileNPWP.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_NPWP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.fileTdp != null)
-                {
-                    editFld.FILE_TDP_NAME = fld.fileTdp.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileTdp.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_TDP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.fileSIUP != null)
-                {
-                    editFld.FILE_SIUP_NAME = fld.fileSIUP.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileSIUP.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_SIUP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.fileNIB != null)
-                {
-                    editFld.FILE_NIB_NAME = fld.fileNIB.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileNIB.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_NIB = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.fileSPPKP != null)
-                {
-                    editFld.FILE_SPPKP_NAME = fld.fileSPPKP.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileSPPKP.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_SPPKP = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.fileSKT != null)
-                {
-                    editFld.FILE_SKT_NAME = fld.fileSKT.FileName;
-                    using (var ms = new MemoryStream())
-                    {
-                        fld.fileSKT.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        editFld.FILE_SKT = fileBytes;
-                        string s = Convert.ToBase64String(fileBytes);
-                        // act on the Base64 data
-                    }
-                }
-                if (fld.isApproveBool == true)
-                {
-                    editFld.isApproved = "1";
-                }
-                else
-                {
-                    editFld.isApproved = "0";
-                }
-                if (fld.isApproveBool2 == true)
-                {
-                    if (editFld.isApproved2 != "1")
-                    {
-                        editFld.isApproved2 = "1";
-
-                        string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
-
-                        using (MySqlConnection conn = new MySqlConnection(mySqlConnectionStr))
-                        {
-                            conn.Open();
-                            string query = @"update aspnetusers set EmailConfirmed = '1' where Email  = '" + editFld.Email + "'";
-
-                            MySqlCommand cmd = new MySqlCommand(query, conn);
-
-                            using (var reader = cmd.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    //pricedt.articleprice = Convert.ToInt32(reader["price"]);
-
-                                }
-                            }
-                            conn.Close();
-                        }
-                        var getuser = _userManager.FindByEmailAsync(editFld.Email.Trim());
-                        IdentityUser userdata = getuser.Result;
-                        addrole(userdata);
-                        SendWelcomeMail(editFld.Email.Trim());
-                    }
-                }
-                else
-                {
-                    editFld.isApproved2 = "0";
-
-                }
-               
                 editFld.UPDATE_DATE = DateTime.Now;
                 editFld.UPDATE_USER = User.Identity.Name;
 
@@ -495,7 +314,7 @@ namespace BaseLineProject.Controllers
             };
         }
 
-        [Authorize]
+        [Authorize(Roles = "AccountAdmin")]
         public IActionResult Delete(int id)
         {
             //if (string.IsNullOrEmpty(id))
@@ -512,7 +331,7 @@ namespace BaseLineProject.Controllers
         [HttpPost, ActionName("Delete")]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteCustomer(int id)
+        public async Task<IActionResult> DeleteCustomer(int id)
         {
             dbCustomer fld = db.CustomerTbl.Find(id);
 
@@ -528,6 +347,7 @@ namespace BaseLineProject.Controllers
                     fld.FLAG_AKTIF = "0";
                     fld.UPDATE_DATE = DateTime.Now;
                     fld.UPDATE_USER = User.Identity.Name;
+                    var test = await DeactivateAccount(fld.Email);
                     db.SaveChanges();
                 }
                 catch (Exception ex)
@@ -544,6 +364,85 @@ namespace BaseLineProject.Controllers
                 }
             }
             return RedirectToAction("Index");
+        }
+
+        [Authorize]
+        public IActionResult ActivateAcc(int id)
+        {
+            //if (string.IsNullOrEmpty(id))
+            //{
+            //    return NotFound();
+            //}
+            dbCustomer fld = db.CustomerTbl.Find(id);
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            return View(fld);
+        }
+        [HttpPost, ActionName("ActivateAcc")]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivateId(int id)
+        {
+            dbCustomer fld = db.CustomerTbl.Find(id);
+
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                try
+                {
+                    //db.trainerDb.Remove(fld);
+                    fld.FLAG_AKTIF = "1";
+                    fld.UPDATE_DATE = DateTime.Now;
+                    fld.UPDATE_USER = User.Identity.Name;
+                    var test = await ActivateAccount(fld.Email);
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgEdit" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                    {
+                        outputFile.WriteLine(ex.ToString());
+                    }
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        public async Task<bool> ActivateAccount(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            user.EmailConfirmed = true;
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+        public async Task<bool> DeactivateAccount(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            user.EmailConfirmed = false;
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded;
         }
         public async Task<IActionResult> OnGetAsync(string email, string returnUrl = null)
         {

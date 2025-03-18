@@ -11,6 +11,7 @@ namespace BaseLineProject.Services
         Task SendEmailAsync(MailRequest mailRequest);
         Task SendWelcomeEmailAsync(WelcomeRequest request);
         Task SendVerifyEmailAsync(WelcomeRequest request);
+        Task SendWelcomePaymentAsync(WelcomeRequest request);
 
     }
 }

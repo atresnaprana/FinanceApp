@@ -98,6 +98,49 @@ namespace BaseLineProject.Services
             await smtp.SendAsync(email);
             smtp.Disconnect(true);
         }
+
+        public async Task SendWelcomePaymentAsync(WelcomeRequest request)
+        {
+            string FilePath = Directory.GetCurrentDirectory() + "\\Templates\\WelcomePaymentVerify.html";
+            StreamReader str = new StreamReader(FilePath);
+            string MailText = str.ReadToEnd();
+            str.Close();
+            MailText = MailText.Replace("[username]", request.UserName).Replace("[email]", request.ToEmail);
+            var email = new MimeMessage();
+            email.Sender = MailboxAddress.Parse(_mailSettings.Mail);
+            email.From.Add(MailboxAddress.Parse(_mailSettings.Mail));  // This was missing before
+
+            email.To.Add(MailboxAddress.Parse(request.ToEmail));
+            email.Subject = $"Welcome {request.UserName}";
+            var builder = new BodyBuilder();
+            if (request.Attachments != null)
+            {
+                byte[] fileBytes;
+                foreach (var file in request.Attachments)
+                {
+                    if (file.Length > 0)
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            file.CopyTo(ms);
+                            fileBytes = ms.ToArray();
+                        }
+                        builder.Attachments.Add(file.FileName, fileBytes, ContentType.Parse(file.ContentType));
+                    }
+                }
+            }
+            builder.HtmlBody = MailText;
+            email.Body = builder.ToMessageBody();
+            using var smtp = new SmtpClient();
+            smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
+            SecureSocketOptions options = (_mailSettings.Port == 465) ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+
+            smtp.Connect(_mailSettings.Host, _mailSettings.Port, options);
+            smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
+            await smtp.SendAsync(email);
+            smtp.Disconnect(true);
+        }
+
         public async Task SendVerifyEmailAsync(WelcomeRequest request)
         {
             string FilePath = Directory.GetCurrentDirectory() + "\\Templates\\MailDocument.html";

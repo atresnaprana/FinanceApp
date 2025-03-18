@@ -1,54 +1,14 @@
 ﻿@model BaseLineProject.Models.dbCustomer
 @{
     ViewData["Title"] = "Edit";
-    var filenameKTP = "";
-    if (!String.IsNullOrEmpty(Model.FILE_KTP_NAME))
+    var errmsg = "";
+    if (Model != null)
     {
-        filenameKTP = Model.FILE_KTP_NAME;
+        if (!string.IsNullOrEmpty(Model.errmsg))
+        {
+            errmsg = Model.errmsg;
+        }
     }
-    var filenameAkta = "";
-    if (!String.IsNullOrEmpty(Model.FILE_AKTA_NAME))
-    {
-        filenameAkta = Model.FILE_AKTA_NAME;
-    }
-    var filenameRekening = "";
-    if (!String.IsNullOrEmpty(Model.FILE_REKENING_NAME))
-    {
-        filenameRekening = Model.FILE_REKENING_NAME;
-    }
-    var filenameNPWP = "";
-    if (!String.IsNullOrEmpty(Model.FILE_NPWP_NAME))
-    {
-        filenameNPWP = Model.FILE_NPWP_NAME;
-    }
-    var filenameTDP = "";
-    if (!String.IsNullOrEmpty(Model.FILE_TDP_NAME))
-    {
-        filenameTDP = Model.FILE_TDP_NAME;
-    }
-    var filenameSIUP = "";
-    if (!String.IsNullOrEmpty(Model.FILE_SIUP_NAME))
-    {
-        filenameSIUP = Model.FILE_SIUP_NAME;
-    }
-    var filenameNIB = "";
-    if (!String.IsNullOrEmpty(Model.FILE_NIB_NAME))
-    {
-        filenameNIB = Model.FILE_NIB_NAME;
-    }
-    var filenameSPPKP = "";
-    if (!String.IsNullOrEmpty(Model.FILE_SPPKP_NAME))
-    {
-        filenameSPPKP = Model.FILE_SPPKP_NAME;
-    }
-    var filenameSKT = "";
-    if (!String.IsNullOrEmpty(Model.FILE_SKT_NAME))
-    {
-        filenameSKT = Model.FILE_SKT_NAME;
-    }
-    var isFinanceRole = User.IsInRole("FinanceIndustrial");
-    var isSalesRole = User.IsInRole("SalesIndustrial");
-    var isLegalRole = User.IsInRole("LegalIndustrial");
 
 }
 <style>
@@ -56,6 +16,7 @@
         width: 20px;
         height: 20px;
     }
+
     #panel, #flip {
         padding: 5px;
         text-align: center;
@@ -69,7 +30,7 @@
     }
 </style>
 <h1>Edit</h1>
-<h3>Customer Update</h3>
+<h3>Ubah Data</h3>
 <hr />
 <form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
     <div class="row">
@@ -79,602 +40,88 @@
                     <div class="form-group">
                         <label class="control-label">Name</label>
                         <input asp-for="CUST_NAME" class="form-control" />
-                        <input asp-for="id" type="hidden" class="form-control" />
-                        <input asp-for="isApproved" type="hidden" class="form-control" />
-                        <input asp-for="isApproved2" type="hidden" class="form-control" />
                         <span asp-validation-for="CUST_NAME" class="text-danger"></span>
                     </div>
-                </div>
-
-            </div>
-            <div class="form-group">
-                <label class="control-label">Company</label>
-                <input asp-for="COMPANY" class="form-control" />
-                <span asp-validation-for="COMPANY" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label">address</label>
-                <textarea asp-for="address" class="form-control"></textarea>
-                <span asp-validation-for="address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">city</label>
-                <input asp-for="city" class="form-control" />
-                <span asp-validation-for="city" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="province" class="control-label"></label>
-                <input asp-for="province" class="form-control" />
-                <span asp-validation-for="province" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="postal" class="control-label"></label>
-                <input asp-for="postal" class="form-control" />
-                <span asp-validation-for="postal" class="text-danger"></span>
-            </div>
-
-
-
-
-            @*<form asp-action="Create">
-                    <div asp-validation-summary="ModelOnly" class="text-danger">
-                        <div class="form-group">
-                            <label asp-for="BOOK_NAME" class="control-label"></label>
-                            <input asp-for="BOOK_NAME" class="form-control" />
-                            <span asp-validation-for="BOOK_NAME" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <input type="submit" value="Create" class="btn btn-success" />
-                        </div>
-                    </div>
-                </form>*@
-        </div>
-        <div class="col-sm">
-            <div class="form-group">
-                <label class="control-label">Register Dates</label>
-                <input type="date" asp-for="REG_DATE" class="form-control" />
-                <span asp-validation-for="REG_DATE" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">NPWP</label>
-                <input asp-for="NPWP" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                <span asp-validation-for="NPWP" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label">Bank Name</label>
-                <input asp-for="BANK_NAME" class="form-control" />
-                <span asp-validation-for="BANK_NAME" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Bank No.</label>
-                <input asp-for="BANK_NUMBER" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                <span asp-validation-for="BANK_NUMBER" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Branch</label>
-                <input asp-for="BANK_BRANCH" class="form-control" />
-                <span asp-validation-for="BANK_BRANCH" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Bank Country</label>
-                <input asp-for="BANK_COUNTRY" class="form-control" />
-                <span asp-validation-for="BANK_COUNTRY" class="text-danger"></span>
-            </div>
-
-
-        </div>
-        <div class="col-sm">
-            <div class="form-group">
-
-                <label class="control-label">KTP</label>
-                <input asp-for="KTP" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                <span asp-validation-for="KTP" class="text-danger"></span>
-            </div>
-            <div class="row">
-                <div class="col-sm">
                     <div class="form-group">
-                        <label class="control-label">Phone 1</label>
+
+                        <label class="control-label">Phone</label>
                         <input asp-for="PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
                         <span asp-validation-for="PHONE1" class="text-danger"></span>
                     </div>
-                </div>
-                <div class="col-sm">
                     <div class="form-group">
-                        <label class="control-label">Phone 2</label>
-                        <input asp-for="PHONE2" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                        <span asp-validation-for="PHONE2" class="text-danger"></span>
+                        <label class="control-label">Email</label>
+                        <input asp-for="Email" class="form-control" readonly/>
+                        <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">VA Note</label>
-                        <input asp-for="VA1NOTE" class="form-control" value="BNI" />
-                        <span asp-validation-for="VA1NOTE" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">VA </label>
-                        <input asp-for="VA1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                        <span asp-validation-for="VA1" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="row" style="display:none;">
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">VA 2 Note</label>
-                        <input asp-for="VA2NOTE" class="form-control" />
-                        <span asp-validation-for="VA2NOTE" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">VA 2 </label>
-                        <input asp-for="VA2" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                        <span asp-validation-for="VA2" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Email</label>
-                <input asp-for="Email" class="form-control" readonly />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="row" >
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">Area</label>
-                        <input asp-for="store_area" class="form-control" readonly />
-                        <span asp-validation-for="store_area" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">Customer Discount (%)</label>
-                        <input asp-for="discount_customer" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                        <span asp-validation-for="discount_customer" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-          
-            <div class="row">
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">Blacklist</label>
-                        <br />
-                        <input asp-for="isBlackList" class="largerCheckbox" />
-                        <span asp-validation-for="isBlackList" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">Legal Sign</label>
-                        <br />
-                        <input asp-for="isApproveBool" class="largerCheckbox" />
-                        <span asp-validation-for="isApproveBool" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">Finance Sign</label>
-                        <br />
-                        <input asp-for="isApproveBool2" class="largerCheckbox" />
-                        <span asp-validation-for="isApproveBool2" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm">
-            <div class="form-group">
-                <div id="flip">Click to slide down panel</div>
-                <div id="panel">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-sm">
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label"> KTP</label>
+                    @if (User.IsInRole("AccountAdmin"))
+                    {
+                        <div class="form-group">
 
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileKtp" />
-                                                    <a href="#" id="fileKTPName"></a>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label"> Akta Perusahaan</label>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileAkta" />
-                                                    <a href="#" id="fileAktaName"></a>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label">Rekening Bank</label>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileRekening" />
-                                                    <a href="#" id="fileRekeningName"></a>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm">
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label">NPWP</label>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileNPWP" />
-                                                    <a href="#" id="fileNPWPName"></a>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label">TDP</label>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileTdp" />
-                                                    <a href="#" id="fileTDPName"></a>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label">SIUP</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileSIUP" />
-                                                    <a href="#" id="fileSIUPName"></a>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm">
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label">NIB</label>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileNIB" />
-                                                    <a href="#" id="fileNIBName"></a>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label">SPPKP / PKP</label>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileSPPKP" />
-                                                    <a href="#" id="fileSPPKPName"></a>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label class="control-label">SKT</label>
-
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <input type="file" asp-for="fileSKT" />
-                                                    <a href="#" id="fileSKTName"></a>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
+                            <label class="control-label">Company Name</label>
+                            <input asp-for="COMPANY" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                            <span asp-validation-for="COMPANY" class="text-danger"></span>
                         </div>
-                    </div>
+                    }
+                    
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
     <div class="row">
         <div class="col-sm">
             <div class="form-group">
-                <input type="button" value="Update Data" onclick="alertfirst()" class="btn btn-red" />
+                <input type="button" value="Simpan Data" onclick="alertfirst()" class="btn btn-red" />
             </div>
         </div>
 
     </div>
-   
+
 </form>
 
 
 <div>
     <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
-@section Scripts{
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-<script>
-    $(document).ready(function () {
-        var roleFinance = '@isFinanceRole';
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
 
-        var roleLegal = '@isLegalRole';
-        var roleSales = '@isSalesRole';
-        debugger;
-        $("#discount_customer").rules("remove", "number");
-
-        if (roleFinance == "True") {
-            var isapprovelegal = $("#isApproved").val();
-            if (isapprovelegal == "1") {
-                $('#VA1NOTE').prop('readonly', false);
-                $('#VA1').prop('readonly', false);
-                var isapprovefinance = $("#isApproved2").val();
-                var vaacc = $("#VA1").val();
-                if (isapprovefinance == "1" && vaacc != '' & vaacc != null) {
-                    $('#discount_customer').prop('readonly', false);
-                } else {
-                    $('#discount_customer').prop('readonly', true);
-                }
-            } else {
-                $('#VA1NOTE').prop('readonly', true);
-                $('#VA1').prop('readonly', true);
-                $('#discount_customer').prop('readonly', true);
+            $("#flip").click(function () {
+                $("#panel").slideToggle();
+                //$("#panel").slideUp("slow");
+            });
+            var errmsg = '@errmsg';
+            if (errmsg != "" && errmsg != null) {
+                alert(errmsg);
             }
 
-          
-        } else {
-            $('#VA1NOTE').prop('readonly', true);
-            $('#VA1').prop('readonly', true);
-            $('#discount_customer').prop('readonly', true);
 
-        }
-        //if (roleLegal == "True") {
-        //    $('#isApproveBool').attr('disabled', false);
-
-        //} else {
-        //    $('#isApproveBool').attr('disabled', true);
-
-        //}
-        $("#flip").click(function () {
-            $("#panel").slideToggle();
-            //$("#panel").slideUp("slow");
         });
 
-        var filenameKTP = '@filenameKTP';
-        var idform = $("#id").val();
-        $("#fileKTPName").html(filenameKTP);
-        $("#fileKTPName").attr("href", "/Customer/DownloadKTP?iddata=" + idform);
-
-        var filenameAkta = '@filenameAkta';
-        $("#fileAktaName").html(filenameAkta);
-        $("#fileAktaName").attr("href", "/Customer/DownloadAkta?iddata=" + idform);
-
-        var filenameRekening = '@filenameRekening';
-        $("#fileRekeningName").html(filenameRekening);
-        $("#fileRekeningName").attr("href", "/Customer/DownloadRekening?iddata=" + idform);
-
-        var filenameNPWP = '@filenameNPWP';
-        $("#fileNPWPName").html(filenameNPWP);
-        $("#fileNPWPName").attr("href", "/Customer/DownloadNPWP?iddata=" + idform);
-
-        var filenameTDP = '@filenameTDP';
-        $("#fileTDPName").html(filenameTDP);
-        $("#fileTDPName").attr("href", "/Customer/DownloadTDP?iddata=" + idform);
-
-        var filenameSIUP = '@filenameSIUP';
-        $("#fileSIUPName").html(filenameSIUP);
-        $("#fileSIUPName").attr("href", "/Customer/DownloadSIUP?iddata=" + idform);
-
-        var filenameNIB = '@filenameNIB';
-        $("#fileNIBName").html(filenameNIB);
-        $("#fileNIBName").attr("href", "/Customer/DownloadNIB?iddata=" + idform);
-
-        var filenameSPPKP = '@filenameSPPKP';
-        $("#fileSPPKPName").html(filenameSPPKP);
-        $("#fileSPPKPName").attr("href", "/Customer/DownloadSPPKP?iddata=" + idform);
-
-         var filenameSKT = '@filenameSKT';
-        $("#fileSKTName").html(filenameSKT);
-        $("#fileSKTName").attr("href", "/Customer/DownloadSKT?iddata=" + idform);
-
-    });
-    $('#isApproveBool2').change(function (s, e) {
-        debugger;
-        var roleFinance = '@isFinanceRole';
-        if (roleFinance == "False") {
-            var isapprovelegal = $("#isApproved").val();
-            if (isapprovelegal == "1") {
-                var isapprove2 = $("#isApproved2").val();
-                if (isapprove2 == "1") {
-                    $(this).prop('checked', true);
-                    $('#discount_customer').prop('readonly', false);
-
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        function alertfirst() {
+            var pass = $("#Password").val();
+            if (pass == "" || pass == null) {
+                alert("empty password");
+            } else {
+                if (confirm("Are you sure saving data?")) {
+                    $('#formcreate').submit();
                 } else {
-                    $(this).prop('checked', false);
-                    $('#discount_customer').prop('readonly', true);
-                    $('#discount_customer').val(0);
-
+                    return false;
                 }
-            } else {
-                $(this).prop('checked', false);
-                $('#discount_customer').prop('readonly', true);
-                $('#discount_customer').val(0);
-
             }
-           
-        } else {
-            if (this.checked) {
-                var isapprovelegal = $("#isApproved").val();
-                if (isapprovelegal == "1") {
-                    var va1 = $("#VA1").val();
-                    if (va1 == null || va1 == "") {
-                        var isapprove2 = $("#isApproved2").val();
-                        if (isapprove2 == "1") {
-                            $(this).prop('checked', true);
-                            $('#discount_customer').prop('readonly', false);
-                        } else {
-                            $(this).prop('checked', false);
-                            $('#discount_customer').prop('readonly', true);
-                            $('#discount_customer').val(0);
 
-                        }
-                    } else {
-                        $('#discount_customer').prop('readonly', false);
-                    }
-                } else {
-                    $(this).prop('checked', false);
-                    $('#discount_customer').prop('readonly', true);
-                    $('#discount_customer').val(0);
-
-                }
-            } else {
-                $('#discount_customer').prop('readonly', true);
-                $('#discount_customer').val(0);
-            }
-           
-           
         }
 
-    });
-     $('#isApproveBool').change(function (s, e) {
-        debugger;
-        var roleLegal = '@isLegalRole';
-         if (roleLegal == "False") {
-            var isapprove2 = $("#isApproved").val();
-            if (isapprove2 == "1") {
-                $(this).prop('checked', true);
 
-            } else {
-                $(this).prop('checked', false);
-
-            }
-        } 
-
-    });
-    $("#VA1").change(function () {
-        var val = $("#VA1").val();
-        if (val == null || val == "") {
-            $("#isApproved2").val("0");
-            $("#isApproveBool2").prop('checked', false);
-            $('#discount_customer').prop('readonly', true);
-            $('#discount_customer').val(0);
-        }
-
-    });
-    function allowOnlyNumber(evt) {
-        var charCode = (evt.which) ? evt.which : event.keyCode
-        if (charCode > 31 && (charCode < 48 || charCode > 57))
-            return false;
-        return true;
-    }
-    function alertfirst() {
-        if (confirm("Are you sure saving data?")) {
-            $('#formcreate').submit();
-        } else {
-            return false;
-        }
-    }
-
-
-</script>
+    </script>
 }

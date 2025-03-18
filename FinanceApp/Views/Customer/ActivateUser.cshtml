@@ -42,15 +42,7 @@
 </style>
 <p>
 </p>
-<div class="container" id="bootstrap-overrides">
-    <div class="row">
-        <div class="col-sm align-self-end">
-            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
-        </div>
 
-    </div>
-</div>
-<br />
 <table class="table table-striped" id="IndexTbl">
     <thead>
         <tr>
@@ -67,8 +59,11 @@
             <th>
                 Perusahaan
             </th>
-            
-            
+
+            <th>
+                Plan
+            </th>
+
             <th>
                 <label>Actions</label>
             </th>
@@ -80,36 +75,40 @@
         }
         @foreach (var dt in Model)
         {
-        <tr>
-            <td>
-                @i
-            </td>
-            <td>
-                @if (dt.REG_DATE != null)
-                {
-                    @dt.REG_DATE.Date.ToString("dd/MM/yyyy");
-                }
-            </td>
-            
-            <td>
-                @Html.DisplayFor(modelItem => dt.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => dt.CUST_NAME)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => dt.COMPANY)
-
-            </td>
-            
-            
-            
-            <td>
-                <div>
-                    &nbsp;
-                    @if (User.IsInRole("AccountAdmin"))
+            <tr>
+                <td>
+                    @i
+                </td>
+                <td>
+                    @if (dt.REG_DATE != null)
                     {
-                            <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
+                        @dt.REG_DATE.Date.ToString("dd/MM/yyyy")
+                        ;
+                    }
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => dt.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.CUST_NAME)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.COMPANY)
+
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => dt.VA1NOTE)
+
+                </td>
+
+
+
+                <td>
+                    <div>
+                        &nbsp;
+                        @if (User.IsInRole("AccountAdmin"))
+                        {
                             if (dt.FLAG_AKTIF == "1")
                             {
                                 <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Deactivate</a>
@@ -121,21 +120,23 @@
 
                             }
 
-                    }
-                </div>
-            </td>
-        </tr>
+                        }
+                    </div>
+                </td>
+            </tr>
             i++;
         }
     </tbody>
 </table>
 
-@section Scripts{
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
-    $(document).ready(function () {
-        $('#IndexTbl').DataTable();
-    });
+        $(document).ready(function () {
+            $('#IndexTbl').DataTable();
+        });
     </script>
 }
 

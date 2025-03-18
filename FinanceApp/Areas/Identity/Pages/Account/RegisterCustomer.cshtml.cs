@@ -109,6 +109,11 @@ namespace BaseLineProject.Areas.Identity
             [DataType(DataType.Text)]
             [Display(Name = "Postal")]
             public string Postal { get; set; }
+
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "Software Plan")]
+            public string SoftwarePlan { get; set; }
             //[Required]
             //[DataType(DataType.Upload)]
             //[Display(Name = "KTP")]
@@ -171,138 +176,28 @@ namespace BaseLineProject.Areas.Identity
                     var result = await _userManager.CreateAsync(user, Input.Password);
                     if (result.Succeeded)
                     {
-                        var result1 = await _userManager.AddToRoleAsync(user, "CustomerOnPos");
+                        var result1 = await _userManager.AddToRoleAsync(user, "AccountAdmin");
                         var fieldCustomer = new dbCustomer();
                         fieldCustomer.CUST_NAME = Input.CUST_NAME;
                         fieldCustomer.Email = Input.Email;
                         fieldCustomer.PHONE1 = Input.PHONE1;
-                        //fieldCustomer.KTP = Input.KTP;
-                        //fieldCustomer.NPWP = Input.NPWP;
                         fieldCustomer.COMPANY = Input.COMPANY;
                         fieldCustomer.address = Input.Address;
                         fieldCustomer.city = Input.City;
                         fieldCustomer.province = Input.Province;
                         fieldCustomer.postal = Input.Postal;
-                        //fieldCustomer.store_area = Input.store_area;
-                        fieldCustomer.FLAG_AKTIF = "1";
+                        fieldCustomer.FLAG_AKTIF = "0";
                         fieldCustomer.REG_DATE = DateTime.Now;
                         fieldCustomer.UPDATE_DATE = DateTime.Now;
                         fieldCustomer.ENTRY_DATE = DateTime.Now;
                         fieldCustomer.ENTRY_USER = Input.Email;
                         fieldCustomer.UPDATE_USER = Input.Email;
+                        fieldCustomer.VA1NOTE = Input.SoftwarePlan;
                         fieldCustomer.BL_FLAG = "0";
-                        //if (Input.fileKtp != null)
-                        //{
-                        //    fieldCustomer.FILE_KTP_NAME = Input.fileKtp.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileKtp.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_KTP = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
-                        //if (Input.fileAkta != null)
-                        //{
-                        //    fieldCustomer.FILE_AKTA_NAME = Input.fileAkta.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileAkta.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_AKTA = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
-                        //if (Input.fileRekening != null)
-                        //{
-                        //    fieldCustomer.FILE_REKENING_NAME = Input.fileRekening.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileRekening.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_REKENING = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
-                        //if (Input.fileNPWP != null)
-                        //{
-                        //    fieldCustomer.FILE_NPWP_NAME = Input.fileNPWP.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileNPWP.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_NPWP = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
-                        //if (Input.fileTdp != null)
-                        //{
-                        //    fieldCustomer.FILE_TDP_NAME = Input.fileTdp.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileTdp.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_TDP = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
-                        //if (Input.fileSIUP != null)
-                        //{
-                        //    fieldCustomer.FILE_SIUP_NAME = Input.fileSIUP.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileSIUP.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_SIUP = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
-                        //if (Input.fileNIB != null)
-                        //{
-                        //    fieldCustomer.FILE_NIB_NAME = Input.fileNIB.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileNIB.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_NIB = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
-                        //if (Input.fileSPPKP != null)
-                        //{
-                        //    fieldCustomer.FILE_SPPKP_NAME = Input.fileSPPKP.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileSPPKP.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_SPPKP = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
-                        //if (Input.fileSKT != null)
-                        //{
-                        //    fieldCustomer.FILE_SKT_NAME = Input.fileSKT.FileName;
-                        //    using (var ms = new MemoryStream())
-                        //    {
-                        //        Input.fileSKT.CopyTo(ms);
-                        //        var fileBytes = ms.ToArray();
-                        //        fieldCustomer.FILE_SKT = fileBytes;
-                        //        string s = Convert.ToBase64String(fileBytes);
-                        //        // act on the Base64 data
-                        //    }
-                        //}
+                        
 
                         try
                         {
-                            //db.Database.BeginTransaction();
                             db.CustomerTbl.Add(fieldCustomer);
                             db.SaveChanges();
                             //db.Dispose();
@@ -314,13 +209,13 @@ namespace BaseLineProject.Areas.Identity
 
                         _logger.LogInformation("User created a new account with password.");
 
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        var callbackUrl = Url.Page(
-                            "/Account/ConfirmEmail",
-                            pageHandler: null,
-                            values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                            protocol: Request.Scheme);
+                        //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        //var callbackUrl = Url.Page(
+                        //    "/Account/ConfirmEmail",
+                        //    pageHandler: null,
+                        //    values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
+                        //    protocol: Request.Scheme);
 
                         //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
@@ -342,7 +237,8 @@ namespace BaseLineProject.Areas.Identity
                             //{
                             //    throw;
                             //}
-                            SendVerifyEmail(Input.Email, $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>");
+                            //SendVerifyEmail(Input.Email, $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>");
+                            SendPaymentEmail(Input.Email);
                             //return RedirectToPage("RegisterComplete", new { email = Input.Email, returnUrl = returnUrl });
                             return RedirectToAction("Index", "RegisterComplete");
 
@@ -401,6 +297,45 @@ namespace BaseLineProject.Areas.Identity
             try
             {
                 await mailService.SendVerifyEmailAsync(request);
+                //return Ok();
+            }
+            catch (Exception ex)
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                if (!Directory.Exists(filePath))
+                {
+                    Directory.CreateDirectory(filePath);
+                }
+                using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                {
+                    outputFile.WriteLine(ex.ToString());
+                }
+            }
+        }
+        public async void SendPaymentEmail(string Email)
+        {
+            //string Email = "aditya.tresnaprana@bata.com";
+            var request = new WelcomeRequest();
+            request.UserName = Email;
+            request.ToEmail = Email;
+            //request.ToEmail = Input.Email;
+            //var fileUrl = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot");
+            //var files = Path.Combine(fileUrl, "FileCodeofConduct.pdf");
+            //List<IFormFile> fileList = new List<IFormFile>();
+
+
+            //using (var stream = System.IO.File.OpenRead(files))
+            //{
+            //    var file = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name));
+
+
+            //    fileList.Add(file);
+
+            //    request.Attachments = fileList;
+            //}
+            try
+            {
+                await mailService.SendWelcomePaymentAsync(request);
                 //return Ok();
             }
             catch (Exception ex)

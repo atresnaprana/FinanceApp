@@ -1,10 +1,10 @@
 ﻿@model BaseLineProject.Models.dbCustomer
 
 @{
-    ViewData["Title"] = "Deactivate";
+    ViewData["Title"] = "Activate";
 }
 
-<h1>Deactivate Account</h1>
+<h1>Activate Account</h1>
 
 <div>
     <h4>Deactivate</h4>
@@ -20,9 +20,9 @@
             <label>Email: </label>@Html.DisplayFor(model => model.Email)
         </dt>
     </dl>
-    <form asp-action="Delete">
+    <form asp-action="ActivateAcc">
         <input type="hidden" asp-for="id" />
-        <input type="submit" value="Deactivate" class="btn btn-danger" />
+        <input type="submit" value="Activate" class="btn btn-danger" />
         <a asp-action="Index" class="btn btn-primary">Back to list</a>
     </form>
 </div>
