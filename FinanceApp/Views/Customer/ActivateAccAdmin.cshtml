@@ -1,0 +1,55 @@
+﻿@model BaseLineProject.Models.dbCustomer
+
+@{
+    ViewData["Title"] = "Activate";
+}
+
+<h1>Activate Account</h1>
+
+<div>
+    <h4>Deactivate</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            <label>Nama: </label> @Html.DisplayFor(model => model.CUST_NAME)
+        </dt>
+        <dt>
+            <label>Company: </label>@Html.DisplayFor(model => model.COMPANY)
+        </dt>
+        <dt>
+            <label>Email: </label>@Html.DisplayFor(model => model.Email)
+        </dt>
+    </dl>
+    <form asp-action="ActivateAccAdmin">
+        <input type="hidden" asp-for="id" />
+        @if(Model.VA1NOTE == "Enterprise")
+        {
+            <div class="form-group">
+                <label class="control-label">Jumlah User:</label>
+                <input asp-for="VA1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                <span asp-validation-for="VA1" class="text-danger"></span>
+            </div>
+        }
+        <br />
+        <input type="submit" value="Activate" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-primary">Back to list</a>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+      
+
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        
+
+    </script>
+}

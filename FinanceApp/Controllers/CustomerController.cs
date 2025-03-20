@@ -102,77 +102,73 @@ namespace BaseLineProject.Controllers
                 var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
                 objCust.COMPANY = currentcompany.COMPANY;
                 objCust.COMPANY_ID = currentcompany.COMPANY_ID;
-
-                try
+                int totaluser = 0;
+                if(currentcompany.VA1NOTE == "Enterprise")
                 {
-                    //var user = new IdentityUser { UserName = objCust.Email.Trim(), Email = objCust.Email.Trim(), EmailConfirmed = true };
-
-                    var user = new IdentityUser { UserName = objCust.Email.Trim(), Email = objCust.Email.Trim() };
-                    var validateisexist = _userManager.FindByEmailAsync(objCust.Email.Trim());
-
-                    if (validateisexist.Result == null)
+                    totaluser = Convert.ToInt32(currentcompany.VA1);
+                }
+                else if(currentcompany.VA1NOTE == "UMKM")
+                {
+                    totaluser = 3;
+                }
+                else if(currentcompany.VA1NOTE == "Basic")
+                {
+                    totaluser = 1;
+                }
+                var counttotaluser = db.CustomerTbl.Where(y => y.COMPANY_ID == currentcompany.COMPANY_ID).Count();
+                if (counttotaluser <= totaluser)
+                {
+                    try
                     {
-                        //createuser(user, objCust.Password);
-                        var res = await UserSetup(user, objCust.Password);                        
-                        db.CustomerTbl.Add(objCust);
-                        db.SaveChanges();
-                        //var getuser = _userManager.FindByEmailAsync(objCust.Email.Trim());
-                        //IdentityUser userdata = getuser.Result;
-                        //ConfirmEmailAsync(objCust.Email.Trim());
-                        //ApplyUserSettings(userdata);
-                        SendWelcomeMail(objCust.Email.Trim());
-                        //addrole(userdata);
-                        //string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
 
-                        //using (MySqlConnection conn = new MySqlConnection(mySqlConnectionStr))
-                        //{
-                        //    conn.Open();
-                        //    string query = "UPDATE AspNetUsers SET EmailConfirmed = '1' WHERE UserName = @UserName";
+                        var user = new IdentityUser { UserName = objCust.Email.Trim(), Email = objCust.Email.Trim() };
+                        var validateisexist = _userManager.FindByEmailAsync(objCust.Email.Trim());
 
-                        //    using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                        //    {
-                        //        cmd.Parameters.AddWithValue("@UserName", objCust.Email.Trim());
+                        if (validateisexist.Result == null)
+                        {
+                            var res = await UserSetup(user, objCust.Password);
+                            db.CustomerTbl.Add(objCust);
+                            db.SaveChanges();
 
-                        //        int rowsAffected = cmd.ExecuteNonQuery(); // Executes the update
-                        //        if (rowsAffected == 0)
-                        //        {
-                        //            Console.WriteLine("No records were updated. Check if the username exists.");
-                        //        }
-                        //    }
-                        //}
+                            SendWelcomeMail(objCust.Email.Trim());
+
+                        }
+                        else
+                        {
+                            validate = 1;
+                        }
 
 
+                    }
+                    catch (Exception ex)
+                    {
+                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                        if (!Directory.Exists(filePath))
+                        {
+                            Directory.CreateDirectory(filePath);
+                        }
+                        using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                        {
+                            outputFile.WriteLine(ex.ToString());
+                        }
+                    }
+                    if (validate == 1)
+                    {
+                        objCust.errmsg = "This account is exist";
+                        return View(objCust);
                     }
                     else
                     {
-                        validate = 1;
-                    }
-                  
+                        return RedirectToAction("Index");
 
-                }
-                catch (Exception ex)
-                {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
-                    if (!Directory.Exists(filePath))
-                    {
-                        Directory.CreateDirectory(filePath);
                     }
-                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
-                    {
-                        outputFile.WriteLine(ex.ToString());
-                    }
-                }
-                //apprDal.AddApproval(objApproval);
-                if(validate == 1)
-                {
-                    objCust.errmsg = "This account is exist";
-                    return View(objCust);
                 }
                 else
                 {
-                    return RedirectToAction("Index");
-
+                    objCust.errmsg = "total user sudah maksimal";
+                    return View(objCust);
                 }
+                                
             }
             return View(objCust);
         }
@@ -246,10 +242,7 @@ namespace BaseLineProject.Controllers
         [ValidateAntiForgeryToken]
         public  IActionResult Edit(int id, [Bind] dbCustomer fld)
         {
-            //if (id == null)
-            //{
-            //    return NotFound();
-            //}
+            
             if (ModelState.IsValid)
             {
                 var editFld = db.CustomerTbl.Find(id);
@@ -366,7 +359,7 @@ namespace BaseLineProject.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize]
+        [Authorize(Roles = "AccountAdmin")]
         public IActionResult ActivateAcc(int id)
         {
             //if (string.IsNullOrEmpty(id))
@@ -380,6 +373,23 @@ namespace BaseLineProject.Controllers
             }
             return View(fld);
         }
+
+        [Authorize(Roles = "SuperAdmin")]
+        public IActionResult ActivateAccAdmin(int id)
+        {
+            //if (string.IsNullOrEmpty(id))
+            //{
+            //    return NotFound();
+            //}
+            dbCustomer fld = db.CustomerTbl.Find(id);
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            return View(fld);
+        }
+
+
         [HttpPost, ActionName("ActivateAcc")]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -397,6 +407,48 @@ namespace BaseLineProject.Controllers
                 {
                     //db.trainerDb.Remove(fld);
                     fld.FLAG_AKTIF = "1";
+                    fld.UPDATE_DATE = DateTime.Now;
+                    fld.UPDATE_USER = User.Identity.Name;
+                    var test = await ActivateAccount(fld.Email);
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgEdit" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                    {
+                        outputFile.WriteLine(ex.ToString());
+                    }
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost, ActionName("ActivateAccAdmin")]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivateIdAdmin([Bind] dbCustomer flds)
+        {
+            dbCustomer fld = db.CustomerTbl.Find(flds.id);
+
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                try
+                {
+                    //db.trainerDb.Remove(fld);
+                    fld.FLAG_AKTIF = "1";
+                    if (fld.VA1NOTE == "Enterprise")
+                    {
+                        fld.VA1 = flds.VA1;
+                    }
                     fld.UPDATE_DATE = DateTime.Now;
                     fld.UPDATE_USER = User.Identity.Name;
                     var test = await ActivateAccount(fld.Email);
