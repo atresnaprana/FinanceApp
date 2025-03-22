@@ -60,6 +60,28 @@ namespace BaseLineProject.Controllers
             var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
             var companyid = currentcompany.COMPANY_ID;
             data = db.CustomerTbl.Where(y => y.COMPANY_ID == companyid).OrderBy(y => y.id).ToList();
+         
+            var counttotaluser = db.CustomerTbl.Where(y => y.COMPANY_ID == companyid).Count();
+            var isallowed = true;
+            if (currentcompany.VA1NOTE == "Basic")
+            {
+                return NotFound();
+            } else if (currentcompany.VA1NOTE == "UMKM")
+            {
+                if(counttotaluser >= 3)
+                {
+                    isallowed = false;
+                }
+            }  else if (currentcompany.VA1NOTE == "Enterprise")
+            {
+                var val = Convert.ToInt32(currentcompany.VA1);
+                if(counttotaluser >= val)
+                {
+                    isallowed = false;
+                }
+            }
+            ViewData["isallowed"] = isallowed;
+
             return View(data);
         }
 
@@ -82,6 +104,11 @@ namespace BaseLineProject.Controllers
         [Authorize]
         public IActionResult Create()
         {
+            var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            if(currentcompany.VA1NOTE == "Basic")
+            {
+                return NotFound();
+            }
 
             return View();
         }
@@ -116,7 +143,7 @@ namespace BaseLineProject.Controllers
                     totaluser = 1;
                 }
                 var counttotaluser = db.CustomerTbl.Where(y => y.COMPANY_ID == currentcompany.COMPANY_ID).Count();
-                if (counttotaluser <= totaluser)
+                if (counttotaluser < totaluser)
                 {
                     try
                     {
@@ -228,7 +255,11 @@ namespace BaseLineProject.Controllers
             //{
             //    return NotFound();
             //}
-
+            var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            if (currentcompany.VA1NOTE == "Basic")
+            {
+                return NotFound();
+            }
             dbCustomer fld = db.CustomerTbl.Find(id);
             
             if (fld == null)
@@ -310,6 +341,11 @@ namespace BaseLineProject.Controllers
         [Authorize(Roles = "AccountAdmin")]
         public IActionResult Delete(int id)
         {
+            var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            if (currentcompany.VA1NOTE == "Basic")
+            {
+                return NotFound();
+            }
             //if (string.IsNullOrEmpty(id))
             //{
             //    return NotFound();
@@ -366,6 +402,11 @@ namespace BaseLineProject.Controllers
             //{
             //    return NotFound();
             //}
+            var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            if (currentcompany.VA1NOTE == "Basic")
+            {
+                return NotFound();
+            }
             dbCustomer fld = db.CustomerTbl.Find(id);
             if (fld == null)
             {
@@ -385,6 +426,10 @@ namespace BaseLineProject.Controllers
             if (fld == null)
             {
                 return NotFound();
+            }
+            if(fld.VA1NOTE == "Enterprise")
+            {
+                fld.VA1 = "1";
             }
             return View(fld);
         }
@@ -467,7 +512,7 @@ namespace BaseLineProject.Controllers
                     }
                 }
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("ActivateUser");
         }
 
         public async Task<bool> ActivateAccount(string email)

@@ -32,7 +32,7 @@
         }
         <br />
         <input type="submit" value="Activate" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-primary">Back to list</a>
+        <a asp-action="ActivateUser" class="btn btn-primary">Back to list</a>
     </form>
 </div>
 
@@ -41,7 +41,16 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-      
+        $(document).ready(function () {
+            $('#VA1').on('blur', function () {
+                let value = $(this).val().trim();
+
+                // If the input is empty or not a valid positive number, set to 1
+                if (value === "" || isNaN(value) || parseInt(value) < 1) {
+                    $(this).val(1);
+                }
+            });
+        });
 
         function allowOnlyNumber(evt) {
             var charCode = (evt.which) ? evt.which : event.keyCode

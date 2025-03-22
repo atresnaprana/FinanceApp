@@ -37,6 +37,9 @@ namespace BaseLineProject.Controllers
                 }
                 var TabDb = db.TabTbl.Where(y => roleList.Contains(y.ROLE_ID) && y.FLAG_AKTIF == "1").ToList();
                 var MenuDB = db.MenuTbl.Where(y => roleList.Contains(y.ROLE_ID) && y.FLAG_AKTIF == "1").ToList();
+                var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+                ViewData["pkg"] = currentcompany.VA1NOTE;
+
                 tabList = TabDb.Select(y => new SystemTabModel()
                 {
                     ID = y.ID,

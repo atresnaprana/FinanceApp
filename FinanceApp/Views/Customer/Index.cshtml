@@ -3,6 +3,7 @@
     ViewData["Title"] = "Form Data Customer";
 
     var isAdmin = User.IsInRole("Admin").ToString();
+    var isallowed = Convert.ToBoolean(ViewData["isallowed"]);
 }
 
 <style>
@@ -42,14 +43,18 @@
 </style>
 <p>
 </p>
-<div class="container" id="bootstrap-overrides">
-    <div class="row">
-        <div class="col-sm align-self-end">
-            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
-        </div>
+@if (isallowed)
+{
+    <div class="container" id="bootstrap-overrides">
+        <div class="row">
+            <div class="col-sm align-self-end">
+                <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
+            </div>
 
+        </div>
     </div>
-</div>
+}
+
 <br />
 <table class="table table-striped" id="IndexTbl">
     <thead>
