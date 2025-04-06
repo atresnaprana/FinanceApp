@@ -77,17 +77,17 @@ namespace FinanceApp.Controllers
             var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode == month && y.isclosed == "Y").ToList();
             QuestPDF.Settings.License = LicenseType.Community;
             QuestPDF.Settings.EnableDebugging = true;
-
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
             // Render the "Index" view as a PDF
 
             if (dataclosing.Count > 0)
             {
                 if (isyearly)
                 {
-                    var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000).ToList();
-                    var datajpb = db.JpbTbl.Where(y =>  y.TransDate.Year == year).ToList();
-                    var datajpn = db.JpnTbl.Where(y =>  y.TransDate.Year == year).ToList();
-                    var datajm = db.JmTbl.Where(y =>  y.TransDate.Year == year).ToList();
+                    var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajpb = db.JpbTbl.Where(y =>  y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajpn = db.JpnTbl.Where(y =>  y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajm = db.JmTbl.Where(y =>  y.TransDate.Year == year  && y.company_id == datas.COMPANY_ID).ToList();
                     obj.akundata = dataacc;
                     obj.jpbdata = datajpb;
                     obj.jpndata = datajpn;
@@ -152,10 +152,10 @@ namespace FinanceApp.Controllers
                 }
                 else
                 {
-                    var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000).ToList();
-                    var datajpb = db.JpbTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
-                    var datajpn = db.JpnTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
-                    var datajm = db.JmTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
+                    var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajpb = db.JpbTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajpn = db.JpnTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajm = db.JmTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
                     obj.akundata = dataacc;
                     obj.jpbdata = datajpb;
                     obj.jpndata = datajpn;
@@ -358,15 +358,16 @@ namespace FinanceApp.Controllers
             var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode == month && y.isclosed == "Y").ToList();
             QuestPDF.Settings.License = LicenseType.Community;
             QuestPDF.Settings.EnableDebugging = true;
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
 
             // Render the "Index" view as a PDF
 
             if (isyearly)
             {
-                var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000).ToList();
-                var datajpb = db.JpbTbl.Where(y => y.TransDate.Year == year).ToList();
-                var datajpn = db.JpnTbl.Where(y => y.TransDate.Year == year).ToList();
-                var datajm = db.JmTbl.Where(y => y.TransDate.Year == year).ToList();
+                var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpb = db.JpbTbl.Where(y => y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpn = db.JpnTbl.Where(y => y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajm = db.JmTbl.Where(y => y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
                 obj.akundata = dataacc;
                 obj.jpbdata = datajpb;
                 obj.jpndata = datajpn;
@@ -420,10 +421,10 @@ namespace FinanceApp.Controllers
             }
             else
             {
-                var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000).ToList();
-                var datajpb = db.JpbTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
-                var datajpn = db.JpnTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
-                var datajm = db.JmTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year).ToList();
+                var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpb = db.JpbTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpn = db.JpnTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajm = db.JmTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
                 obj.akundata = dataacc;
                 obj.jpbdata = datajpb;
                 obj.jpndata = datajpn;

@@ -4,14 +4,16 @@ using BaseLineProject.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BaseLineProject.Migrations
 {
     [DbContext(typeof(FormDBContext))]
-    partial class FormDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250325142733_addclosingtbl2")]
+    partial class addclosingtbl2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -470,10 +472,6 @@ namespace BaseLineProject.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("entry_user")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("src")
-                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("update_date")

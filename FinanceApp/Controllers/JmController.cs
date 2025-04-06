@@ -222,7 +222,8 @@ namespace FinanceApp.Controllers
                     obj.entry_user = User.Identity.Name;
                     obj.update_user = User.Identity.Name;
                     obj.flag_aktif = "1";
-
+                    var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+                    obj.company_id = datas.COMPANY_ID;
                     try
                     {
                         db.JmTbl.Add(obj);
