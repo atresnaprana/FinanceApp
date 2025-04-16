@@ -129,6 +129,8 @@ namespace BaseLineProject.Controllers
                 var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
                 objCust.COMPANY = currentcompany.COMPANY;
                 objCust.COMPANY_ID = currentcompany.COMPANY_ID;
+                objCust.VA1NOTE = currentcompany.VA1NOTE;
+
                 int totaluser = 0;
                 if(currentcompany.VA1NOTE == "Enterprise")
                 {
