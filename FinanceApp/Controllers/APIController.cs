@@ -253,6 +253,7 @@ namespace FinanceApp.Controllers
             List<dbJpb> TblDt = new List<dbJpb>();
             TblDt = db.JpbTbl.Where(y => y.flag_aktif == "1").ToList();
             var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
             var tbldt2 = new List<dbJpb>();
             if (fromDate == null || toDate == null)
             {
@@ -271,6 +272,7 @@ namespace FinanceApp.Controllers
                     Value_Disc = y.Value_Disc,
                     ValueStr = y.Value.ToString("#,##0.00"),
                     ValueDiscStr = y.Value_Disc.ToString("#,##0.00"),
+                    company_id = y.company_id,
                     id = y.id
                 }).Where(y => y.company_id == datas.COMPANY_ID).ToList();
             }
@@ -291,6 +293,7 @@ namespace FinanceApp.Controllers
                     Value_Disc = y.Value_Disc,
                     ValueStr = y.Value.ToString("#,##0.00"),
                     ValueDiscStr = y.Value_Disc.ToString("#,##0.00"),
+                    company_id = y.company_id,
                     id = y.id
                 }).Where(y => y.TransDate >= fromDate && y.TransDate <= toDate && y.company_id == datas.COMPANY_ID).ToList();
             }
@@ -466,6 +469,7 @@ namespace FinanceApp.Controllers
                     Value_Disc = y.Value_Disc,
                     ValueStr = y.Value.ToString("#,##0.00"),
                     ValueDiscStr = y.Value_Disc.ToString("#,##0.00"),
+                    company_id = y.company_id,
                     id = y.id
                 }).Where(y => y.company_id == datas.COMPANY_ID).ToList();
             }
@@ -486,6 +490,7 @@ namespace FinanceApp.Controllers
                     Value_Disc = y.Value_Disc,
                     ValueStr = y.Value.ToString("#,##0.00"),
                     ValueDiscStr = y.Value_Disc.ToString("#,##0.00"),
+                    company_id = y.company_id,
                     id = y.id
                 }).Where(y => y.TransDate >= fromDate && y.TransDate <= toDate && y.company_id == datas.COMPANY_ID).ToList();
             }
