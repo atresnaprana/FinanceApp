@@ -1,0 +1,96 @@
+﻿@model FinanceApp.Models.LRModel
+
+@{
+    ViewData["Title"] = "Preview";
+    var msg = ViewBag.Message;
+}
+<style>
+    input.largerCheckbox {
+        width: 20px;
+        height: 20px;
+    }
+</style>
+<h1>Download Report Arus Kas (Preview)</h1>
+<hr />
+<form asp-action="GeneratePreview" id="formcreate" enctype="multipart/form-data">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <div class="form-group">
+                    <label class="control-label">Tahun:</label>
+                    <input asp-for="year" class="form-control" />
+                    <span asp-validation-for="year" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Bulan:</label>
+                    <br />
+                    @Html.DropDownListFor(model => model.month, new List<SelectListItem>
+                    {
+                    new SelectListItem{ Text="Jan", Value = "1" },
+                    new SelectListItem{ Text="Feb", Value = "2" },
+                    new SelectListItem{ Text="Mar", Value = "3" },
+                    new SelectListItem{ Text="Apr", Value = "4" },
+                    new SelectListItem{ Text="May", Value = "5" },
+                    new SelectListItem{ Text="Jun", Value = "6" },
+                    new SelectListItem{ Text="Jul", Value = "7" },
+                    new SelectListItem{ Text="Aug", Value = "8" },
+                    new SelectListItem{ Text="Sep", Value = "9" },
+                    new SelectListItem{ Text="Oct", Value = "10" },
+                    new SelectListItem{ Text="Nov", Value = "11" },
+                    new SelectListItem{ Text="Dec", Value = "12" }
+
+                    })
+                    <span asp-validation-for="month" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">is Yearly:</label>
+                    <br />
+                    <input asp-for="isYearly" class="largerCheckbox" />
+                    <span asp-validation-for="isYearly" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="button" value="Download Report" onclick="alertfirst()" class="btn btn-red" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div>
+    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            var msg = '@msg';
+            if (msg != "") {
+                alert(msg);
+            }
+
+        });
+
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        function alertfirst() {
+            $('#formcreate').submit();
+
+            // if (confirm("Are you sure saving data?")) {
+            //     $('#formcreate').submit();
+            // } else {
+            //     return false;
+            // }
+
+        }
+    </script>
+}
+
+
