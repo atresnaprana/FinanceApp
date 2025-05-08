@@ -74,13 +74,13 @@ namespace FinanceApp.Controllers
             var year = obj.year;
             var month = obj.month;
             var isyearly = obj.isYearly;
-            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode == month && y.isclosed == "Y").ToList();
+            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode >= 1 && y.periode <= month && y.isclosed == "Y").ToList();
             QuestPDF.Settings.License = LicenseType.Community;
             QuestPDF.Settings.EnableDebugging = true;
             var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
             // Render the "Index" view as a PDF
 
-            if (dataclosing.Count > 0)
+            if (dataclosing.Count == month)
             {
                 if (isyearly)
                 {
@@ -153,9 +153,9 @@ namespace FinanceApp.Controllers
                 else
                 {
                     var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
-                    var datajpb = db.JpbTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
-                    var datajpn = db.JpnTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
-                    var datajm = db.JmTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajpb = db.JpbTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month  && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajpn = db.JpnTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajm = db.JmTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
                     obj.akundata = dataacc;
                     obj.jpbdata = datajpb;
                     obj.jpndata = datajpn;
@@ -355,7 +355,7 @@ namespace FinanceApp.Controllers
             var year = obj.year;
             var month = obj.month;
             var isyearly = obj.isYearly;
-            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode == month && y.isclosed == "Y").ToList();
+            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode >= 1 && y.periode <= month && y.isclosed == "Y").ToList();
             QuestPDF.Settings.License = LicenseType.Community;
             QuestPDF.Settings.EnableDebugging = true;
             var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
@@ -414,7 +414,7 @@ namespace FinanceApp.Controllers
                 obj.ReportModel = rptdata;
                 obj.ispreview = true;
                 byte[] pdfBytes = GeneratePdfV2(obj);
-                var FileName = "LabaRugi" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                var FileName = "LabaRugiPreview" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
                 return File(pdfBytes, "application/pdf", FileName);
 
 
@@ -422,9 +422,9 @@ namespace FinanceApp.Controllers
             else
             {
                 var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
-                var datajpb = db.JpbTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
-                var datajpn = db.JpnTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
-                var datajm = db.JmTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpb = db.JpbTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpn = db.JpnTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajm = db.JmTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
                 obj.akundata = dataacc;
                 obj.jpbdata = datajpb;
                 obj.jpndata = datajpn;
@@ -472,7 +472,7 @@ namespace FinanceApp.Controllers
                 obj.ReportModel = rptdata;
                 obj.ispreview = true;
                 byte[] pdfBytes = GeneratePdfV2(obj);
-                var FileName = "LabaRugi" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                var FileName = "LabaRugiPreview" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
                 return File(pdfBytes, "application/pdf", FileName);
 
             }

@@ -22,6 +22,33 @@
                     <span asp-validation-for="year" class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Bulan:</label>
+                    <br />
+                    @Html.DropDownListFor(model => model.month, new List<SelectListItem>
+                    {
+                    new SelectListItem{ Text="Jan", Value = "1" },
+                    new SelectListItem{ Text="Feb", Value = "2" },
+                    new SelectListItem{ Text="Mar", Value = "3" },
+                    new SelectListItem{ Text="Apr", Value = "4" },
+                    new SelectListItem{ Text="May", Value = "5" },
+                    new SelectListItem{ Text="Jun", Value = "6" },
+                    new SelectListItem{ Text="Jul", Value = "7" },
+                    new SelectListItem{ Text="Aug", Value = "8" },
+                    new SelectListItem{ Text="Sep", Value = "9" },
+                    new SelectListItem{ Text="Oct", Value = "10" },
+                    new SelectListItem{ Text="Nov", Value = "11" },
+                    new SelectListItem{ Text="Dec", Value = "12" }
+
+                    })
+                    <span asp-validation-for="month" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">is Yearly:</label>
+                    <br />
+                    <input asp-for="isYearly" class="largerCheckbox" />
+                    <span asp-validation-for="isYearly" class="text-danger"></span>
+                </div>
+                <div class="form-group">
                     <input type="button" value="Download Report" onclick="alertfirst()" class="btn btn-red" />
                 </div>
 
