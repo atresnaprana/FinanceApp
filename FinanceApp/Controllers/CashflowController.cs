@@ -787,16 +787,42 @@ namespace FinanceApp.Controllers
 
         private byte[] GeneratePdfV2(LRModel obj)
         {
-            var SaldoLaba = obj.ReportModel.Sum(y => y.totalint);
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            var datalastyear = db.ClosingValueTbl.Where(y => y.company_id == datas.COMPANY_ID && y.year == obj.year - 1).ToList();
             int[] accpenyusutan = new int[] { 1200006, 1200007, 1200008, 1200009 };
-
-            var penyusutan = obj.TB_D.Where(y => accpenyusutan.Contains(y.AccountNo_D)).Sum(y => (long)y.Value_D_int) * -1;
             int[] accpiutang = new int[] { 1100006, 1100009, 1100012, 1100013, 1100014 };
-            var piutang = obj.TB_D.Where(y => accpiutang.Contains(y.AccountNo_D)).Sum(y => (long)y.Value_D_int) * -1;
             int[] acchutang = new int[] { 2100001, 2100002, 2100003, 2200001, 2200002, 2300001, 2300002, 2300003, 2300004, 2300005, };
+            int[] accperalatan = new int[] { 1200003, 1200005 };
+
+            var kasly = (long)0;
+            if(datalastyear.Count() != 0)
+            {
+                var datalrly = datalastyear.Where(y => y.src == "LR").ToList();
+                var dataTB_Dly = datalastyear.Where(y => y.src == "TB_D").ToList();
+                var dataTB_Kly = datalastyear.Where(y => y.src == "TB_K").ToList();
+                var creditly = datalrly.Sum(y => (long)y.credit);
+                var debitly = datalrly.Sum(y => (long)y.debit);
+                var saldolabaly = creditly + debitly;
+                var penyusutanly = dataTB_Dly.Where(y => accpenyusutan.Contains(y.Akun_Debit)).Sum(y => (long)y.debit) * -1;
+                var piutangly = dataTB_Dly.Where(y => accpiutang.Contains(y.Akun_Debit)).Sum(y => (long)y.debit) * -1;
+                var hutangly = dataTB_Kly.Where(y => acchutang.Contains(y.Akun_Debit)).Sum(y => (long)y.debit);
+                var kasbersihoperasily = saldolabaly + penyusutanly + piutangly + hutangly;
+                var datapembelianperalatanly = datalastyear.Where(y => accperalatan.Contains(y.Akun_Debit)).Sum(y => (long)y.debit);
+                var pembelianperalatannegately = datapembelianperalatanly * -1;
+                var modally = dataTB_Kly.Where(y => y.Akun_Debit == 3000001).FirstOrDefault().debit;
+                var kasbersihinventasily = datapembelianperalatanly + modally;
+                kasly = kasbersihoperasily + pembelianperalatannegately + kasbersihinventasily;
+
+
+
+
+            }
+
+            var SaldoLaba = obj.ReportModel.Sum(y => y.totalint);
+            var penyusutan = obj.TB_D.Where(y => accpenyusutan.Contains(y.AccountNo_D)).Sum(y => (long)y.Value_D_int) * -1;
+            var piutang = obj.TB_D.Where(y => accpiutang.Contains(y.AccountNo_D)).Sum(y => (long)y.Value_D_int) * -1;
             var hutang = obj.TB_K.Where(y => acchutang.Contains(y.AccountNo_K)).Sum(y => (long)y.Value_K_int);
             var kasbersihoperasi = SaldoLaba + penyusutan + piutang+ hutang;
-            int[] accperalatan = new int[] { 1200003, 1200005 };
             var datapembelianperalatan = obj.jmdata.Where(y => accperalatan.Contains(y.Akun_Debit)).Sum(y => y.Debit);
             var pembelianperalatannegate = datapembelianperalatan * -1;
             var modal = obj.TB_K.Where(y => y.AccountNo_K == 3000001).FirstOrDefault().Value_K_int;
@@ -849,94 +875,45 @@ namespace FinanceApp.Controllers
 
                     page.Content().Table(table =>
                     {
-                        // Adjusted column widths
+                        // Define just 2 columns
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.RelativeColumn(1);
-                            columns.RelativeColumn(3);
-                            columns.RelativeColumn(1.5f); // Reduced Value column width
-                            columns.RelativeColumn(1.5f); // Reduced Total column width
+                            columns.RelativeColumn(3); // Description
+                            columns.RelativeColumn(1); // Value
                         });
 
-                        table.Header(header =>
+                        void AddRow(string desc, string value, bool bold = false)
                         {
-                            header.Cell().Border(1).Padding(2).Text("Description").Bold().FontSize(8);
-                            header.Cell().Border(1).Padding(2).Text("Value").Bold().FontSize(8);
-                        });
+                            table.Cell().Border(1).Padding(2).Text(desc).FontSize(7).Bold();
+                            table.Cell().Border(1).Padding(2).Text(value).FontSize(7).AlignRight().Bold();
+                        }
 
-                        table.Cell().Border(1).Padding(2).Text("Arus Kas dari Aktivitas Operasi").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text("Saldo Laba").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text(SaldoLaba.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
+                        // Header
+                        AddRow("Description", "Value", bold: true);
 
-                        table.Cell().Border(1).Padding(2).Text("Penyusutan").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text(penyusutan.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
+                        // Section: Operasi
+                        AddRow("Arus Kas dari Aktivitas Operasi", "", bold: true);
+                        AddRow("Saldo Laba", SaldoLaba.ToString("#,##0.00;(#,##0.00)"));
+                        AddRow("Penyusutan", penyusutan.ToString("#,##0.00;(#,##0.00)"));
+                        AddRow("Kenaikan Piutang", piutang.ToString("#,##0.00;(#,##0.00)"));
+                        AddRow("Kenaikan Hutang", hutang.ToString("#,##0.00;(#,##0.00)"));
+                        AddRow("Kas Bersih dari Aktivitas Operasi", kasbersihoperasi.ToString("#,##0.00;(#,##0.00)"), bold: true);
 
-                        table.Cell().Border(1).Padding(2).Text("Kenaikan piutang").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text(piutang.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
+                        // Section: Investasi
+                        AddRow("Arus Kas dari Aktivitas Investasi", "", bold: true);
+                        AddRow("Penambahan Aset Tetap", pembelianperalatannegate.ToString("#,##0.00;(#,##0.00)"));
+                        AddRow("Kas Bersih dari Aktivitas Investasi", pembelianperalatannegate.ToString("#,##0.00;(#,##0.00)"), bold: true);
 
-                        table.Cell().Border(1).Padding(2).Text("Kenaikan hutang").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text(hutang.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
+                        // Section: Pembiayaan
+                        AddRow("Arus Kas dari Aktivitas Pembiayaan", "", bold: true);
+                        AddRow("Penambahan Aset Tetap", datapembelianperalatan.ToString("#,##0.00;(#,##0.00)"));
+                        AddRow("Modal", modal.ToString("#,##0.00;(#,##0.00)"));
+                        AddRow("Kas Bersih dari Aktivitas Pembiayaan", kasbersihinventasi.ToString("#,##0.00;(#,##0.00)"), bold: true);
 
-
-                        table.Cell().Border(1).Padding(2).Text("Kas bersih yang di peroleh dari Aktivitas Operasi").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text(kasbersihoperasi.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
-
-
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-
-                        table.Cell().Border(1).Padding(2).Text("Arus Kas dari Aktivitas Investasi").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-
-
-                        table.Cell().Border(1).Padding(2).Text("Penambahan aset tetap").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text(pembelianperalatannegate.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
-
-                        table.Cell().Border(1).Padding(2).Text("Kas bersih yang digunakan untuk aktivitas investasi").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text(pembelianperalatannegate.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
-
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-
-
-                        table.Cell().Border(1).Padding(2).Text("Arus Kas dari Aktivitas Pembiayaan").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-
-
-                        table.Cell().Border(1).Padding(2).Text("Penambahan Aset Tetap").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text(datapembelianperalatan.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
-
-
-                        table.Cell().Border(1).Padding(2).Text("Modal").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text(modal.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
-
-
-
-                        table.Cell().Border(1).Padding(2).Text("Kas bersih yang digunakan untuk aktivitas investasi").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text(kasbersihinventasi.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
-
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-
-                       
-                        table.Cell().Border(1).Padding(2).Text("Penambahan Bersih Kas dan Bank").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text(penambahankas.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
-
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-
-                        table.Cell().Border(1).Padding(2).Text("Kas dan Bank Awal Tahun").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-                        table.Cell().Border(1).Padding(2).Text("").FontSize(7);
-
-                        table.Cell().Border(1).Padding(2).Text("Kas dan Bank Akhir Tahun").FontSize(7).Bold();
-                        table.Cell().Border(1).Padding(2).Text(penambahankas.ToString("#,##0.00;(#,##0.00)")).FontSize(7).AlignRight();
-
-
-
+                        // Section: Summary
+                        AddRow("Penambahan Bersih Kas dan Bank", penambahankas.ToString("#,##0.00;(#,##0.00)"), bold: true);
+                        AddRow("Kas dan Bank Awal Tahun", kasly.ToString("#,##0.00;(#,##0.00)"), bold: true); // Add value if available
+                        AddRow("Kas dan Bank Akhir Tahun", penambahankas.ToString("#,##0.00;(#,##0.00)"), bold: true);
                     });
 
                     page.Footer()
@@ -1018,7 +995,7 @@ namespace FinanceApp.Controllers
                 obj.TB_K = datatb.TB_K;
                 obj.ispreview = true;
                 byte[] pdfBytes = GeneratePdfV2(obj);
-                var FileName = "LabaRugi" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                var FileName = "Cashflowpreview" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
                 return File(pdfBytes, "application/pdf", FileName);
 
 
@@ -1026,14 +1003,15 @@ namespace FinanceApp.Controllers
             else
             {
                 var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
-                var datajpb = db.JpbTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
-                var datajpn = db.JpnTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
-                var datajm = db.JmTbl.Where(y => y.TransDate.Month == month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpb = db.JpbTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpn = db.JpnTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajm = db.JmTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
                 obj.akundata = dataacc;
                 obj.jpbdata = datajpb;
                 obj.jpndata = datajpn;
                 obj.jmdata = datajm;
                 obj.closingdata = dataclosing;
+                obj.ispreview = false;
 
                 List<LRRptModel> rptdata = new List<LRRptModel>();
 
@@ -1076,9 +1054,8 @@ namespace FinanceApp.Controllers
                 obj.ReportModel = rptdata;
                 obj.TB_D = datatb.TB_D;
                 obj.TB_K = datatb.TB_K;
-                obj.ispreview = true;
                 byte[] pdfBytes = GeneratePdfV2(obj);
-                var FileName = "LabaRugi" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                var FileName = "CashflowPreviewYtd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
                 return File(pdfBytes, "application/pdf", FileName);
 
             }
