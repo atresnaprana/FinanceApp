@@ -36,7 +36,7 @@ namespace FinanceApp.Controllers
             Environment = _environment;
             this.db = db;
         }
-       
+        #region datamanagement
         [Authorize]
         [HttpGet("getdataJM")]
         public IActionResult getdataJM(DateTime? fromDate, DateTime? toDate)
@@ -644,9 +644,10 @@ namespace FinanceApp.Controllers
             }
 
         }
+        #endregion datamanagement
 
 
-
+        #region reportdata
         [Authorize]
         [HttpPost("GeneratePreviewTB")]
         public async Task<IActionResult> GeneratePreviewTB([FromBody] LRModel obj)
@@ -2685,8 +2686,6 @@ namespace FinanceApp.Controllers
             return obj;
         }
 
-
-
         private byte[] GenerateRptCashflow(LRModel obj)
         {
             var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
@@ -2826,6 +2825,60 @@ namespace FinanceApp.Controllers
 
             return stream.ToArray();
         }
+        #endregion reportdata
+
+        #region viewdata
+        [Authorize]
+        [HttpPost("ViewJM")]
+        public IActionResult ViewJM(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            dbJm fld = db.JmTbl.Find(id);
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            
+            return Json(fld);
+        }
+
+        [Authorize]
+        [HttpPost("ViewJPB")]
+        public IActionResult ViewJPB(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            dbJpb fld = db.JpbTbl.Find(id);
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            
+            return Json(fld);
+        }
+
+        [Authorize]
+        [HttpPost("ViewJPN")]
+        public IActionResult ViewJPN(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            dbJpn fld = db.JpnTbl.Find(id);
+            if (fld == null)
+            {
+                return NotFound();
+            }
+           
+            return Json(fld);
+        }
+        #endregion viewdata
 
 
 
