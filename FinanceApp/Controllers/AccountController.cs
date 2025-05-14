@@ -31,8 +31,9 @@ namespace FinanceApp.Controllers
         [Authorize(Roles = "AccountAdmin")]
         public IActionResult Index()
         {
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
             var data = new List<dbAccount>();
-            data = db.AccountTbl.Where(y => y.flag_aktif == "1").OrderBy(y => y.account_no).ToList();
+            data = db.AccountTbl.Where(y => y.flag_aktif == "1" && y.company_id == datas.COMPANY_ID).OrderBy(y => y.account_no).ToList();
             return View(data);
         }
         [HttpGet]
@@ -54,6 +55,8 @@ namespace FinanceApp.Controllers
                 obj.entry_user = User.Identity.Name;
                 obj.update_user = User.Identity.Name;
                 obj.flag_aktif = "1";
+                var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+                obj.company_id = datas.COMPANY_ID;
                 try
                 {
                     dbAccount edpDt = db.AccountTbl.Where(y => y.account_no == obj.account_no).FirstOrDefault();
