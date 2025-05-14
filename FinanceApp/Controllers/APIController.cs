@@ -38,6 +38,164 @@ namespace FinanceApp.Controllers
         }
         #region datamanagement
         [Authorize]
+        [HttpGet("getdataAccount")]
+        public IActionResult getdataAccount()
+        {
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            var username = User.Identity.Name;
+            if (string.IsNullOrEmpty(username))
+                return Unauthorized(new { message = "Invalid token or missing username" });
+            var data = new List<dbAccount>();
+            data = db.AccountTbl.Where(y => y.flag_aktif == "1" && y.company_id == datas.COMPANY_ID).OrderBy(y => y.account_no).ToList();
+            return Json(datas);
+        }
+        [Authorize]
+        [HttpPost("CreateAccount")]
+        public IActionResult CreateAccount([FromBody] dbAccount obj)
+        {
+            if (ModelState.IsValid)
+            {
+                var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+                obj.entry_date = DateTime.Now;
+                obj.update_date = DateTime.Now;
+                obj.entry_user = User.Identity.Name;
+                obj.update_user = User.Identity.Name;
+                obj.flag_aktif = "1";
+                obj.errormessage = "ok";
+                try
+                {
+                    dbAccount edpDt = db.AccountTbl.Where(y => y.account_no == obj.account_no && y.company_id == datas.COMPANY_ID).FirstOrDefault();
+                    if (edpDt != null)
+                    {
+                        obj.errormessage = "nomor akun sudah terdaftar";
+                    }
+                    else
+                    {
+                        db.AccountTbl.Add(obj);
+                        db.SaveChanges();
+                    }
+
+
+
+                }
+                catch (Exception ex)
+                {
+                    obj.errormessage = ex.InnerException.Message;
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                    {
+                        outputFile.WriteLine(ex.ToString());
+                    }
+                }
+                //apprDal.AddApproval(objApproval);
+            }
+            return Ok(new { message = obj.errormessage });
+        }
+        
+        [Authorize]
+        [HttpGet("geteditfield")]
+        public IActionResult geteditfield(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            dbAccount fld = db.AccountTbl.Find(id);
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            return Json(fld);
+        }
+        [Authorize]
+        [HttpPost("EditAccount")]
+        public IActionResult EditAccount(int? id, [FromBody] dbAccount fld)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            fld.errormessage = "ok";
+            if (ModelState.IsValid)
+            {
+                var editFld = db.AccountTbl.Find(id);
+                editFld.hierarchy = fld.hierarchy;
+                editFld.account_name = fld.account_name;
+                editFld.akundk = fld.akundk;
+                editFld.akunnrlr = fld.akunnrlr;
+                editFld.update_date = DateTime.Now;
+                editFld.update_user = User.Identity.Name;
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    fld.errormessage = ex.InnerException.Message;
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgEdit" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                    {
+                        outputFile.WriteLine(ex.ToString());
+                    }
+                }
+            }
+            return Ok(new { message = fld.errormessage });
+        }
+
+        [Authorize]
+        [HttpPost("DeleteFld")]
+        public IActionResult DeleteFld(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            dbAccount fld = db.AccountTbl.Find(id);
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            return Json(fld);
+        }
+        [Authorize]
+        [HttpPost("DeleteAccount")]
+        public IActionResult DeleteAccount(int? id)
+        {
+            dbAccount fld = db.AccountTbl.Find(id);
+            fld.flag_aktif = "0";
+            fld.update_date = DateTime.Now;
+            fld.update_user = User.Identity.Name;
+            fld.errormessage = "ok";
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                fld.errormessage = ex.Message.ToString();
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                if (!Directory.Exists(filePath))
+                {
+                    Directory.CreateDirectory(filePath);
+                }
+                using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgEdit" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                {
+                    outputFile.WriteLine(ex.ToString());
+                }
+            }
+            return Ok(new { message = fld.errormessage });
+        }
+
+
+        [Authorize]
         [HttpGet("getdataJM")]
         public IActionResult getdataJM(DateTime? fromDate, DateTime? toDate)
         {
