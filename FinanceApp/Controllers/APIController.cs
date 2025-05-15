@@ -47,7 +47,7 @@ namespace FinanceApp.Controllers
                 return Unauthorized(new { message = "Invalid token or missing username" });
             var data = new List<dbAccount>();
             data = db.AccountTbl.Where(y => y.flag_aktif == "1" && y.company_id == datas.COMPANY_ID).OrderBy(y => y.account_no).ToList();
-            return Json(datas);
+            return Json(data);
         }
         [Authorize]
         [HttpPost("CreateAccount")]
