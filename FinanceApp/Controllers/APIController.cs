@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using BaseLineProject.Models;
 
 namespace FinanceApp.Controllers
 {
@@ -37,6 +38,44 @@ namespace FinanceApp.Controllers
             this.db = db;
         }
         #region datamanagement
+        [Authorize(Roles = "getdatauser")]
+        public IActionResult getdatauser()
+        {
+            var dt = new UserModel();
+            var data = new List<dbCustomer>();
+            var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            var companyid = currentcompany.COMPANY_ID;
+            data = db.CustomerTbl.Where(y => y.COMPANY_ID == companyid).OrderBy(y => y.id).ToList();
+
+            var counttotaluser = db.CustomerTbl.Where(y => y.COMPANY_ID == companyid).Count();
+            var isallowed = true;
+            dt.pkg = currentcompany.VA1NOTE;
+            if (currentcompany.VA1NOTE == "Basic")
+            {
+                return NotFound();
+            }
+            else if (currentcompany.VA1NOTE == "UMKM")
+            {
+                if (counttotaluser >= 3)
+                {
+                    isallowed = false;
+                }
+            }
+            else if (currentcompany.VA1NOTE == "Enterprise")
+            {
+                var val = Convert.ToInt32(currentcompany.VA1);
+                if (counttotaluser >= val)
+                {
+                    isallowed = false;
+                }
+            }
+            ViewData["isallowed"] = isallowed;
+            dt.customerdt = data;
+            return Json(dt);
+        }
+
+
+
         [Authorize]
         [HttpGet("getdataAccount")]
         public IActionResult getdataAccount()
@@ -62,6 +101,7 @@ namespace FinanceApp.Controllers
                 obj.update_user = User.Identity.Name;
                 obj.flag_aktif = "1";
                 obj.errormessage = "ok";
+                obj.company_id = datas.COMPANY_ID;
                 try
                 {
                     dbAccount edpDt = db.AccountTbl.Where(y => y.account_no == obj.account_no && y.company_id == datas.COMPANY_ID).FirstOrDefault();
@@ -193,8 +233,6 @@ namespace FinanceApp.Controllers
             }
             return Ok(new { message = fld.errormessage });
         }
-
-
         [Authorize]
         [HttpGet("getdataJM")]
         public IActionResult getdataJM(DateTime? fromDate, DateTime? toDate)
