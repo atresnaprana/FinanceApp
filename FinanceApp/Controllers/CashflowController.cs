@@ -24,6 +24,7 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System.Net;
 using Syncfusion.Drawing;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Database;
 
 namespace FinanceApp.Controllers
 {
@@ -104,8 +105,17 @@ namespace FinanceApp.Controllers
                             var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
                             var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                             var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
-                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
+
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                         }
@@ -118,8 +128,15 @@ namespace FinanceApp.Controllers
                             var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                             var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                         }
 
@@ -175,8 +192,17 @@ namespace FinanceApp.Controllers
                             var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
                             var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                             var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
-                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                            fld.totalint = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                         }
@@ -189,8 +215,15 @@ namespace FinanceApp.Controllers
                             var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                             var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                         }
 
@@ -284,8 +317,17 @@ namespace FinanceApp.Controllers
                             var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
                             var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                             var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
-                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
+
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                         }
@@ -297,8 +339,15 @@ namespace FinanceApp.Controllers
                             var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                             var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                         }
 
@@ -425,8 +474,17 @@ namespace FinanceApp.Controllers
                             var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
                             var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                             var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
-                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
+
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                         }
@@ -438,8 +496,15 @@ namespace FinanceApp.Controllers
                             var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                             var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                         }
 
@@ -564,8 +629,17 @@ namespace FinanceApp.Controllers
                         var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
                         var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                         var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
-                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
+
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                     }
@@ -577,8 +651,15 @@ namespace FinanceApp.Controllers
                         var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                         var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                     }
 
@@ -704,8 +785,17 @@ namespace FinanceApp.Controllers
                         var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
                         var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                         var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
-                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
+
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                     }
@@ -717,8 +807,15 @@ namespace FinanceApp.Controllers
                         var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                         var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                     }
 
@@ -822,6 +919,7 @@ namespace FinanceApp.Controllers
             var penyusutan = obj.TB_D.Where(y => accpenyusutan.Contains(y.AccountNo_D)).Sum(y => (long)y.Value_D_int) * -1;
             var piutang = obj.TB_D.Where(y => accpiutang.Contains(y.AccountNo_D)).Sum(y => (long)y.Value_D_int) * -1;
             var hutang = obj.TB_K.Where(y => acchutang.Contains(y.AccountNo_K)).Sum(y => (long)y.Value_K_int);
+            var test = SaldoLaba + piutang + hutang;
             var kasbersihoperasi = SaldoLaba + penyusutan + piutang+ hutang;
             var datapembelianperalatan = obj.jmdata.Where(y => accperalatan.Contains(y.Akun_Debit)).Sum(y => y.Debit);
             var pembelianperalatannegate = datapembelianperalatan * -1;
@@ -968,8 +1066,17 @@ namespace FinanceApp.Controllers
                         var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
                         var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                         var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
-                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
+
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                     }
@@ -982,8 +1089,15 @@ namespace FinanceApp.Controllers
                         var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                         var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                     }
 
@@ -1029,8 +1143,17 @@ namespace FinanceApp.Controllers
                         var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
                         var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                         var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
-                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                        fld.totalint = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                     }
@@ -1043,8 +1166,15 @@ namespace FinanceApp.Controllers
                         var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                         var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                     }
 
