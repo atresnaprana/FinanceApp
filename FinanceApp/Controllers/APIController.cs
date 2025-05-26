@@ -17,6 +17,9 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using BaseLineProject.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using BaseLineProject.Services;
 
 namespace FinanceApp.Controllers
 {
@@ -30,15 +33,27 @@ namespace FinanceApp.Controllers
 
         private IHostingEnvironment Environment;
         private readonly ILogger<KasController> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
+        public IConfiguration Configuration { get; }
+        private readonly IMailService mailService;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public APIController(FormDBContext db, ILogger<JmController> logger, IHostingEnvironment _environment)
+        public string EmailConfirmationUrl { get; set; }
+
+        public APIController(FormDBContext db, ILogger<JmController> logger, IHostingEnvironment _environment, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager, IConfiguration configuration, IMailService mailService)
         {
             logger = logger;
             Environment = _environment;
             this.db = db;
+            _userManager = userManager;
+            Configuration = configuration;
+            _roleManager = roleManager;
+
+            this.mailService = mailService;
         }
         #region datamanagement
-        [Authorize(Roles = "getdatauser")]
+        [Authorize]
+        [HttpGet("getdatauser")]
         public IActionResult getdatauser()
         {
             var dt = new UserModel();
@@ -74,8 +89,208 @@ namespace FinanceApp.Controllers
             return Json(dt);
         }
 
+        [Authorize]
+        [HttpPost("CreateUser")]
+        public async Task<IActionResult> CreateUser([FromBody] dbCustomer objCust)
+        {
+            if (ModelState.IsValid)
+            {
+                int validate = 0;
+                objCust.ENTRY_DATE = DateTime.Now;
+                objCust.UPDATE_DATE = DateTime.Now;
+                objCust.ENTRY_USER = User.Identity.Name;
+                objCust.UPDATE_USER = User.Identity.Name;
+                objCust.REG_DATE = DateTime.Now;
+                objCust.FLAG_AKTIF = "1";
+                var currentcompany = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+                objCust.COMPANY = currentcompany.COMPANY;
+                objCust.COMPANY_ID = currentcompany.COMPANY_ID;
+                objCust.VA1NOTE = currentcompany.VA1NOTE;
+                objCust.errmsg = "ok";
+                int totaluser = 0;
+                if (currentcompany.VA1NOTE == "Enterprise")
+                {
+                    totaluser = Convert.ToInt32(currentcompany.VA1);
+                }
+                else if (currentcompany.VA1NOTE == "UMKM")
+                {
+                    totaluser = 3;
+                }
+                else if (currentcompany.VA1NOTE == "Basic")
+                {
+                    totaluser = 1;
+                }
+                var counttotaluser = db.CustomerTbl.Where(y => y.COMPANY_ID == currentcompany.COMPANY_ID).Count();
+                if (counttotaluser < totaluser)
+                {
+                    try
+                    {
+
+                        var user = new IdentityUser { UserName = objCust.Email.Trim(), Email = objCust.Email.Trim() };
+                        var validateisexist = _userManager.FindByEmailAsync(objCust.Email.Trim());
+
+                        if (validateisexist.Result == null)
+                        {
+                            var res = await UserSetup(user, objCust.Password);
+                            db.CustomerTbl.Add(objCust);
+                            db.SaveChanges();
+
+                            SendWelcomeMail(objCust.Email.Trim());
+
+                        }
+                        else
+                        {
+                            validate = 1;
+                        }
 
 
+                    }
+                    catch (Exception ex)
+                    {
+                        objCust.errmsg
+                             = ex.Message;
+                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                        if (!Directory.Exists(filePath))
+                        {
+                            Directory.CreateDirectory(filePath);
+                        }
+                        using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                        {
+                            outputFile.WriteLine(ex.ToString());
+                        }
+                    }
+                    if (validate == 1)
+                    {
+                        objCust.errmsg = "This account is exist";
+                    }
+                   
+                }
+                else
+                {
+                    objCust.errmsg = "total user sudah maksimal";
+                }
+
+            }
+            return Ok(new { message = objCust.errmsg });
+        }
+
+        [Authorize]
+        [HttpPost("EditUser")]
+        public IActionResult EditUser(int id, [FromBody] dbCustomer fld)
+        {
+
+            if (ModelState.IsValid)
+            {
+                var editFld = db.CustomerTbl.Find(id);
+                editFld.CUST_NAME = fld.CUST_NAME;
+                if (User.IsInRole("AccountAdmin"))
+                {
+                    editFld.COMPANY = fld.COMPANY;
+                    var findallaccountrelated = db.CustomerTbl.Where(y => y.COMPANY_ID == editFld.COMPANY_ID).ToList();
+                    foreach (var col in findallaccountrelated)
+                    {
+                        col.COMPANY = fld.COMPANY;
+                    }
+                }
+                editFld.PHONE1 = fld.PHONE1;
+
+                editFld.UPDATE_DATE = DateTime.Now;
+                editFld.UPDATE_USER = User.Identity.Name;
+
+                try
+                {
+                    db.SaveChanges();
+
+                }
+                catch (Exception ex)
+                {
+                    fld.errmsg = ex.Message.ToString();
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgEdit" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                    {
+                        outputFile.WriteLine(ex.ToString());
+                    }
+                }
+            }
+            return Ok(new { message = fld.errmsg });
+        }
+        [Authorize]
+        [HttpPost("DeleteCustomer")]
+        public async Task<IActionResult> DeleteCustomer(int id)
+        {
+            dbCustomer fld = db.CustomerTbl.Find(id);
+
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                try
+                {
+                    //db.trainerDb.Remove(fld);
+                    fld.FLAG_AKTIF = "0";
+                    fld.UPDATE_DATE = DateTime.Now;
+                    fld.UPDATE_USER = User.Identity.Name;
+                    var test = await DeactivateAccount(fld.Email);
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    fld.errmsg = ex.Message.ToString();
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgEdit" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                    {
+                        outputFile.WriteLine(ex.ToString());
+                    }
+                }
+            }
+            return Ok(new { message = fld.errmsg });
+        }
+        [Authorize]
+        [HttpPost("ActivateId")]
+        public async Task<IActionResult> ActivateId(int id)
+        {
+            dbCustomer fld = db.CustomerTbl.Find(id);
+
+            if (fld == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                try
+                {
+                    //db.trainerDb.Remove(fld);
+                    fld.FLAG_AKTIF = "1";
+                    fld.UPDATE_DATE = DateTime.Now;
+                    fld.UPDATE_USER = User.Identity.Name;
+                    var test = await ActivateAccount(fld.Email);
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                    if (!Directory.Exists(filePath))
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
+                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgEdit" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                    {
+                        outputFile.WriteLine(ex.ToString());
+                    }
+                }
+            }
+            return RedirectToAction("Index");
+        }
         [Authorize]
         [HttpGet("getdataAccount")]
         public IActionResult getdataAccount()
@@ -841,6 +1056,92 @@ namespace FinanceApp.Controllers
 
         }
         #endregion datamanagement
+
+        #region services
+        public async void SendWelcomeMail(string Email)
+        {
+            var request = new WelcomeRequest();
+            request.UserName = Email;
+            request.ToEmail = Email;
+
+            //request.ToEmail = Input.Email;
+            try
+            {
+                await mailService.SendWelcomeEmailAsync(request);
+                //return Ok();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> UserSetup(IdentityUser user, string userpass)
+        {
+            if (user == null)
+            {
+                return false; // User object is null
+            }
+
+            // Step 1: Create user
+            var createResult = await _userManager.CreateAsync(user, userpass);
+            if (!createResult.Succeeded)
+            {
+                return false; // User creation failed
+            }
+
+            // Step 2: Ensure role exists before adding user to role
+            var roleExists = await _roleManager.RoleExistsAsync("Accounting");
+            if (!roleExists)
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Accounting")); // Create role if not exists
+            }
+
+            // Step 3: Assign role to user
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, "Accounting");
+            if (!addToRoleResult.Succeeded)
+            {
+                return false; // Role assignment failed
+            }
+
+            // Step 4: Confirm email and update user
+            user.EmailConfirmed = true;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                return false; // Email confirmation update failed
+            }
+
+            return true; // All operations succeeded
+        }
+
+        public async Task<bool> DeactivateAccount(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            user.EmailConfirmed = false;
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+        public async Task<bool> ActivateAccount(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            user.EmailConfirmed = true;
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+        #endregion services
 
 
         #region reportdata
