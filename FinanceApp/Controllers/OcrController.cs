@@ -35,7 +35,7 @@ namespace FinanceApp.Controllers
         {
             return View();
         }
-        //[Authorize]
+        [Authorize]
         [HttpPost("submitinv")]
         public IActionResult SubmitInvoice([FromForm] IFormFile imageFile)
         {
