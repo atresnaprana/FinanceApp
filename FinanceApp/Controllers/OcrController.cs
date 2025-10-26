@@ -64,167 +64,167 @@ namespace FinanceApp.Controllers
 
                 // Parse OCR result into structured data
                 var parsedInvoice = InvoiceParser.ParseInvoice(extractedText);
-                //List<dbJpb> jpbtbl = new List<dbJpb>();
-                //List<dbJpn> jpntbl = new List<dbJpn>();
-                //var invoiceno = parsedInvoice.InvoiceNo;
-                //var date = parsedInvoice.Tanggal;
-                //var convertdate = DateTime.ParseExact(parsedInvoice.Tanggal, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                //foreach (var datas in parsedInvoice.Details)
-                //{
-                //    var fld = datas;
-                //    var combinedinfo = datas.FakturNo + datas.Note1 + datas.Note2;
-                //    var test = "";
-                //    if (!datas.PurchaseVal.IsNullOrEmpty() && !datas.FakturDate.IsNullOrEmpty())
-                //    {
-                //        dbJpb addjpb = new dbJpb();
-                //        addjpb.Akun_Debit = 5000001;
-                //        addjpb.Akun_Credit = 1100002;
-                //        addjpb.Description = combinedinfo;
-                //        var transdate = DateTime.ParseExact(datas.FakturDate, "dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture);
-                //        addjpb.TransDate = transdate;
-                //        addjpb.Value = Convert.ToInt32(datas.PurchaseVal.Replace(".", ""));
-                //        var existingsales = db.JpbTbl.ToList();
-                //        var number = "0001";
-                //        var trans_nodata = existingsales.Select(y => new dbJpb()
-                //        {
-                //            Trans_no = y.Trans_no,
-                //            shorttransno = y.Trans_no.Substring(0, 10),
-                //            lasttransno = Convert.ToInt32(y.Trans_no.Substring(10, 4))
+                List<dbJpb> jpbtbl = new List<dbJpb>();
+                List<dbJpn> jpntbl = new List<dbJpn>();
+                var invoiceno = parsedInvoice.InvoiceNo;
+                var date = parsedInvoice.Tanggal;
+                var convertdate = DateTime.ParseExact(parsedInvoice.Tanggal, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                foreach (var datas in parsedInvoice.Details)
+                {
+                    var fld = datas;
+                    var combinedinfo = "Faktur: " + datas.FakturNo+ " | " + datas.Note1 + " | " + datas.Note2;
+                    var test = "";
+                    if (!datas.PurchaseVal.IsNullOrEmpty() && !datas.FakturDate.IsNullOrEmpty())
+                    {
+                        dbJpb addjpb = new dbJpb();
+                        addjpb.Akun_Debit = 5000001;
+                        addjpb.Akun_Credit = 1100002;
+                        addjpb.Description = combinedinfo;
+                        var transdate = DateTime.ParseExact(datas.FakturDate, "dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture);
+                        addjpb.TransDate = transdate;
+                        addjpb.Value = Convert.ToInt32(datas.PurchaseVal.Replace(".", ""));
+                        var existingsales = db.JpbTbl.ToList();
+                        var number = "0001";
+                        var trans_nodata = existingsales.Select(y => new dbJpb()
+                        {
+                            Trans_no = y.Trans_no,
+                            shorttransno = y.Trans_no.Substring(0, 10),
+                            lasttransno = Convert.ToInt32(y.Trans_no.Substring(10, 4))
 
 
-                //        }).ToList();
+                        }).ToList();
 
-                //        var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno.Split("JPB_")[1] == transdate.ToString("ddMMyy")).ToList();
+                        var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno.Split("JPB_")[1] == transdate.ToString("ddMMyy")).ToList();
 
-                //        if (checkinvoicecurrent.Count > 0)
-                //        {
-                //            var chkinvnum = checkinvoicecurrent.Max(y => y.lasttransno) + 1;
-                //            if (chkinvnum.ToString().Length == 1)
-                //            {
-                //                number = "000" + chkinvnum.ToString();
-                //            }
-                //            else if (chkinvnum.ToString().Length == 2)
-                //            {
-                //                number = "00" + chkinvnum.ToString();
-                //            }
-                //            else if (chkinvnum.ToString().Length == 3)
-                //            {
-                //                number = "0" + chkinvnum.ToString();
-                //            }
-                //            else if (chkinvnum.ToString().Length == 4)
-                //            {
-                //                number = chkinvnum.ToString();
-                //            }
-                //        }
-                //        addjpb.Trans_no = "JPB_" + transdate.ToString("ddMMyy") + number;
+                        if (checkinvoicecurrent.Count > 0)
+                        {
+                            var chkinvnum = checkinvoicecurrent.Max(y => y.lasttransno) + 1;
+                            if (chkinvnum.ToString().Length == 1)
+                            {
+                                number = "000" + chkinvnum.ToString();
+                            }
+                            else if (chkinvnum.ToString().Length == 2)
+                            {
+                                number = "00" + chkinvnum.ToString();
+                            }
+                            else if (chkinvnum.ToString().Length == 3)
+                            {
+                                number = "0" + chkinvnum.ToString();
+                            }
+                            else if (chkinvnum.ToString().Length == 4)
+                            {
+                                number = chkinvnum.ToString();
+                            }
+                        }
+                        addjpb.Trans_no = "JPB_" + transdate.ToString("ddMMyy") + number;
 
-                //        addjpb.entry_date = DateTime.Now;
-                //        addjpb.update_date = DateTime.Now;
-                //        addjpb.entry_user = User.Identity.Name;
-                //        addjpb.update_user = User.Identity.Name;
-                //        addjpb.flag_aktif = "1";
-                //        var datauser = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
-                //        addjpb.company_id = datauser.COMPANY_ID;
-                //        //try
-                //        //{
+                        addjpb.entry_date = DateTime.Now;
+                        addjpb.update_date = DateTime.Now;
+                        addjpb.entry_user = User.Identity.Name;
+                        addjpb.update_user = User.Identity.Name;
+                        addjpb.flag_aktif = "1";
+                        var datauser = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+                        addjpb.company_id = datauser.COMPANY_ID;
+                        try
+                        {
 
-                //        //    db.JpbTbl.Add(addjpb);
-                //        //    db.SaveChanges();
-
-
-                //        //}
-                //        //catch (Exception ex)
-                //        //{
-                //        //    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
-                //        //    if (!Directory.Exists(filePath))
-                //        //    {
-                //        //        Directory.CreateDirectory(filePath);
-                //        //    }
-                //        //    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
-                //        //    {
-                //        //        outputFile.WriteLine(ex.ToString());
-                //        //    }
-                //        //}
-                //        //apprDal.AddApproval(objApproval);
-
-                //    }
-                //    if (!datas.SaleVal.IsNullOrEmpty() && !datas.FakturDate.IsNullOrEmpty())
-                //    {
-                //        dbJpn addjpn = new dbJpn();
-                //        addjpn.Akun_Debit = 1100002;
-                //        addjpn.Akun_Credit = 4000001;
-                //        addjpn.Description = combinedinfo;
-                //        var transdate = DateTime.ParseExact(datas.FakturDate, "dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture);
-                //        addjpn.Value = Convert.ToInt32(datas.SaleVal.Replace(".", ""));
-
-                //        addjpn.TransDate = transdate;
-
-                //        var existingsales = db.JpnTbl.ToList();
-                //        var number = "0001";
-                //        var trans_nodata = existingsales.Select(y => new dbJpn()
-                //        {
-                //            Trans_no = y.Trans_no,
-                //            shorttransno = y.Trans_no.Substring(0, 10),
-                //            lasttransno = Convert.ToInt32(y.Trans_no.Substring(10, 4))
+                            db.JpbTbl.Add(addjpb);
+                            db.SaveChanges();
 
 
-                //        }).ToList();
+                        }
+                        catch (Exception ex)
+                        {
+                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                            if (!Directory.Exists(filePath))
+                            {
+                                Directory.CreateDirectory(filePath);
+                            }
+                            using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                            {
+                                outputFile.WriteLine(ex.ToString());
+                            }
+                        }
+                        //apprDal.AddApproval(objApproval);
 
-                //        var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno.Split("JPN_")[1] == transdate.ToString("ddMMyy")).ToList();
+                    }
+                    else if (!datas.SaleVal.IsNullOrEmpty() && !datas.FakturDate.IsNullOrEmpty())
+                    {
+                        dbJpn addjpn = new dbJpn();
+                        addjpn.Akun_Debit = 1100002;
+                        addjpn.Akun_Credit = 4000001;
+                        addjpn.Description = combinedinfo;
+                        var transdate = DateTime.ParseExact(datas.FakturDate, "dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture);
+                        addjpn.Value = Convert.ToInt32(datas.SaleVal.Replace(".", ""));
 
-                //        if (checkinvoicecurrent.Count > 0)
-                //        {
-                //            var chkinvnum = checkinvoicecurrent.Max(y => y.lasttransno) + 1;
-                //            if (chkinvnum.ToString().Length == 1)
-                //            {
-                //                number = "000" + chkinvnum.ToString();
-                //            }
-                //            else if (chkinvnum.ToString().Length == 2)
-                //            {
-                //                number = "00" + chkinvnum.ToString();
-                //            }
-                //            else if (chkinvnum.ToString().Length == 3)
-                //            {
-                //                number = "0" + chkinvnum.ToString();
-                //            }
-                //            else if (chkinvnum.ToString().Length == 4)
-                //            {
-                //                number = chkinvnum.ToString();
-                //            }
-                //        }
-                //        addjpn.Trans_no = "JPN_" + transdate.ToString("ddMMyy") + number;
+                        addjpn.TransDate = transdate;
 
-                //        addjpn.entry_date = DateTime.Now;
-                //        addjpn.update_date = DateTime.Now;
-                //        addjpn.entry_user = User.Identity.Name;
-                //        addjpn.update_user = User.Identity.Name;
-                //        addjpn.flag_aktif = "1";
-                //        var datacustomer = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
-                //        addjpn.company_id = datacustomer.COMPANY_ID;
-                //        //try
-                //        //{
-
-                //        //    db.JpnTbl.Add(addjpn);
-                //        //    db.SaveChanges();
+                        var existingsales = db.JpnTbl.ToList();
+                        var number = "0001";
+                        var trans_nodata = existingsales.Select(y => new dbJpn()
+                        {
+                            Trans_no = y.Trans_no,
+                            shorttransno = y.Trans_no.Substring(0, 10),
+                            lasttransno = Convert.ToInt32(y.Trans_no.Substring(10, 4))
 
 
-                //        //}
-                //        //catch (Exception ex)
-                //        //{
-                //        //    var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
-                //        //    if (!Directory.Exists(filePath))
-                //        //    {
-                //        //        Directory.CreateDirectory(filePath);
-                //        //    }
-                //        //    using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
-                //        //    {
-                //        //        outputFile.WriteLine(ex.ToString());
-                //        //    }
-                //        //}
-                //    }
-                //}
-                ////return Ok("Data Has been Submitted");
-                return Ok(parsedInvoice);
+                        }).ToList();
+
+                        var checkinvoicecurrent = trans_nodata.Where(y => y.shorttransno.Split("JPN_")[1] == transdate.ToString("ddMMyy")).ToList();
+
+                        if (checkinvoicecurrent.Count > 0)
+                        {
+                            var chkinvnum = checkinvoicecurrent.Max(y => y.lasttransno) + 1;
+                            if (chkinvnum.ToString().Length == 1)
+                            {
+                                number = "000" + chkinvnum.ToString();
+                            }
+                            else if (chkinvnum.ToString().Length == 2)
+                            {
+                                number = "00" + chkinvnum.ToString();
+                            }
+                            else if (chkinvnum.ToString().Length == 3)
+                            {
+                                number = "0" + chkinvnum.ToString();
+                            }
+                            else if (chkinvnum.ToString().Length == 4)
+                            {
+                                number = chkinvnum.ToString();
+                            }
+                        }
+                        addjpn.Trans_no = "JPN_" + transdate.ToString("ddMMyy") + number;
+
+                        addjpn.entry_date = DateTime.Now;
+                        addjpn.update_date = DateTime.Now;
+                        addjpn.entry_user = User.Identity.Name;
+                        addjpn.update_user = User.Identity.Name;
+                        addjpn.flag_aktif = "1";
+                        var datacustomer = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+                        addjpn.company_id = datacustomer.COMPANY_ID;
+                        try
+                        {
+
+                            db.JpnTbl.Add(addjpn);
+                            db.SaveChanges();
+
+
+                        }
+                        catch (Exception ex)
+                        {
+                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\ErrorLog");
+                            if (!Directory.Exists(filePath))
+                            {
+                                Directory.CreateDirectory(filePath);
+                            }
+                            using (StreamWriter outputFile = new StreamWriter(Path.Combine(filePath, "ErrMsgAdd" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".txt")))
+                            {
+                                outputFile.WriteLine(ex.ToString());
+                            }
+                        }
+                    }
+                }
+                return Ok("Data Has been Submitted");
+                //return Ok(parsedInvoice);
 
             }
             catch (Exception e)
@@ -268,63 +268,115 @@ namespace FinanceApp.Controllers
                 .Where(l => !string.IsNullOrWhiteSpace(l))
                 .ToList();
 
-            // Extract tanggal (look for dd/MM/yy, dd/MM/yyyy, dd-MM-yyyy)
-            var dateMatch = Regex.Match(ocrText, @"\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b");
+            // --- HEADER PARSING (REVISED AND IMPROVED) ---
+
+            // Extract Tanggal (Date)
+            var dateMatch = Regex.Match(ocrText, @"\b\d{2}[-/]\d{2}[-/]\d{2,4}\b");
             if (dateMatch.Success)
                 header.Tanggal = dateMatch.Value;
 
-            // Extract invoice number (after NO, NO., or similar OR at least 6+ digits in a row)
-            var invMatch = Regex.Match(ocrText, @"(?:NO[:.\s]*)(?<inv>\d+)|\b\d{6,}\b", RegexOptions.IgnoreCase);
+            // Extract Invoice No (Document Number) - More flexible regex
+            // This pattern looks for "NO. Document" and captures the rest of that line.
+            // It makes the colon optional and handles variable spacing.
+            var invMatch = Regex.Match(ocrText, @"(?:NO\.\s*Document\s*:?)\s*([^\n\r]+)", RegexOptions.IgnoreCase);
             if (invMatch.Success)
-                header.InvoiceNo = invMatch.Groups["inv"].Success ? invMatch.Groups["inv"].Value : invMatch.Value;
-
-            // --- FIX: Extract Person Name correctly ---
-            // Look for the first line after InvoiceNo that is not "PERINCIAN", "PIUTANG", etc.
-            header.PersonName = "";
-            if (!string.IsNullOrEmpty(header.InvoiceNo))
             {
-                int invIndex = lines.FindIndex(l => l.Contains(header.InvoiceNo));
-                if (invIndex >= 0 && invIndex + 1 < lines.Count)
-                {
-                    for (int i = invIndex + 1; i < lines.Count; i++)
-                    {
-                        var candidate = lines[i];
-                        if (Regex.IsMatch(candidate, @"PERINCIAN|PIUTANG|PLASMA|PERHITUNGAN", RegexOptions.IgnoreCase))
-                            continue;
+                header.InvoiceNo = invMatch.Groups[1].Value.Trim();
+            }
 
-                        header.PersonName = candidate;
-                        break;
-                    }
+            // Extract Person Name (Peternak/Plasma) - More flexible regex
+            // This pattern handles OCR misreads like "PLASM," (instead of "PLASMA :")
+            // and makes the colon optional.
+            var peternakMatch = Regex.Match(ocrText, @"(?:PETERNAK\s*/\s*PLAS(?:MA|M,)\s*:?)\s*([^\n\r]+)", RegexOptions.IgnoreCase);
+            if (peternakMatch.Success)
+            {
+                header.PersonName = peternakMatch.Groups[1].Value.Trim();
+            }
+
+            // Extract Address - Handles multiple lines
+            // This pattern finds "ALAMAT" and captures everything until "TANGERANG", then combines them.
+            var alamatMatch = Regex.Match(ocrText, @"(?:ALAMAT\s*:?)\s*(.*?)(?:\s*TANGERANG)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            if (alamatMatch.Success)
+            {
+                // Combine the matched group and "TANGERANG", then replace newlines with spaces.
+                string fullAddress = alamatMatch.Groups[1].Value.Trim() + " TANGERANG";
+                header.Address = Regex.Replace(fullAddress, @"\s*[\n\r]+\s*", " ").Trim();
+            }
+            else
+            {
+                // Fallback for a single-line address if the multi-line pattern fails
+                var singleLineAlamatMatch = Regex.Match(ocrText, @"(?:ALAMAT\s*:?\s*)([^\n\r]+)", RegexOptions.IgnoreCase);
+                if (singleLineAlamatMatch.Success)
+                {
+                    header.Address = singleLineAlamatMatch.Groups[1].Value.Trim();
                 }
             }
 
-            // Extract address
-            header.Address = lines.FirstOrDefault(l => l.StartsWith("ALAMAT", System.StringComparison.OrdinalIgnoreCase)) ?? "";
 
-            // Regex for rows: date | faktur | description | purchase | sale
-            var rowRegex = new Regex(@"^(?<date>\d{2}/\d{2}/\d{2})\s*(?<faktur>\w+)?\s*(?<note>.+?)\s+(?<val1>[\d\.,]+)?\s*(?<val2>[\d\.,]+)?$");
+            // --- DETAIL PARSING LOGIC (UNCHANGED) ---
+            var rowStartRegex = new Regex(@"^\d{2}/\d{2}/\d{2}");
 
             foreach (var line in lines)
             {
-                var match = rowRegex.Match(line);
-                if (match.Success)
+                if (!rowStartRegex.IsMatch(line)) continue; // Process only lines starting with a date
+
+                // Remove '|' characters to prevent splitting issues
+                var cleanedLine = line.Replace("|", " ");
+
+                var parts = cleanedLine.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                if (parts.Count < 3) continue;
+
+                var detail = new InvoiceDetail { FakturDate = parts[0] };
+                string purchaseValue = null;
+                string saleValue = null;
+                List<string> descriptionParts;
+
+                bool lastIsNumber = Regex.IsMatch(parts.Last(), @"^[\d\.,]+$");
+                bool secondLastIsNumber = parts.Count > 1 && Regex.IsMatch(parts[parts.Count - 2], @"^[\d\.,]+$");
+
+                if (lastIsNumber && secondLastIsNumber)
                 {
-                    var notes = match.Groups["note"].Value.Split(' ', 2);
-                    var note1 = notes.Length > 0 ? notes[0] : "";
-                    var note2 = notes.Length > 1 ? notes[1] : "";
-
-                    header.Details.Add(new InvoiceDetail
-                    {
-                        FakturDate = match.Groups["date"].Value,
-                        FakturNo = match.Groups["faktur"].Value,
-                        Note1 = note1,
-                        Note2 = note2,
-                        PurchaseVal = match.Groups["val1"].Value,
-                        SaleVal = match.Groups["val2"].Value
-                    });
+                    purchaseValue = parts[parts.Count - 2];
+                    saleValue = parts.Last();
+                    descriptionParts = parts.Take(parts.Count - 2).ToList();
                 }
-            }
+                else if (lastIsNumber)
+                {
+                    var singleValue = parts.Last();
+                    descriptionParts = parts.Take(parts.Count - 1).ToList();
+                    var fullDescription = string.Join(" ", descriptionParts);
 
+                    if (fullDescription.IndexOf("Bebek", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        fullDescription.IndexOf("tangkap", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        saleValue = singleValue;
+                    }
+                    else
+                    {
+                        purchaseValue = singleValue;
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+
+                var remainingParts = descriptionParts.Skip(1).ToList();
+
+                if (remainingParts.Any() && Regex.IsMatch(remainingParts[0], @"^\d+$"))
+                {
+                    detail.FakturNo = remainingParts[0];
+                    remainingParts = remainingParts.Skip(1).ToList();
+                }
+
+                var notes = string.Join(" ", remainingParts).Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                if (notes.Length > 0) detail.Note1 = notes[0];
+                if (notes.Length > 1) detail.Note2 = notes[1];
+
+                detail.PurchaseVal = purchaseValue;
+                detail.SaleVal = saleValue;
+                header.Details.Add(detail);
+            }
             return header;
         }
     }
