@@ -114,6 +114,23 @@ namespace BaseLineProject.Areas.Identity
             [DataType(DataType.Text)]
             [Display(Name = "Software Plan")]
             public string SoftwarePlan { get; set; }
+
+
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "NPWP")]
+            public string NPWP { get; set; }
+
+
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "Tipe User")]
+            public string customertype { get; set; }
+
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "Omset lebih dari 4.8M atau tidak")]
+            public bool isomset { get; set; }
             //[Required]
             //[DataType(DataType.Upload)]
             //[Display(Name = "KTP")]
@@ -194,18 +211,29 @@ namespace BaseLineProject.Areas.Identity
                         fieldCustomer.UPDATE_USER = Input.Email;
                         fieldCustomer.VA1NOTE = Input.SoftwarePlan;
                         fieldCustomer.BL_FLAG = "0";
-                        
+                        fieldCustomer.NPWP = Input.NPWP;
+                        fieldCustomer.customertype = Input.customertype;
+                        if (Input.isomset)
+                        {
+                            fieldCustomer.taxflagpercentage = "Y";
+                        }
+                        else
+                        {
+                            fieldCustomer.taxflagpercentage = "N";
+
+                        }
+
 
                         try
-                        {
-                            db.CustomerTbl.Add(fieldCustomer);
-                            db.SaveChanges();
-                            //db.Dispose();
-                        }
-                        catch (Exception ex)
-                        {
-                            var testex = ex;
-                        }
+                            {
+                                db.CustomerTbl.Add(fieldCustomer);
+                                db.SaveChanges();
+                                //db.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                var testex = ex;
+                            }
 
                         _logger.LogInformation("User created a new account with password.");
 

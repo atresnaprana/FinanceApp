@@ -181,6 +181,9 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.FILE_SKT_NAME).HasColumnType("varchar(255)");
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.store_area).HasColumnType("varchar(50)");
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.discount_customer).HasColumnType("varchar(50)");
+            modelBuilder.Entity<dbCustomer>().Property(ug => ug.taxflagpercentage).HasColumnType("varchar(1)");
+            modelBuilder.Entity<dbCustomer>().Property(ug => ug.customertype).HasColumnType("varchar(50)");
+
 
             //dbaccount model
             modelBuilder.Entity<dbAccount>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();

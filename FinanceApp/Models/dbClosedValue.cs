@@ -14,8 +14,8 @@ namespace FinanceApp.Models
         public int Akun_Debit { get; set; }
         public int Akun_Credit { get; set; }
 
-        public int debit { get; set; }
-        public int credit {  get; set; }    
+        public long debit { get; set; }
+        public long credit {  get; set; }    
         public string entry_user { get; set; }
         public string update_user { get; set; }
 

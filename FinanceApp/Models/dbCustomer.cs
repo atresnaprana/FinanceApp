@@ -63,6 +63,9 @@ namespace BaseLineProject.Models
         public string FILE_SKT_NAME { get; set; }
         public string isApproved2 { get; set; }
         public string store_area { get; set; }
+        public string customertype { get; set; }
+        public string taxflagpercentage { get; set; }
+
         public decimal? discount_customer { get; set; }
         public int totalstoreconfig { get; set; }
 

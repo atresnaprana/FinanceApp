@@ -6,7 +6,10 @@
 
 @*<h1 class="display-4">@ViewData["Title"]</h1>*@
 <style>
-
+    input.largerCheckbox {
+        width: 20px;
+        height: 20px;
+    }
 
     #panel, #flip {
         padding: 5px;
@@ -89,6 +92,27 @@
                 <input asp-for="Input.PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
                 <span asp-validation-for="Input.PHONE1" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Input.NPWP"></label>
+                <input asp-for="Input.NPWP" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                <span asp-validation-for="Input.NPWP" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.customertype"></label>
+                @Html.DropDownListFor(model => model.Input.customertype, new List<SelectListItem>
+                                {
+                    new SelectListItem { Text = "CV", Value = "CV" },
+                                new SelectListItem { Text = "PT", Value = "PT" },
+                                new SelectListItem { Text = "Perorangan", Value = "Perorangan" }
+                                }, new { @class = "form-control" })
+                <span asp-validation-for="Input.SoftwarePlan" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.isomset"></label>
+                <br />
+                <input asp-for="Input.isomset" class="largerCheckbox" type="checkbox" />
+                <span asp-validation-for="Input.isomset" class="text-danger"></span>
+            </div>
 
         </div>
         <div class="col-sm">
@@ -114,6 +138,7 @@
                 <input asp-for="Input.Postal" class="form-control" onkeypress="return allowOnlyNumber(event);" />
                 <span asp-validation-for="Input.Postal" class="text-danger"></span>
             </div>
+            
             @*<div class="form-group">
             <label class="control-label">Area</label>
             <br />
