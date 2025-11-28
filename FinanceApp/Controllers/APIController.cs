@@ -3591,6 +3591,142 @@ namespace FinanceApp.Controllers
 
             return stream.ToArray();
         }
+
+
+
+        [Authorize]
+        [HttpPost("GenerateTaxRpt")]
+        public async Task<IActionResult> GenerateTaxRpt([FromBody] LRModel obj)
+        {
+            var year = obj.year;
+            var isyearly = obj.isYearly;
+            var month = obj.month;
+            if (isyearly)
+            {
+                month = 12;
+            }
+            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode >= 1 && y.periode <= month && y.isclosed == "Y").ToList();
+            QuestPDF.Settings.License = LicenseType.Community;
+            QuestPDF.Settings.EnableDebugging = true;
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            // Render the "Index" view as a PDF
+            obj.jpndata = db.JpnTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+
+            byte[] pdfBytes = GeneratePdfTax(obj);
+            var FileName = "TaxRpt" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+            return File(pdfBytes, "application/pdf", FileName);
+
+
+        }
+        private byte[] GeneratePdfTax(LRModel obj)
+        {
+            // 1. PREPARE DATA
+            // We use CultureInfo for Indonesian month names (Januari, Februari) and number formatting
+            var culture = new System.Globalization.CultureInfo("id-ID");
+
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            var jpndata = obj.jpndata;
+            var result = jpndata
+               .GroupBy(d => new { d.TransDate.Year, d.TransDate.Month })
+               .Select(g => new taxrptmodel
+               {
+                   bulan = g.Key.Month.ToString(),
+                   value = g.Sum(d => d.Value),
+                   taxval = (Convert.ToDecimal(g.Sum(d => d.Value)) * Convert.ToDecimal(0.5)) / Convert.ToDecimal(100) // You can also count items here
+               });
+
+            // 2. GENERATE PDF
+            using var stream = new MemoryStream();
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(20);
+
+                    // --- HEADER ---
+                    page.Header().Column(col =>
+                    {
+                        col.Item().Text("Report Preview Laporan pajak")
+                           .Bold().FontSize(12).AlignCenter();
+
+                        col.Item().Text($"Tahun: {obj.year}").FontSize(9).AlignCenter();
+
+                        col.Item().Text($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}")
+                            .FontSize(8).FontColor(Colors.Grey.Medium).AlignCenter();
+
+                        col.Spacing(10); // Add space after header
+                    });
+
+                    // --- CONTENT TABLE ---
+                    page.Content().Table(table =>
+                    {
+                        // Define 3 columns: 
+                        // Col 1 (Month) is wider. Col 2 & 3 (Values) are equal width.
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(2); // Bulan
+                            columns.RelativeColumn(1.5f); // Peredaran Bruto
+                            columns.RelativeColumn(1.5f); // Potongan Pajak
+                        });
+
+                        // Helper function to create consistent cells
+                        void AddRow(string col1Text, string col2Text, string col3Text, bool isHeader = false)
+                        {
+                            var fontSize = isHeader ? 8 : 7;
+                            var fontWeight = isHeader ? FontWeight.Bold : FontWeight.Normal;
+                            var bgColor = isHeader ? Colors.Grey.Lighten3 : Colors.White;
+
+                            // Column 1: Bulan (Align Left)
+                            table.Cell().Border(1).Background(bgColor).Padding(4)
+                                .Text(col1Text).FontSize(fontSize);
+
+                            // Column 2: Value (Align Right)
+                            table.Cell().Border(1).Background(bgColor).Padding(4)
+                                .Text(col2Text).FontSize(fontSize).AlignRight();
+
+                            // Column 3: Tax (Align Right)
+                            table.Cell().Border(1).Background(bgColor).Padding(4)
+                                .Text(col3Text).FontSize(fontSize).AlignRight();
+                        }
+
+                        // A. Table Header
+                        AddRow("Bulan", "Peredaran Bruto", "Potongan Pajak", isHeader: true);
+
+                        // B. Data Loop
+                        foreach (var item in result)
+                        {
+                            // Convert Month Number (1) to Name ("Januari")
+                            string monthName = item.bulan;
+
+                            // Format Numbers (N2 adds commas and 2 decimal places)
+                            string formattedValue = item.value.ToString("N2", culture);
+                            string formattedTax = item.taxval.ToString("N2", culture);
+
+                            AddRow(monthName, formattedValue, formattedTax);
+                        }
+
+                        // C. Grand Total (Optional - Good for reports)
+                        var totalBruto = result.Sum(x => x.value);
+                        var totalTax = result.Sum(x => x.taxval);
+
+                        AddRow("TOTAL",
+                               totalBruto.ToString("N2", culture),
+                               totalTax.ToString("N2", culture),
+                               isHeader: true);
+                    });
+
+                    // --- FOOTER ---
+                    page.Footer().AlignCenter().Text(text =>
+                    {
+                        text.Span("Page ");
+                        text.CurrentPageNumber();
+                    });
+                });
+            }).GeneratePdf(stream);
+
+            return stream.ToArray();
+        }
         #endregion reportdata
 
         #region viewdata
