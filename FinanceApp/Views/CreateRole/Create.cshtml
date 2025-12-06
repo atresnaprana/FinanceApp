@@ -1,28 +1,65 @@
 ﻿@model Microsoft.AspNetCore.Identity.IdentityRole
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Role";
 }
-<h1>Create Role</h1>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+
+<!-- Layout Container: Centers the form -->
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-user-shield mr-2"></i>Create Role
+                        </h5>
+                        <small class="text-muted">System Access</small>
+                    </div>
+                </div>
+
+                <!-- Card Body: Input Fields -->
+                <div class="card-body">
+
+                    <div class="alert alert-info small mb-4">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Enter the name of the new role (e.g., "Manager", "Auditor").
+                    </div>
+
+                    <!-- Role Name Input -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="font-weight-bold text-dark small text-uppercase">Role Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter role name..." autocomplete="off" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                <!-- Card Footer: Action Buttons -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button (Left) -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to List
+                    </a>
+
+                    <!-- Submit Button (Right) -->
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Create Role
+                    </button>
+                </div>
+
             </div>
         </form>
+
     </div>
 </div>
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

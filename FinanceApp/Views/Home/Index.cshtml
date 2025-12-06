@@ -3,102 +3,93 @@
 @{
     ViewData["Title"] = "Beranda";
 
-    @using System;
-    @using System.Globalization;
-    CultureInfo myCI = new CultureInfo("en-US");
-    Calendar myCal = myCI.Calendar;
-
-    // Gets the DTFI properties required by GetWeekOfYear.
-    CalendarWeekRule myCWR = myCI.DateTimeFormat.CalendarWeekRule;
-    DayOfWeek myFirstDOW = myCI.DateTimeFormat.FirstDayOfWeek;
-
-    var weekofyear = myCal.GetWeekOfYear(DateTime.Now, myCWR, myFirstDOW);
-    var date = DateTime.Now;
-    var datenowstr = date.ToString("dddd, dd MMMM yyyy");
-
+    // C# Logic for dates
+    System.Globalization.CultureInfo myCI = new System.Globalization.CultureInfo("en-US");
+    var weekofyear = myCI.Calendar.GetWeekOfYear(DateTime.Now, myCI.DateTimeFormat.CalendarWeekRule, myCI.DateTimeFormat.FirstDayOfWeek);
+    var datenowstr = DateTime.Now.ToString("dddd, dd MMMM yyyy");
 }
 
+<div class="row">
+    <!-- Left Column: The Slideshow (now 8 columns wide) -->
+    <div class="col-lg-8 mb-4">
+        <div class="card p-2">
+            <!-- Wraps slider in a white box -->
+            <div id="mainCarousel" class="carousel slide" data-ride="carousel">
+                <!-- Indicators -->
+                <ol class="carousel-indicators">
+                    @for (int i = 0; i < Model.Count(); i++)
+                    {
+                        <li data-target="#mainCarousel" data-slide-to="@i" class="@(i == 0 ? "active" : "")"></li>
+                    }
+                </ol>
 
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner">
+                    @{
+                        int idx = 0;
+                    }
+                    @foreach (var dt in Model)
+                    {
+                        <div class="carousel-item @(idx == 0 ? "active" : "")">
+                            <img src="@dt.imgUrl" class="d-block w-100" alt="Slide Image">
+                        </div>
+                        idx++;
+                    }
+                </div>
 
-<div class="text-title">
-    <div class="slideshow-container">
-
-        @foreach (var dt in Model)
-        {
-            <div class="mySlides fade">
-                <div class="numbertext"></div>
-                <img src="@dt.imgUrl" style="width:100%">
-                @*<div class="text">Caption Text</div>*@
+                <!-- Controls -->
+                <a class="carousel-control-prev" href="#mainCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#mainCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
             </div>
-        }
-        <!--<div class="mySlides fade">
-        <div class="numbertext"></div>
-        <img src="~/images/banner2.JPG" style="width:100%">-->
-        @*<div class="text">Caption Text</div>*@
-        <!--</div>
-
-        <div class="mySlides fade">
-            <div class="numbertext"></div>
-            <img src="~/images/banner1.JPG" style="width:100%">-->
-        @*<div class="text">Caption Two</div>*@
-        <!--</div>-->
-
-
-    </div>
-    <br>
-
-    <div style="text-align:center">
-        @foreach (var dt in Model)
-        {
-            <span class="dot"></span>
-        }
-        @*<span class="dot"></span>
-        <span class="dot"></span>*@
-        @*<span class="dot"></span>*@
+        </div>
     </div>
 
-    <p></p><p></p>
-    <h1 class="display-4">Selamat datang di EasyTax!</h1> <p></p>
-    <h1 class="display-5"><span><label id="dateTxt" class="text-blue"></label><label class="text-blue"> - Week</label> <label id="weekofyear" class="text-blue"></label></span></h1>
-    @*<img src="~/images/banner1.jpg" width="900" height="339" />*@
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
 
+                <!-- Header section -->
+                <div class="mb-4 pb-2 border-bottom">
+                    <h4 class="font-weight-bold text-dark">Dashboard</h4>
+                    <p class="text-muted small">Overview of your timeline</p>
+                </div>
 
+                <!-- Date Box -->
+                <div class="p-3 mb-3 rounded" style="background-color: #f8f9fa;">
+                    <h6 class="text-uppercase text-muted small font-weight-bold mb-1">Today</h6>
+                    <h5 class="text-dark font-weight-bold mb-0" id="dateTxt">@datenowstr</h5>
+                </div>
 
-</div>
+                <!-- Week Box (Fixed: Changed bg-gradient-primary to bg-primary) -->
+                <div class="p-4 rounded text-white shadow-sm" style="background: linear-gradient(135deg, #0062cc 0%, #004a99 100%);">
+                    <h6 class="text-uppercase small font-weight-bold mb-1" style="opacity: 0.8;">Current Week</h6>
+                    <h1 class="display-3 font-weight-bold mb-0" id="weekofyear">@weekofyear</h1>
+                </div>
+
+                <!-- Decorative Logo (Optional, made smaller) -->
+                <div class="mt-4 opacity-50">
+                    <img src="~/images/easytaxlandscapewb.png" style="height: 20px; opacity: 0.4; filter: grayscale(100%);" />
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <!-- No custom JS needed for slider anymore, Bootstrap handles it automatically -->
     <script>
         $(document).ready(function () {
-            $("#dateTxt").text('@datenowstr');
-            $("#weekofyear").text('@weekofyear');
-
+            // Optional: If you need client-side updates
         });
     </script>
-
-    @*Slideshow*@
-    <script>
-        var slideIndex = 0;
-        showSlides();
-
-        function showSlides() {
-            var i;
-            var slides = document.getElementsByClassName("mySlides");
-            var dots = document.getElementsByClassName("dot");
-            for (i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";
-            }
-            slideIndex++;
-            if (slideIndex > slides.length) { slideIndex = 1 }
-            for (i = 0; i < dots.length; i++) {
-                dots[i].className = dots[i].className.replace(" active", "");
-            }
-            slides[slideIndex - 1].style.display = "block";
-            dots[slideIndex - 1].className += " active";
-            setTimeout(showSlides, 5000); // Change image every 2 seconds
-        }
-    </script>
-
 }

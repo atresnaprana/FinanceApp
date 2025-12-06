@@ -1,28 +1,86 @@
 ﻿@model BaseLineProject.Models.SystemTabModel
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Data";
 }
 
-<h1>Delete</h1>
+<div class="row justify-content-center pt-4">
+    <div class="col-md-8 col-lg-6">
 
-<div>
-    <h4>Tab Info</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            <label>Tab Desc: </label> @Html.DisplayFor(model => model.TAB_DESC)
-        </dt>
-        <dt>
-            <label>Role: </label>@Html.DisplayFor(model => model.ROLE_ID)
-        </dt>
-        <dt>
-            <label>Tab Txt: </label>@Html.DisplayFor(model => model.TAB_TXT)
-        </dt>
-    </dl>
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="ID" />
-        <input type="submit" value="Delete" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-primary">Back to list</a>
-    </form>
+        <div class="card shadow-sm border-0">
+
+            <!-- Card Header: Warning Style -->
+            <div class="card-header bg-white border-bottom-0 py-3">
+                <div class="d-flex align-items-center text-danger">
+                    <i class="fas fa-exclamation-triangle fa-lg mr-2"></i>
+                    <h5 class="m-0 font-weight-bold">Delete Confirmation</h5>
+                </div>
+            </div>
+
+            <!-- Card Body: Content -->
+            <div class="card-body pt-0">
+                <p class="text-muted mb-4">
+                    Are you sure you want to delete this tab?
+                    <br>
+                    <small>This action cannot be undone.</small>
+                </p>
+
+                <!-- Data Grid -->
+                <div class="bg-light p-3 rounded mb-3">
+
+                    <!-- Tab Description -->
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Tab Description</small>
+                        </div>
+                        <div class="col-sm-8 font-weight-bold text-dark">
+                            @Html.DisplayFor(model => model.TAB_DESC)
+                        </div>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Role</small>
+                        </div>
+                        <div class="col-sm-8 text-dark">
+                            <span class="badge badge-secondary px-2">
+                                @Html.DisplayFor(model => model.ROLE_ID)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tab Display Text -->
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Display Text</small>
+                        </div>
+                        <div class="col-sm-8 text-dark">
+                            @Html.DisplayFor(model => model.TAB_TXT)
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Card Footer: Actions -->
+            <div class="card-footer bg-white py-3">
+                <form asp-action="Delete" class="d-flex justify-content-between align-items-center">
+                    <input type="hidden" asp-for="ID" />
+
+                    <!-- Cancel / Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Cancel
+                    </a>
+
+                    <!-- Confirm Delete Button -->
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">
+                        <i class="fas fa-trash-alt mr-1"></i> Confirm Delete
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
 </div>

@@ -3,100 +3,101 @@
     ViewData["Title"] = "Slide Image List";
 }
 
-<style>
-    #myPopup {
-        display: none;
-        position: absolute;
-        top: 50px;
-        right: 50%;
-        background-color: blue;
-        height: 100px;
-        width: 100px;
-    }
+<!-- Ensure FontAwesome is loaded -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
-    #myExit {
-        position: absolute;
-        right: 0px;
-        text-align: right;
-        color: white;
-        background-color: red;
-    }
+<div class="row">
+    <div class="col-12">
 
-    .btn-primary2 {
-        color: #ffffff;
-        background-color: #000000;
-        border-color: #000000 !important
-    }
+        <!-- Main Card Container -->
+        <div class="card shadow-sm border-0">
 
-        .btn-primary2:hover {
-            color: #fff;
-            background-color: #be0000;
-            border-color: #be0000 !important
-        }
-</style>
-<p>
-</p>
-<div class="container" id="bootstrap-overrides">
-    <div class="row">
-        <div class="col-sm align-self-end">
-            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
+            <!-- Card Header: Title Left, Create Button Right -->
+            <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
+                <h5 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-images mr-2"></i>Slider Image List
+                </h5>
+
+                <a asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
+                    <i class="fas fa-plus fa-sm text-white-50 mr-2"></i> Input Data Baru
+                </a>
+            </div>
+
+            <!-- Card Body: The Table -->
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered" id="IndexTbl" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 5%">No.</th>
+                                <th>Image Description</th>
+                                <th>File Name</th>
+                                <th style="width: 15%" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                            }
+                            @foreach (var dt in Model)
+                            {
+                                <tr>
+                                    <td class="align-middle text-center">@i</td>
+
+                                    <!-- Description -->
+                                    <td class="align-middle font-weight-bold text-dark">
+                                        @Html.DisplayFor(modelItem => dt.IMG_DESC)
+                                    </td>
+
+                                    <!-- File Name (Monospace font for technical look) -->
+                                    <td class="align-middle text-muted small text-monospace">
+                                        <i class="far fa-file-image mr-1"></i>
+                                        @Html.DisplayFor(modelItem => dt.FILE_NAME)
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="text-center align-middle">
+                                        <div class="btn-group" role="group">
+                                            <!-- Edit Button -->
+                                            <a asp-action="Edit" asp-route-id="@dt.ID" class="btn btn-outline-primary btn-sm" title="Edit Image Info">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+
+                                            <!-- Delete Button -->
+                                            <a asp-action="Delete" asp-route-id="@dt.ID" class="btn btn-outline-danger btn-sm ml-1" title="Delete Image">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                i++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
 </div>
-<br />
-<table class="table table-striped" id="IndexTbl">
-    <thead>
-        <tr>
-            <th>Num.</th>
-            <th>
-                Img Desc
-            </th>
-            <th>
-                Img Name
-            </th>
-            <th>
-                <label>Actions</label>
-            </th>
-        </tr>
-    </thead>
-    <tbody id="tbodyid">
-        @{
-            var i = 1;
-        }
-        @foreach (var dt in Model)
-        {
-            <tr>
-                <td>
-                    @i
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.IMG_DESC)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.FILE_NAME)
-                </td>
 
-                <td>
-                    <div>
-                        <a asp-action="Edit" asp-route-id="@dt.ID" class="btn btn-sm btn-dark">Edit</a>
-                        &nbsp;
-                        <a asp-action="Delete" asp-route-id="@dt.ID" class="btn btn-sm btn-dark">Delete</a>
-                    </div>
-                </td>
-            </tr>
-            i++;
-        }
-    </tbody>
-</table>
-
-@section Scripts{
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
-    $(document).ready(function () {
-        $('#IndexTbl').DataTable({
-            stateSave: true,
+        $(document).ready(function () {
+            $('#IndexTbl').DataTable({
+                stateSave: true,
+                "language": {
+                    "emptyTable": "No images found",
+                    "search": "Search:",
+                },
+                // Use Bootstrap grid layout for DataTables
+                "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                       '<"row"<"col-sm-12"tr>>' +
+                       '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            });
         });
-    });
     </script>
 }

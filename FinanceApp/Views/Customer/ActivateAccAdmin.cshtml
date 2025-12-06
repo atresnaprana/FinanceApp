@@ -1,39 +1,103 @@
 ﻿@model BaseLineProject.Models.dbCustomer
 
 @{
-    ViewData["Title"] = "Activate";
+    ViewData["Title"] = "Activate Account";
 }
 
-<h1>Activate Account</h1>
+<div class="row justify-content-center pt-4">
+    <div class="col-md-8 col-lg-6">
 
-<div>
-    <h4>Deactivate</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            <label>Nama: </label> @Html.DisplayFor(model => model.CUST_NAME)
-        </dt>
-        <dt>
-            <label>Company: </label>@Html.DisplayFor(model => model.COMPANY)
-        </dt>
-        <dt>
-            <label>Email: </label>@Html.DisplayFor(model => model.Email)
-        </dt>
-    </dl>
-    <form asp-action="ActivateAccAdmin">
-        <input type="hidden" asp-for="id" />
-        @if(Model.VA1NOTE == "Enterprise")
-        {
-            <div class="form-group">
-                <label class="control-label">Jumlah User:</label>
-                <input asp-for="VA1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                <span asp-validation-for="VA1" class="text-danger"></span>
+        <div class="card shadow-sm border-0">
+
+            <!-- Card Header: Success Theme for Activation -->
+            <div class="card-header bg-white border-bottom-0 py-3">
+                <div class="d-flex align-items-center text-success">
+                    <i class="fas fa-user-check fa-lg mr-2"></i>
+                    <h5 class="m-0 font-weight-bold">Activate Account</h5>
+                </div>
             </div>
-        }
-        <br />
-        <input type="submit" value="Activate" class="btn btn-danger" />
-        <a asp-action="ActivateUser" class="btn btn-primary">Back to list</a>
-    </form>
+
+            <!-- Card Body -->
+            <div class="card-body pt-0">
+                <p class="text-muted mb-4">
+                    Please confirm the details below to activate this customer account.
+                </p>
+
+                <!-- Account Details Grid -->
+                <div class="bg-light p-3 rounded mb-3">
+
+                    <!-- Name -->
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Name</small>
+                        </div>
+                        <div class="col-sm-8 font-weight-bold text-dark">
+                            @Html.DisplayFor(model => model.CUST_NAME)
+                        </div>
+                    </div>
+
+                    <!-- Company -->
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Company</small>
+                        </div>
+                        <div class="col-sm-8 text-dark">
+                            @Html.DisplayFor(model => model.COMPANY)
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Email</small>
+                        </div>
+                        <div class="col-sm-8 text-primary">
+                            @Html.DisplayFor(model => model.Email)
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Form Section -->
+                <form asp-action="ActivateAccAdmin">
+                    <input type="hidden" asp-for="id" />
+
+                    <!-- Conditional Enterprise Input -->
+                    @if (Model.VA1NOTE == "Enterprise")
+                    {
+                        <div class="form-group mt-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">
+                                Jumlah User (User Quota)
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="VA1" class="form-control" onkeypress="return allowOnlyNumber(event);" placeholder="Enter number of users" />
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                </div>
+                            </div>
+                            <span asp-validation-for="VA1" class="text-danger small"></span>
+                            <small class="form-text text-muted">Set the maximum number of users for this Enterprise account.</small>
+                        </div>
+                    }
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <!-- Back Button -->
+                        <a asp-action="ActivateUser" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left mr-1"></i> Back to List
+                        </a>
+
+                        <!-- Activate Button (Changed to Green/Success) -->
+                        <button type="submit" class="btn btn-success px-4 shadow-sm">
+                            <i class="fas fa-check-circle mr-1"></i> Activate Account
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
 </div>
 
 @section Scripts {
@@ -42,6 +106,7 @@
     }
     <script>
         $(document).ready(function () {
+            // Keep your original logic
             $('#VA1').on('blur', function () {
                 let value = $(this).val().trim();
 
@@ -58,7 +123,5 @@
                 return false;
             return true;
         }
-        
-
     </script>
 }

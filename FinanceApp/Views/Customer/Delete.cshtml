@@ -1,28 +1,85 @@
 ﻿@model BaseLineProject.Models.dbCustomer
 
 @{
-    ViewData["Title"] = "Deactivate";
+    ViewData["Title"] = "Deactivate Account";
 }
 
-<h1>Deactivate Account</h1>
+<div class="row justify-content-center pt-4">
+    <div class="col-md-8 col-lg-6">
 
-<div>
-    <h4>Deactivate</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            <label>Nama: </label> @Html.DisplayFor(model => model.CUST_NAME)
-        </dt>
-        <dt>
-            <label>Company: </label>@Html.DisplayFor(model => model.COMPANY)
-        </dt>
-        <dt>
-            <label>Email: </label>@Html.DisplayFor(model => model.Email)
-        </dt>
-    </dl>
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="id" />
-        <input type="submit" value="Deactivate" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-primary">Back to list</a>
-    </form>
+        <div class="card shadow-sm border-0">
+
+            <!-- Card Header: Danger Theme -->
+            <div class="card-header bg-white border-bottom-0 py-3">
+                <div class="d-flex align-items-center text-danger">
+                    <i class="fas fa-user-times fa-lg mr-2"></i>
+                    <h5 class="m-0 font-weight-bold">Deactivate Account</h5>
+                </div>
+            </div>
+
+            <!-- Card Body: Content -->
+            <div class="card-body pt-0">
+                <p class="text-muted mb-4">
+                    Are you sure you want to deactivate this customer?
+                    <br>
+                    <small>They will lose access to the system immediately.</small>
+                </p>
+
+                <!-- Customer Details Grid -->
+                <div class="bg-light p-3 rounded mb-3">
+
+                    <!-- Name -->
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Name</small>
+                        </div>
+                        <div class="col-sm-8 font-weight-bold text-dark">
+                            @Html.DisplayFor(model => model.CUST_NAME)
+                        </div>
+                    </div>
+
+                    <!-- Company -->
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Company</small>
+                        </div>
+                        <div class="col-sm-8 text-dark">
+                            @Html.DisplayFor(model => model.COMPANY)
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Email</small>
+                        </div>
+                        <div class="col-sm-8 text-primary">
+                            @Html.DisplayFor(model => model.Email)
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Card Footer: Actions -->
+            <div class="card-footer bg-white py-3">
+                <form asp-action="Delete" class="d-flex justify-content-between align-items-center">
+                    <input type="hidden" asp-for="id" />
+
+                    <!-- Cancel Button -->
+                    <!-- Used 'Index' as per your code, assuming that's the list view -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Cancel
+                    </a>
+
+                    <!-- Deactivate Button -->
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">
+                        <i class="fas fa-ban mr-1"></i> Deactivate
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
 </div>

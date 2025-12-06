@@ -1,6 +1,6 @@
 ﻿@model BaseLineProject.Models.dbCustomer
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Customer";
     var errmsg = "";
     if (Model != null)
     {
@@ -9,97 +9,108 @@
             errmsg = Model.errmsg;
         }
     }
-
 }
-<style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
-    }
 
-    #panel, #flip {
-        padding: 5px;
-        text-align: center;
-        background-color: #e5eecc;
-        border: solid 1px #c3c3c3;
-    }
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
 
-    #panel {
-        padding: 50px;
-        display: none;
-    }
-</style>
-<h1>Edit</h1>
-<h3>Ubah Data</h3>
-<hr />
-<form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
-    <div class="row">
-        <div class="col-sm">
-            <div class="row">
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">Name</label>
-                        <input asp-for="CUST_NAME" class="form-control" />
-                        <span asp-validation-for="CUST_NAME" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
+        <form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
 
-                        <label class="control-label">Phone</label>
-                        <input asp-for="PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                        <span asp-validation-for="PHONE1" class="text-danger"></span>
+            <!-- Best Practice: Include Hidden ID for Edit Actions -->
+            @Html.HiddenFor(m => m.id)
+
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-user-edit mr-2"></i>Edit Customer
+                        </h5>
+                        <small class="text-muted">Update Information</small>
                     </div>
-                    <div class="form-group">
-                        <label class="control-label">Email</label>
-                        <input asp-for="Email" class="form-control" readonly/>
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-                    @if (User.IsInRole("AccountAdmin"))
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <!-- Error Alert -->
+                    @if (!string.IsNullOrEmpty(errmsg))
                     {
-                        <div class="form-group">
-
-                            <label class="control-label">Company Name</label>
-                            <input asp-for="COMPANY" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                            <span asp-validation-for="COMPANY" class="text-danger"></span>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle mr-2"></i> @errmsg
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
                     }
-                    
+
+                    <!-- Name -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Full Name</label>
+                        <input asp-for="CUST_NAME" class="form-control" />
+                        <span asp-validation-for="CUST_NAME" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Phone Number</label>
+                        <input asp-for="PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                        <span asp-validation-for="PHONE1" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Email (Readonly) -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Email</label>
+                        <!-- Added bg-light to visually indicate it cannot be changed -->
+                        <input asp-for="Email" class="form-control bg-light" readonly />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Conditional Company Input -->
+                    @if (User.IsInRole("AccountAdmin"))
+                    {
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Company Name</label>
+                            <!-- Note: Your original code restricts this to numbers only. Kept logic as is. -->
+                            <input asp-for="COMPANY" class="form-control" onkeypress="return allowOnlyNumber(event);" />
+                            <span asp-validation-for="COMPANY" class="text-danger small"></span>
+                        </div>
+                    }
+
                 </div>
+
+                <!-- Card Footer: Actions -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke List
+                    </a>
+
+                    <!-- Save Button -->
+                    <button type="button" onclick="alertfirst()" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Simpan Data
+                    </button>
+                </div>
+
             </div>
-
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm">
-            <div class="form-group">
-                <input type="button" value="Simpan Data" onclick="alertfirst()" class="btn btn-red" />
-            </div>
-        </div>
+        </form>
 
     </div>
-
-</form>
-
-
-<div>
-    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
         $(document).ready(function () {
-
-            $("#flip").click(function () {
-                $("#panel").slideToggle();
-                //$("#panel").slideUp("slow");
-            });
+            // Error message handling
             var errmsg = '@errmsg';
             if (errmsg != "" && errmsg != null) {
                 alert(errmsg);
             }
-
-
         });
 
         function allowOnlyNumber(evt) {
@@ -108,20 +119,15 @@
                 return false;
             return true;
         }
+
         function alertfirst() {
-            var pass = $("#Password").val();
-            if (pass == "" || pass == null) {
-                alert("empty password");
+            // UPDATED: The original code checked for a Password field which does not exist on this page.
+            // I removed that check so the form can actually submit.
+            if (confirm("Are you sure you want to update this data?")) {
+                $('#formcreate').submit();
             } else {
-                if (confirm("Are you sure saving data?")) {
-                    $('#formcreate').submit();
-                } else {
-                    return false;
-                }
+                return false;
             }
-
         }
-
-
     </script>
 }
