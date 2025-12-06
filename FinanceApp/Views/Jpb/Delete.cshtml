@@ -1,29 +1,85 @@
 ﻿@model FinanceApp.Models.dbJpb
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Transaction";
 }
 
-<h1>Delete Jurnal Pembelian</h1>
+<div class="row justify-content-center pt-4">
+    <div class="col-md-8 col-lg-6">
 
-<div>
-    <h4>Tab Info</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            <label>Trans No: </label> @Html.DisplayFor(model => model.Trans_no)
-        </dt>
-        <dt>
-            <label>Trans date: </label>@Html.DisplayFor(model => model.TransDate)
-        </dt>
-        <dt>
-            <label>Description: </label>@Html.DisplayFor(model => model.Description)
-        </dt>
+        <div class="card shadow-sm border-0">
 
-    </dl>
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="id" />
-        <input type="submit" value="Delete" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-primary">Back to list</a>
-    </form>
+            <!-- Card Header: Warning Style -->
+            <div class="card-header bg-white border-bottom-0 py-3">
+                <div class="d-flex align-items-center text-danger">
+                    <i class="fas fa-exclamation-triangle fa-lg mr-2"></i>
+                    <h5 class="m-0 font-weight-bold">Delete Confirmation</h5>
+                </div>
+            </div>
+
+            <!-- Card Body: Content -->
+            <div class="card-body pt-0">
+                <p class="text-muted mb-4">
+                    Are you sure you want to delete this Purchase Journal transaction?
+                    <br>
+                    <small>This action cannot be undone and will remove the financial entry.</small>
+                </p>
+
+                <!-- Data Grid -->
+                <div class="bg-light p-3 rounded mb-3">
+
+                    <!-- Transaction No -->
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Trans No</small>
+                        </div>
+                        <div class="col-sm-8 font-weight-bold text-primary text-monospace">
+                            @Html.DisplayFor(model => model.Trans_no)
+                        </div>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Trans Date</small>
+                        </div>
+                        <div class="col-sm-8 text-dark">
+                            <!-- Format date nicely if possible, usually DisplayFor handles it based on model -->
+                            @Html.DisplayFor(model => model.TransDate)
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <small class="text-uppercase font-weight-bold text-secondary">Description</small>
+                        </div>
+                        <div class="col-sm-8 text-dark font-italic">
+                            @Html.DisplayFor(model => model.Description)
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Card Footer: Actions -->
+            <div class="card-footer bg-white py-3">
+                <form asp-action="Delete" class="d-flex justify-content-between align-items-center">
+                    <input type="hidden" asp-for="id" />
+
+                    <!-- Cancel / Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Cancel
+                    </a>
+
+                    <!-- Confirm Delete Button -->
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">
+                        <i class="fas fa-trash-alt mr-1"></i> Confirm Delete
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
 </div>

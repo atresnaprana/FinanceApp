@@ -2,383 +2,170 @@
 @model BaseLineProject.Areas.Identity.RegisterCustomerModel
 @{
     ViewData["Title"] = "Daftar";
+    // Use the same simple layout as the login page
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
 }
 
-@*<h1 class="display-4">@ViewData["Title"]</h1>*@
-<style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
-    }
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
 
-    #panel, #flip {
-        padding: 5px;
-        text-align: center;
-        background-color: #e5eecc;
-        border: solid 1px #c3c3c3;
-    }
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header text-center bg-white border-bottom-0 pt-4">
+                    <img src="~/images/easytaxlandscapewb.png" alt="EasyTax Logo" style="max-width: 150px;" class="mb-3" />
+                    <h3 class="font-weight-bold text-primary">Daftar Akun Baru</h3>
+                    <p class="text-muted small">Create your EasyTax customer account</p>
+                </div>
 
-    #panel {
-        padding: 50px;
-        display: none;
-    }
-</style>
-<form asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
-    <div class="row">
-        <div class="col-sm">
-            <h4>Daftar akun baru</h4>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Input.Email"></label>
-                <input asp-for="Input.Email" class="form-control" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.Password"></label>
-                <input asp-for="Input.Password" class="form-control" />
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.ConfirmPassword"></label>
-                <input asp-for="Input.ConfirmPassword" class="form-control" />
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.CUST_NAME"></label>
-                <input asp-for="Input.CUST_NAME" class="form-control" />
-                <span asp-validation-for="Input.CUST_NAME" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.SoftwarePlan"></label>
-                @Html.DropDownListFor(model => model.Input.SoftwarePlan, new List<SelectListItem>
-                {
-                new SelectListItem{ Text="Basic", Value = "Basic" },
-                new SelectListItem{ Text="UMKM", Value = "UMKM" },
-                new SelectListItem{ Text="Enterprise", Value = "Enterprise" }
-                }, new { @class = "form-control" })
-                <span asp-validation-for="Input.SoftwarePlan" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <i>
-                    <label>- Password must have at least 1 unique character </label>
-                    <label>- Password must have at least 1 Upper case letter </label>
-                    <label>- Password must have at least 6 characters </label>
-                </i>
+                <div class="card-body">
+                    <form asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
 
+                        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
 
+                        <!-- Wizard Headers -->
+                        <ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="pills-account-tab" data-toggle="pill" href="#pills-account" role="tab">1. Account Info</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="pills-company-tab" data-toggle="pill" href="#pills-company" role="tab">2. Company Info</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="pills-address-tab" data-toggle="pill" href="#pills-address" role="tab">3. Address</a>
+                            </li>
+                        </ul>
+
+                        <!-- Wizard Content -->
+                        <div class="tab-content" id="pills-tabContent">
+
+                            <!-- STEP 1: Account Info -->
+                            <div class="tab-pane fade show active" id="pills-account" role="tabpanel">
+                                <div class="form-row">
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.Email" class="small"></label>
+                                        <input asp-for="Input.Email" class="form-control" placeholder="name@example.com" />
+                                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.CUST_NAME" class="small"></label>
+                                        <input asp-for="Input.CUST_NAME" class="form-control" placeholder="Enter full name" />
+                                        <span asp-validation-for="Input.CUST_NAME" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.Password" class="small"></label>
+                                        <input asp-for="Input.Password" class="form-control" placeholder="********" />
+                                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.ConfirmPassword" class="small"></label>
+                                        <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Confirm password" />
+                                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="alert alert-light border small mt-2">
+                                    - Password must have at least 1 unique character, 1 uppercase letter, and be at least 6 characters long.
+                                </div>
+                            </div>
+
+                            <!-- STEP 2: Company Info -->
+                            <div class="tab-pane fade" id="pills-company" role="tabpanel">
+                                <div class="form-row">
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.COMPANY" class="small"></label>
+                                        <input asp-for="Input.COMPANY" class="form-control" placeholder="Your Company Name" />
+                                        <span asp-validation-for="Input.COMPANY" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.PHONE1" class="small"></label>
+                                        <input asp-for="Input.PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" placeholder="e.g. 0812345678" />
+                                        <span asp-validation-for="Input.PHONE1" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.NPWP" class="small"></label>
+                                        <input asp-for="Input.NPWP" class="form-control" onkeypress="return allowOnlyNumber(event);" placeholder="NPWP Number" />
+                                        <span asp-validation-for="Input.NPWP" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.customertype" class="small"></label>
+                                        @Html.DropDownListFor(m => m.Input.customertype, new List<SelectListItem>
+                                        {
+                                            new SelectListItem { Text = "CV", Value = "CV" },
+                                                                                new SelectListItem { Text = "PT", Value = "PT" },
+                                                                                new SelectListItem { Text = "Perorangan", Value = "Perorangan" }
+                                                                                }, "Select customer type...", new { @class = "form-control" })
+                                        <span asp-validation-for="Input.customertype" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.SoftwarePlan" class="small"></label>
+                                        @Html.DropDownListFor(m => m.Input.SoftwarePlan, new List<SelectListItem>
+                                                                                {
+                                            new SelectListItem { Text = "Basic", Value = "Basic" },
+                                                                                new SelectListItem { Text = "UMKM", Value = "UMKM" },
+                                                                                new SelectListItem { Text = "Enterprise", Value = "Enterprise" }
+                                                                                }, "Select a plan...", new { @class = "form-control" })
+                                        <span asp-validation-for="Input.SoftwarePlan" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" asp-for="Input.isomset">
+                                        <label class="custom-control-label" asp-for="Input.isomset"></label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- STEP 3: Address -->
+                            <div class="tab-pane fade" id="pills-address" role="tabpanel">
+                                <div class="form-group">
+                                    <label asp-for="Input.Address" class="small"></label>
+                                    <textarea asp-for="Input.Address" class="form-control" rows="3" placeholder="Street name, number, etc."></textarea>
+                                    <span asp-validation-for="Input.Address" class="text-danger small"></span>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.City" class="small"></label>
+                                        <input asp-for="Input.City" class="form-control" placeholder="City" />
+                                        <span asp-validation-for="Input.City" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label asp-for="Input.Province" class="small"></label>
+                                        <input asp-for="Input.Province" class="form-control" placeholder="Province" />
+                                        <span asp-validation-for="Input.Province" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Input.Postal" class="small"></label>
+                                    <input asp-for="Input.Postal" class="form-control" onkeypress="return allowOnlyNumber(event);" placeholder="Postal Code" />
+                                    <span asp-validation-for="Input.Postal" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="mt-4" />
+                        <button type="submit" class="btn btn-primary btn-block btn-lg shadow-sm">Daftar</button>
+
+                    </form>
+                </div>
+                <div class="card-footer text-center bg-white border-top-0">
+                    <div class="small">
+                        <a asp-page="./Login">Sudah punya akun? Log in</a>
+                    </div>
+                </div>
             </div>
+
         </div>
-        <div class="col-sm">
-            <h4 style="color:white">|</h4>
-            <hr />
-            <div class="form-group">
-                <label asp-for="Input.COMPANY"></label>
-                <input asp-for="Input.COMPANY" class="form-control" />
-                <span asp-validation-for="Input.COMPANY" class="text-danger"></span>
-            </div>
-            @*<div class="form-group">
-            <label asp-for="Input.KTP"></label>
-            <input asp-for="Input.KTP" class="form-control" />
-            <span asp-validation-for="Input.KTP" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-            <label asp-for="Input.NPWP"></label>
-            <input asp-for="Input.NPWP" class="form-control" />
-            <span asp-validation-for="Input.NPWP" class="text-danger"></span>
-            </div>*@
-            <div class="form-group">
-                <label asp-for="Input.PHONE1"></label>
-                <input asp-for="Input.PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                <span asp-validation-for="Input.PHONE1" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.NPWP"></label>
-                <input asp-for="Input.NPWP" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                <span asp-validation-for="Input.NPWP" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.customertype"></label>
-                @Html.DropDownListFor(model => model.Input.customertype, new List<SelectListItem>
-                                {
-                    new SelectListItem { Text = "CV", Value = "CV" },
-                                new SelectListItem { Text = "PT", Value = "PT" },
-                                new SelectListItem { Text = "Perorangan", Value = "Perorangan" }
-                                }, new { @class = "form-control" })
-                <span asp-validation-for="Input.SoftwarePlan" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.isomset"></label>
-                <br />
-                <input asp-for="Input.isomset" class="largerCheckbox" type="checkbox" />
-                <span asp-validation-for="Input.isomset" class="text-danger"></span>
-            </div>
-
-        </div>
-        <div class="col-sm">
-            <h4 style="color:white">|</h4>
-            <hr />
-            <div class="form-group">
-                <label asp-for="Input.Address"></label>
-                <textarea asp-for="Input.Address" class="form-control"></textarea>
-                <span asp-validation-for="Input.Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.City"></label>
-                <input asp-for="Input.City" class="form-control" />
-                <span asp-validation-for="Input.City" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.Province"></label>
-                <input asp-for="Input.Province" class="form-control" />
-                <span asp-validation-for="Input.Province" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.Postal"></label>
-                <input asp-for="Input.Postal" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                <span asp-validation-for="Input.Postal" class="text-danger"></span>
-            </div>
-            
-            @*<div class="form-group">
-            <label class="control-label">Area</label>
-            <br />
-            @Html.DropDownListFor(model => model.Input.store_area, new List<SelectListItem>
-            {
-            new SelectListItem{ Text="JAWA", Value = "JAWA" },
-            new SelectListItem{ Text="SUMATRA", Value = "SUMATRA" },
-            new SelectListItem{ Text="BALI-NUSATENGGARA", Value = "BALI-NUSATENGGARA" },
-            new SelectListItem{ Text="KASUPA", Value = "KASUPA" }
-
-            }, new { @class = "form-control" })
-            <span asp-validation-for="Input.store_area" class="text-danger"></span>
-            </div>*@
-        </div>
     </div>
-    @*<div class="row">
-    <div class="col-sm">
-    <div class="form-group">
-    <div id="flip">Click to slide down panel</div>
-    <div id="panel">
-    <div class="container">
-    <div class="row">
-    <div class="col-sm">
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileKtp"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileKtp" />
-    <span asp-validation-for="Input.fileKtp" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileAkta"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileAkta" />
-    <span asp-validation-for="Input.fileAkta" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileRekening"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileRekening" />
-    <span asp-validation-for="Input.fileRekening" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    </div>
-    <div class="col-sm">
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileNPWP"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileNPWP" />
-    <span asp-validation-for="Input.fileNPWP" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileTdp"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileTdp" />
-    <span asp-validation-for="Input.fileTdp" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileSIUP"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileSIUP" />
-    <span asp-validation-for="Input.fileSIUP" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    </div>
-    <div class="col-sm">
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileNIB"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileNIB" />
-    <span asp-validation-for="Input.fileNIB" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileSPPKP"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileSPPKP" />
-    <span asp-validation-for="Input.fileSPPKP" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    <div class="row">
-    <div class="form-group">
-    <div class="row">
-    <div class="col-sm-2">
-    <div class="form-group">
-    <label asp-for="Input.fileSKT"></label>
-
-    </div>
-    </div>
-    <div class="col-sm-2">
-    <div class="form-group">
-    <input type="file" asp-for="Input.fileSKT" />
-    <span asp-validation-for="Input.fileSKT" class="text-danger"></span>
-
-    </div>
-    </div>
-
-    </div>
-
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-
-    </div>*@
-    <button type="submit" class="btn btn-red">Daftar</button>
-
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-         $(document).ready(function () {
-            //$("#flip").click(function () {
-            //    $("#panel").slideToggle();
-            //    //$("#panel").slideUp("slow");
-            //});
-
-
-
-        });
         function allowOnlyNumber(evt) {
             var charCode = (evt.which) ? evt.which : event.keyCode
             if (charCode > 31 && (charCode < 48 || charCode > 57))

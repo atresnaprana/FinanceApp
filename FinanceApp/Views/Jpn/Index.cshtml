@@ -6,192 +6,153 @@
     var isAdmin = User.IsInRole("SuperAdmin").ToString();
 }
 
-<style>
-    #myPopup {
-        display: none;
-        position: absolute;
-        top: 50px;
-        right: 50%;
-        background-color: blue;
-        height: 100px;
-        width: 100px;
-    }
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
-    #myExit {
-        position: absolute;
-        right: 0px;
-        text-align: right;
-        color: white;
-        background-color: red;
+<div class="row">
+    <div class="col-12">
 
-    }
-    .btn-primary2 {
-        color: #ffffff;
-        background-color: #000000;
-        border-color: #000000 !important
-    }
-    .btn-primary2:hover {
-        color: #fff;
-        background-color: #be0000;
-        border-color: #be0000 !important
-    }
-
-
-</style>
-<h1>Data Jurnal Penjualan</h1>
-<br />
-<div class="container" id="bootstrap-overrides">
-    <div class="row">
-        <div class="col-sm align-self-end">
-            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
+        <!-- Header & Actions -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="text-primary font-weight-bold m-0">Data Jurnal Penjualan</h3>
+            <a asp-action="Create" class="btn btn-primary shadow-sm">
+                <i class="fas fa-plus mr-1"></i> Input Data Baru
+            </a>
         </div>
-        <div class="col-sm">
-            <label><b>Pilih Tanggal Transaksi: </b></label>
-            <br />
-            <table>
-                <tr>
-                    <td>
-                        <label>dari: </label>
-                        <br />
-                        <input type="date" id="datefrom" class="form-control" />
 
-                    </td>
-                    <td>
-                        <label>ke: </label>
-                        <br />
-                        <input type="date" id="dateto" class="form-control" />
+        <!-- Filter Card -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light py-2 border-bottom-0">
+                <h6 class="m-0 font-weight-bold text-secondary">
+                    <i class="fas fa-filter mr-1"></i> Filter Transaksi
+                </h6>
+            </div>
+            <div class="card-body py-3">
+                <div class="form-row align-items-end">
 
-                    </td>
-                </tr>
-            </table>
-            <br />
-            <br />
-            <input type="button" value="Cari Data" onclick="PopulateTable()" class="btn btn-dark" />
-            <input type="button" value="Reset" onclick="Clear()" class="btn btn-dark" />
+                    <!-- Date From -->
+                    <div class="col-md-3 mb-2">
+                        <label class="small font-weight-bold text-uppercase text-muted mb-1">Dari Tanggal</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white"><i class="far fa-calendar-alt"></i></span>
+                            </div>
+                            <!-- ID preserved for JS -->
+                            <input type="date" id="datefrom" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Date To -->
+                    <div class="col-md-3 mb-2">
+                        <label class="small font-weight-bold text-uppercase text-muted mb-1">Ke Tanggal</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white"><i class="far fa-calendar-alt"></i></span>
+                            </div>
+                            <!-- ID preserved for JS -->
+                            <input type="date" id="dateto" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-md-4 mb-2">
+                        <button type="button" onclick="PopulateTable()" class="btn btn-primary mr-2 shadow-sm">
+                            <i class="fas fa-search mr-1"></i> Cari Data
+                        </button>
+                        <button type="button" onclick="Clear()" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo mr-1"></i> Reset
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table Card -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered table-sm" id="IndexTbl" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr class="text-center">
+                                <th style="width: 30px">No.</th>
+                                <th style="min-width: 90px">Tanggal</th>
+                                <th style="min-width: 150px">Deskripsi</th>
+                                <th style="min-width: 100px">No. Trans</th>
+
+                                <!-- Grouping Accounts -->
+                                <th>Akun Debit</th>
+                                <th>Akun Kredit</th>
+                                <th>Akun Deb Disc</th>
+                                <th>Akun Cred Disc</th>
+
+                                <!-- Values -->
+                                <th class="text-right">Nilai Jual</th>
+                                <th class="text-right">Potongan</th>
+                                <th style="width: 50px">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyid">
+                            @{
+                                var i = 1;
+                            }
+                            @foreach (var dt in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">@i</td>
+                                    <td>@Html.DisplayFor(modelItem => dt.TransDateStr)</td>
+                                    <td>@Html.DisplayFor(modelItem => dt.Description)</td>
+                                    <td class="text-monospace text-primary small">@Html.DisplayFor(modelItem => dt.Trans_no)</td>
+
+                                    <td class="small">@Html.DisplayFor(modelItem => dt.Akun_Debit)</td>
+                                    <td class="small">@Html.DisplayFor(modelItem => dt.Akun_Credit)</td>
+                                    <td class="small">@Html.DisplayFor(modelItem => dt.Akun_Debit_disc)</td>
+                                    <td class="small">@Html.DisplayFor(modelItem => dt.Akun_Credit_disc)</td>
+
+                                    <td class="text-right font-weight-bold">@Html.DisplayFor(modelItem => dt.ValueStr)</td>
+                                    <td class="text-right text-danger">@Html.DisplayFor(modelItem => dt.ValueDiscStr)</td>
+
+                                    <td><!-- Actions reserved (logic handled in JS) --></td>
+                                </tr>
+                                i++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
 </div>
-<br />
-<table class="table table-striped" id="IndexTbl">
-    <thead>
-        <tr>
-            <th>id.</th>
-            <th>
-                TransDate
-            </th>
-            <th>
-                Description
-            </th>
-            <th>
-                Trans no
-            </th>
 
-            <th>
-                Akun Debit
-            </th>
-            <th>
-                Akun Kredit
-            </th>
-            <th>
-                Akun Debit Discount
-            </th>
-            <th>
-                Akun Kredit Discount
-            </th>
-            <th>
-                Nilai Penjualan
-            </th>
-            <th>
-                Potongan Penjualan
-
-            </th>
-            <th>
-                <label>Actions</label>
-            </th>
-        </tr>
-    </thead>
-    <tbody id="tbodyid">
-        @{
-            var i = 1;
-        }
-        @foreach (var dt in Model)
-        {
-            <tr>
-                <td>
-                    @i
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.TransDateStr)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.Trans_no)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.Akun_Debit)
-
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.Akun_Credit)
-
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.Akun_Debit_disc)
-
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.Akun_Credit_disc)
-
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.ValueStr)
-
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.ValueDiscStr)
-
-                </td>
-                <td>
-                    
-                </td>
-            </tr>
-            i++;
-        }
-    </tbody>
-</table>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
         var tables;
-
         $(document).ready(function () {
             tables = $('#IndexTbl').DataTable({
                 "sPaginationType": "full_numbers",
-                "bJQueryUI": true,
                 "bProcessing": true,
                 "aLengthMenu": [[10, 50, 100, 200, -1], ["10", "50", "100", "200", "All"]],
                 "stateSave": true,
                 "oSelectorOpts": { filter: 'applied' },
-                dom: "<'row'<'col-sm-12'B>>" +
-                    "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
-                    "<'row'<'col-sm-12'tr>>" +
-                    "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Filter results..."
+                },
+                // Updated DOM for Bootstrap 4 Layout
+                dom: "<'row mb-2'<'col-sm-6'B><'col-sm-6'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row mt-3'<'col-sm-5'i><'col-sm-7'p>>",
                 buttons: [
                     {
                         extend: 'excelHtml5',
-                        text: 'Export to Excel',
-                        title: 'dataJpn',
-                        exportOptions: {
-                            columns: ':visible'
-                            //,modifier: {
-                            //    page: 'current'
-                            //}
-                        }
+                        text: '<i class="fas fa-file-excel mr-1"></i> Export to Excel',
+                        className: 'btn btn-success btn-sm',
+                        title: 'DataJurnalPenjualan',
+                        exportOptions: { columns: ':visible' }
                     }
                 ],
                 "columnDefs": [{
@@ -199,107 +160,81 @@
                     "targets": [0, 1]
                 }],
             });
-            var stringdatevaluefrom = '@datefromstr'
-            if (stringdatevaluefrom != "") {
-                $("#datefrom").val(stringdatevaluefrom);
-            }
-            var stringdatevalueto = '@datetostr'
-            if (stringdatevalueto != "") {
-                $("#dateto").val(stringdatevalueto);
-            }
 
+            // Restore Date Filters if exist
+            var stringdatevaluefrom = '@datefromstr'
+            if (stringdatevaluefrom != "") { $("#datefrom").val(stringdatevaluefrom); }
+            var stringdatevalueto = '@datetostr'
+            if (stringdatevalueto != "") { $("#dateto").val(stringdatevalueto); }
         });
 
         function PopulateTable() {
-            tables.clear().draw();
             var valuefrom = $("#datefrom").val();
             var valueto = $("#dateto").val();
+
             if (valuefrom != null && valuefrom != "" && valueto != null && valueto != "") {
-                let fromDate = $("#datefrom").val();
-                let toDate = $("#dateto").val();
-                if (new Date(fromDate) > new Date(toDate)) {
+                let fromDate = new Date(valuefrom);
+                let toDate = new Date(valueto);
+
+                if (fromDate > toDate) {
                     alert("Error: The 'From' date cannot be later than the 'To' date.");
-                }else{
+                } else {
                     $.ajax({
-                        url: '@Url.Action("getTbl", "Jpn")',
+                        url: '@Url.Action("getTbl", "Jpn")', // Pointing to Jpn Controller
                         type: "GET",
                         data: { from: valuefrom, to: valueto },
-                        //startDate: mFromDate, endDate: mToDate1
                         dataType: 'json',
                         success: function (data) {
-                            debugger;
-                            var tr;
-                            //Append each row to html table
+
+                            tables.clear(); // Clear existing data
+
                             for (var i = 0; i < data.length; i++) {
-                                debugger;
-                                console.log(data[i]);
                                 var number = parseInt(i) + 1;
-                                tr = $('<tr/>');
-                                tr.append("<td>" + number + "</td>");
-                                tr.append("<td>" + data[i].transDateStr + "</td>");
-                                tr.append("<td>" + data[i].description + "</td>");
-                                tr.append("<td>" + data[i].trans_no + "</td>");
-                                tr.append("<td>" + data[i].akun_Debit + "</td>");
-                                tr.append("<td>" + data[i].akun_Credit + "</td>");
-                                tr.append("<td>" + data[i].akun_Debit_disc + "</td>");
-                                tr.append("<td>" + data[i].akun_Credit_disc + "</td>");
-                                tr.append("<td>" + data[i].valueStr + "</td>");
-                                tr.append("<td>" + data[i].valueDiscStr + "</td>");
-
-                                //tr.append("<td>" + data[i].vaksiN2 + "</td>");
                                 var isAdmin = '@isAdmin';
-                                debugger;
+                                var actionHtml = "";
+
                                 if (isAdmin == "True") {
-                                    tr.append("<td></td>");
-
-                                    // tr.append('<td><a href="/Jpn/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >&nbsp;<a href="/Jpn/Delete/' + data[i].id + '" class="btn btn-sm btn-dark">Delete</a ></td>');
+                                    // actionHtml = '<a href="/Jpn/Edit/' + data[i].id + '">Edit</a>';
                                 }
-                                else {
-                                    tr.append("<td></td>");
 
-                                    // tr.append('<td><a href="/Jpn/Edit/' + data[i].id + '" class="btn btn-sm btn-dark">Edit</a >');
-                                }
-                                //tr.append('<button type="button" asp-action="Edit" asp-route-id="' + data[i].id + '" class="btn btn-primary";">Delete</button>');
-                                //tr.append("")
-                                //tr.append("<a asp-action='Edit' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Edit</a>");
-                                //tr.append("<a asp-action='Delete' asp-route-id='" + data[i].id + "' class='btn btn - primary'>Delete</a>");
-                                //tr.append("");
-
-                                tables.row.add(tr).draw(); // This ensures the row is added to DataTable
-                                /* location.reload();*/
+                                // Use DataTables Add Row API instead of appending HTML strings (Much faster)
+                                tables.row.add([
+                                    number,
+                                    data[i].transDateStr,
+                                    data[i].description,
+                                    `<span class="text-monospace text-primary small">${data[i].trans_no}</span>`,
+                                    `<span class="small">${data[i].akun_Debit}</span>`,
+                                    `<span class="small">${data[i].akun_Credit}</span>`,
+                                    `<span class="small">${data[i].akun_Debit_disc}</span>`,
+                                    `<span class="small">${data[i].akun_Credit_disc}</span>`,
+                                    `<div class="text-right font-weight-bold">${data[i].valueStr}</div>`,
+                                    `<div class="text-right text-danger">${data[i].valueDiscStr}</div>`,
+                                    actionHtml
+                                ]);
                             }
+                            tables.draw(); // Redraw
                         },
                         error: function () {
-
+                            alert("Failed to load data.");
                         }
-
                     });
                 }
-                
             } else {
-                alert('Please fill EDP Code');
+                alert('Please select date range.');
             }
-
         }
+
         function Clear() {
             $("#datefrom").val(null);
             $("#dateto").val(null);
             tables.clear().draw();
-              $.ajax({
-                    url: '@Url.Action("getTblEmpty", "Jpn")',
-                    type: "GET",
-                    //startDate: mFromDate, endDate: mToDate1
-                    dataType: 'json',
-                    success: function (data) {
-
-                    },
-                    error: function () {
-
-                    }
-
-                });
-
+            $.ajax({
+                url: '@Url.Action("getTblEmpty", "Jpn")', // Pointing to Jpn Controller
+                type: "GET",
+                dataType: 'json',
+                success: function (data) { },
+                error: function () { }
+            });
         }
     </script>
 }
-

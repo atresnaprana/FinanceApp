@@ -1,0 +1,74 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<!-- FontAwesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        <!-- Modern Card Wrapper -->
+        <div class="card shadow-sm border-0">
+
+            <!-- Card Header -->
+            <div class="card-header bg-white py-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-circle mr-2"></i>@ViewData["Title"]
+                    </h5>
+                    <small class="text-muted">Manage your profile</small>
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+
+                <!-- Status Message -->
+                <partial name="_StatusMessage" model="Model.StatusMessage" />
+
+                <form id="profile-form" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    <!-- Username (Disabled) -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Username" class="font-weight-bold text-dark small text-uppercase"></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input asp-for="Username" class="form-control bg-light" disabled />
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.PhoneNumber" class="font-weight-bold text-dark small text-uppercase"></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            </div>
+                            <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Enter phone number" />
+                        </div>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="mt-4">
+                        <button id="update-profile-button" type="submit" class="btn btn-primary btn-block shadow-sm">
+                            <i class="fas fa-save mr-1"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

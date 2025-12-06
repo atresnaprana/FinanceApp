@@ -1,77 +1,124 @@
 ﻿@model FinanceApp.Models.dbAccount
 
 @{
-    ViewData["Title"] = "Ubah Data";
-    string errmsg = Model.errormessage;
-
+    ViewData["Title"] = "Ubah Data Account";
+    string errmsg = Model?.errormessage ?? "";
 }
-<style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
-    }
-</style>
-<h1>Ubah Data</h1>
-<h3 class="display-5">Form Edit</h3>
-<hr />
-<form asp-action="Create" id="formcreate" enctype="multipart/form-data">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm">
-                <div class="form-group">
-                    <label class="control-label">Account No:</label>
-                    <input asp-for="account_no" class="form-control" readonly />
-                    <span asp-validation-for="account_no" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Account Name:</label>
-                    <input asp-for="account_name" class="form-control" />
-                    <span asp-validation-for="account_name" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Account D/K:</label>
-                    @Html.DropDownListFor(model => model.akundk, new List<SelectListItem>
-                    {
-                    new SelectListItem{ Text="D", Value = "D" },
-                    new SelectListItem{ Text="K", Value = "K" },
-                    new SelectListItem{ Text="-", Value = "-" },
 
-                    }, new { @class = "form-control" })
-                    <span asp-validation-for="akundk" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Account NR/LR:</label>
-                    @Html.DropDownListFor(model => model.akunnrlr, new List<SelectListItem>
-                    {
-                    new SelectListItem{ Text="NR", Value = "NR" },
-                    new SelectListItem{ Text="LR", Value = "LR" },
-                    new SelectListItem{ Text="-", Value = "-" },
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
 
-                    }, new { @class = "form-control" })
-                    <span asp-validation-for="akundk" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Hierarchy:</label>
-                    @Html.DropDownListFor(model => model.akunnrlr, new List<SelectListItem>
-                    {
-                    new SelectListItem{ Text="hdr", Value = "hdr" },
-                    new SelectListItem{ Text="dtl", Value = "dtl" }
+        <form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
 
-                    }, new { @class = "form-control" })
-                    <span asp-validation-for="akundk" class="text-danger"></span>
+            <!-- Crucial: Hidden ID for tracking the record being updated -->
+            @Html.HiddenFor(m => m.id)
+
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-edit mr-2"></i>Update Account
+                        </h5>
+                        <small class="text-muted">Edit Chart of Accounts</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="button" value="Simpan perubahan" onclick="alertfirst()" class="btn btn-red" />
+
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <!-- Error Alert -->
+                    @if (!string.IsNullOrEmpty(errmsg))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> @errmsg
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <!-- Row 1: Account Number & Name -->
+                    <div class="form-row">
+                        <div class="form-group col-md-4 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Account No.</label>
+                            <!-- Readonly styling -->
+                            <input asp-for="account_no" class="form-control bg-light" readonly />
+                            <span asp-validation-for="account_no" class="text-danger small"></span>
+                        </div>
+                        <div class="form-group col-md-8 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Account Name</label>
+                            <input asp-for="account_name" class="form-control" />
+                            <span asp-validation-for="account_name" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-2" />
+
+                    <!-- Row 2: Accounting Flags -->
+                    <div class="form-row">
+
+                        <!-- Debit / Kredit -->
+                        <div class="form-group col-md-4 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Posisi (D/K)</label>
+                            @Html.DropDownListFor(model => model.akundk, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "Debit (D)", Value = "D" },
+                                                        new SelectListItem { Text = "Kredit (K)", Value = "K" },
+                                                        new SelectListItem { Text = "-", Value = "-" },
+                                                        }, new { @class = "form-control" })
+                            <span asp-validation-for="akundk" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Neraca / Laba Rugi -->
+                        <div class="form-group col-md-4 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Report Type (NR/LR)</label>
+                            @Html.DropDownListFor(model => model.akunnrlr, new List<SelectListItem>
+                                                        {
+                                new SelectListItem { Text = "Neraca (NR)", Value = "NR" },
+                                                        new SelectListItem { Text = "Laba Rugi (LR)", Value = "LR" },
+                                                        new SelectListItem { Text = "-", Value = "-" },
+                                                        }, new { @class = "form-control" })
+                            <span asp-validation-for="akunnrlr" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Hierarchy -->
+                        <div class="form-group col-md-4 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Hierarchy</label>
+                            <!-- Note: Logic preserved (binding to akunnrlr), but likely should be a different property -->
+                            @Html.DropDownListFor(model => model.akunnrlr, new List<SelectListItem>
+                                                        {
+                                new SelectListItem { Text = "Header (HDR)", Value = "hdr" },
+                                                        new SelectListItem { Text = "Detail (DTL)", Value = "dtl" }
+                                                        }, new { @class = "form-control" })
+                            <span asp-validation-for="akunnrlr" class="text-danger small"></span>
+                        </div>
+
+                    </div>
+
                 </div>
+
+                <!-- Card Footer: Actions -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke List
+                    </a>
+
+                    <!-- Update Button -->
+                    <button type="button" onclick="alertfirst()" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Simpan Perubahan
+                    </button>
+                </div>
+
             </div>
-        </div>
+        </form>
+
     </div>
-</form>
-
-
-<div>
-    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -80,9 +127,8 @@
         $(document).ready(function () {
             var msg = '@errmsg';
             if (msg != '') {
-                alert("error:" + msg);
+                alert("Error: " + msg);
             }
-
         });
 
         function allowOnlyNumber(evt) {
@@ -90,17 +136,14 @@
             if (charCode > 31 && (charCode < 48 || charCode > 57))
                 return false;
             return true;
-            }
-        function alertfirst() {
+        }
 
-            if (confirm("Are you sure saving data?")) {
+        function alertfirst() {
+            if (confirm("Are you sure you want to update this data?")) {
                 $('#formcreate').submit();
             } else {
                 return false;
             }
-
         }
     </script>
 }
-
-
