@@ -1,25 +1,27 @@
 ﻿using BaseLineProject.Data;
+using BaseLineProject.Models;
+using BaseLineProject.Services;
 using FinanceApp.Models;
+using FinanceApp.Services.Tax;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MimeDetective.Storage.Xml.v2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Authorization;
-using System.IO;
-using QuestPDF.Infrastructure;
-using System.Threading.Tasks;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using BaseLineProject.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using BaseLineProject.Services;
+using QuestPDF.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace FinanceApp.Controllers
 {
@@ -37,10 +39,11 @@ namespace FinanceApp.Controllers
         public IConfiguration Configuration { get; }
         private readonly IMailService mailService;
         private readonly RoleManager<IdentityRole> _roleManager;
-
+        private readonly ITaxCalculationService _taxService;
+        private const decimal UMKM_LIMIT = 4_800_000_000m;
         public string EmailConfirmationUrl { get; set; }
 
-        public APIController(FormDBContext db, ILogger<JmController> logger, IHostingEnvironment _environment, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager, IConfiguration configuration, IMailService mailService)
+        public APIController(FormDBContext db, ILogger<JmController> logger, IHostingEnvironment _environment, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager, IConfiguration configuration, IMailService mailService, ITaxCalculationService taxService)
         {
             logger = logger;
             Environment = _environment;
@@ -48,6 +51,7 @@ namespace FinanceApp.Controllers
             _userManager = userManager;
             Configuration = configuration;
             _roleManager = roleManager;
+            _taxService = taxService;
 
             this.mailService = mailService;
         }
@@ -3599,44 +3603,75 @@ namespace FinanceApp.Controllers
         public async Task<IActionResult> GenerateTaxRpt([FromBody] LRModel obj)
         {
             var year = obj.year;
-            var isyearly = obj.isYearly;
-            var month = obj.month;
-            if (isyearly)
-            {
-                month = 12;
-            }
-            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.periode >= 1 && y.periode <= month && y.isclosed == "Y").ToList();
-            QuestPDF.Settings.License = LicenseType.Community;
-            QuestPDF.Settings.EnableDebugging = true;
-            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
-            // Render the "Index" view as a PDF
-            obj.jpndata = db.JpnTbl.Where(y => y.TransDate.Month >= 1 && y.TransDate.Month <= month && y.TransDate.Year == year && y.company_id == datas.COMPANY_ID).ToList();
+            var maxMonth = obj.isYearly ? 12 : obj.month;
 
-            byte[] pdfBytes = GeneratePdfTax(obj);
-            var FileName = "TaxRpt" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
-            return File(pdfBytes, "application/pdf", FileName);
+            // ✅ VALIDASI CLOSING
+            var closingCount = db.ClosingTbl
+                .Count(x => x.year == year && x.periode <= maxMonth && x.isclosed == "Y");
+
+            if (closingCount != maxMonth)
+                return RedirectToAction("Index", new { msg = "Closing belum lengkap" });
+
+            // ✅ AMBIL COMPANY
+            var customer = db.CustomerTbl.First(x => x.Email == User.Identity.Name);
+            var companyId = customer.COMPANY_ID;
+
+            // ✅ LOAD DATA
+            var jpn = db.JpnTbl
+                .Where(x => x.company_id == companyId && x.TransDate.Year == year)
+                .ToList();
+
+            var jpb = db.JpbTbl
+                .Where(x => x.company_id == companyId && x.TransDate.Year == year)
+                .ToList();
+
+            var jm = db.JmTbl
+                .Where(x => x.company_id == companyId && x.TransDate.Year == year)
+                .ToList();
+            var datacust = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+            // ✅ HITUNG PAJAK
+            var taxResult = _taxService.CalculateAnnualTax(
+                companyId, year, jpn, jpb, jm, datacust.taxflagpercentage, datacust.REG_DATE, datacust.customertype);
+
+            // ✅ GENERATE PDF
+            var eligibleUMKM = taxResult.TotalOmzet <= UMKM_LIMIT && datacust.taxflagpercentage == "Y" && CanUseUmkmFinal(datacust.customertype, datacust.REG_DATE, year);
+
+            var pdfBytes = GeneratePdfFromTaxResult(taxResult, year, eligibleUMKM);
+            var fileName = $"TaxRpt-{DateTime.Now:dd-MM-yyyy}.pdf";
+
+            return File(pdfBytes, "application/pdf", fileName);
 
 
         }
-        private byte[] GeneratePdfTax(LRModel obj)
+        private bool CanUseUmkmFinal(
+        string customerType,
+        DateTime regDate,
+        int taxYear)
         {
-            // 1. PREPARE DATA
-            // We use CultureInfo for Indonesian month names (Januari, Februari) and number formatting
-            var culture = new System.Globalization.CultureInfo("id-ID");
+            int yearsUsed = taxYear - regDate.Year + 1;
 
-            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
-            var jpndata = obj.jpndata;
-            var result = jpndata
-               .GroupBy(d => new { d.TransDate.Year, d.TransDate.Month })
-               .Select(g => new taxrptmodel
-               {
-                   bulan = g.Key.Month.ToString(),
-                   value = g.Sum(d => d.Value),
-                   taxval = (Convert.ToDecimal(g.Sum(d => d.Value)) * Convert.ToDecimal(0.5)) / Convert.ToDecimal(100) // You can also count items here
-               });
+            switch (customerType.ToUpper())
+            {
+                case "PERORANGAN": return yearsUsed <= 7;
+                case "CV":
+                case "FIRMA": return yearsUsed <= 4;
+                case "PT": return yearsUsed <= 3;
+                default: return false;
+            }
+        }
+        private static string GetMonthName(int month)
+        {
+            return new DateTime(2000, month, 1)
+                .ToString("MMMM", new CultureInfo("id-ID"));
+        }
 
-            // 2. GENERATE PDF
+        private byte[] GeneratePdfFromTaxResult(TaxSummaryResult tax, int year, bool iseligible)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var culture = new CultureInfo("id-ID");
             using var stream = new MemoryStream();
+
             Document.Create(container =>
             {
                 container.Page(page =>
@@ -3644,79 +3679,100 @@ namespace FinanceApp.Controllers
                     page.Size(PageSizes.A4);
                     page.Margin(20);
 
-                    // --- HEADER ---
+                    // ---------- HEADER ----------
                     page.Header().Column(col =>
                     {
-                        col.Item().Text("Report Preview Laporan pajak")
-                           .Bold().FontSize(12).AlignCenter();
+                        col.Item().Text("Report Preview Laporan Pajak")
+                            .Bold().FontSize(12).AlignCenter();
 
-                        col.Item().Text($"Tahun: {obj.year}").FontSize(9).AlignCenter();
+                        col.Item().Text($"Tahun: {year}")
+                            .FontSize(9).AlignCenter();
 
                         col.Item().Text($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}")
-                            .FontSize(8).FontColor(Colors.Grey.Medium).AlignCenter();
+                            .FontSize(8)
+                            .FontColor(Colors.Grey.Medium)
+                            .AlignCenter();
 
-                        col.Spacing(10); // Add space after header
+                        col.Spacing(10);
                     });
 
-                    // --- CONTENT TABLE ---
+                    // ---------- CONTENT ----------
                     page.Content().Table(table =>
                     {
-                        // Define 3 columns: 
-                        // Col 1 (Month) is wider. Col 2 & 3 (Values) are equal width.
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.RelativeColumn(2); // Bulan
-                            columns.RelativeColumn(1.5f); // Peredaran Bruto
-                            columns.RelativeColumn(1.5f); // Potongan Pajak
+                            columns.RelativeColumn(2);    // Bulan
+                            columns.RelativeColumn(1.5f); // Omzet
+                            columns.RelativeColumn(1.5f); // Pajak
                         });
 
-                        // Helper function to create consistent cells
-                        void AddRow(string col1Text, string col2Text, string col3Text, bool isHeader = false)
+                        void AddRow(string c1, string c2, string c3, bool isHeader = false)
                         {
                             var fontSize = isHeader ? 8 : 7;
-                            var fontWeight = isHeader ? FontWeight.Bold : FontWeight.Normal;
-                            var bgColor = isHeader ? Colors.Grey.Lighten3 : Colors.White;
+                            var bg = isHeader ? Colors.Grey.Lighten3 : Colors.White;
 
-                            // Column 1: Bulan (Align Left)
-                            table.Cell().Border(1).Background(bgColor).Padding(4)
-                                .Text(col1Text).FontSize(fontSize);
+                            table.Cell().Border(1).Background(bg).Padding(4)
+                                .Text(c1).FontSize(fontSize);
 
-                            // Column 2: Value (Align Right)
-                            table.Cell().Border(1).Background(bgColor).Padding(4)
-                                .Text(col2Text).FontSize(fontSize).AlignRight();
+                            table.Cell().Border(1).Background(bg).Padding(4)
+                                .Text(c2).FontSize(fontSize).AlignRight();
 
-                            // Column 3: Tax (Align Right)
-                            table.Cell().Border(1).Background(bgColor).Padding(4)
-                                .Text(col3Text).FontSize(fontSize).AlignRight();
+                            table.Cell().Border(1).Background(bg).Padding(4)
+                                .Text(c3).FontSize(fontSize).AlignRight();
                         }
-
-                        // A. Table Header
-                        AddRow("Bulan", "Peredaran Bruto", "Potongan Pajak", isHeader: true);
-
-                        // B. Data Loop
-                        foreach (var item in result)
+                        if (iseligible)
                         {
-                            // Convert Month Number (1) to Name ("Januari")
-                            string monthName = item.bulan;
+                            // Header table
+                            AddRow("Bulan", "Peredaran Bruto", "Potongan Pajak", true);
 
-                            // Format Numbers (N2 adds commas and 2 decimal places)
-                            string formattedValue = item.value.ToString("N2", culture);
-                            string formattedTax = item.taxval.ToString("N2", culture);
+                            // Data
+                            foreach (var m in tax.Monthly)
+                            {
+                                decimal omzet = m.Omzet;
 
-                            AddRow(monthName, formattedValue, formattedTax);
+                                // ✅ FIX: kalau Tax = 0 → hitung 0.5%
+                                decimal pajak = m.Tax > 0
+                                    ? m.Tax
+                                    : Math.Round(omzet * 0.005m, 2);
+
+                                AddRow(
+                                    GetMonthName(m.Month),
+                                    omzet.ToString("N2", culture),
+                                    pajak.ToString("N2", culture)
+                                );
+                            }
+
+                            // ---------- TOTAL ----------
+                            decimal totalOmzet = tax.Monthly.Sum(x => x.Omzet);
+                            decimal totalTax = tax.Monthly.Sum(x =>
+                                x.Tax > 0 ? x.Tax : x.Omzet * 0.005m);
+
+                            AddRow(
+                                "TOTAL",
+                                totalOmzet.ToString("N2", culture),
+                                totalTax.ToString("N2", culture),
+                                true
+                            );
+                        }
+                        else
+                        {
+                            decimal totalOmzet = tax.TotalOmzet;
+                            decimal totalTax = tax.NonFinalTaxAmount;
+                            decimal profit = tax.AccountingProfit;
+
+                            AddRow("Peredaran Bruto", "Profit", "Potongan Pajak", true);
+
+                            AddRow(
+                                totalOmzet.ToString("N2", culture),
+                                profit.ToString("N2", culture),
+                                totalTax.ToString("N2", culture),
+                                true
+                            );
                         }
 
-                        // C. Grand Total (Optional - Good for reports)
-                        var totalBruto = result.Sum(x => x.value);
-                        var totalTax = result.Sum(x => x.taxval);
-
-                        AddRow("TOTAL",
-                               totalBruto.ToString("N2", culture),
-                               totalTax.ToString("N2", culture),
-                               isHeader: true);
                     });
 
-                    // --- FOOTER ---
+                    // ---------- FOOTER ----------
                     page.Footer().AlignCenter().Text(text =>
                     {
                         text.Span("Page ");
@@ -3727,6 +3783,8 @@ namespace FinanceApp.Controllers
 
             return stream.ToArray();
         }
+
+
         #endregion reportdata
 
         #region viewdata
@@ -3780,6 +3838,8 @@ namespace FinanceApp.Controllers
            
             return Json(fld);
         }
+
+
         #endregion viewdata
 
 
