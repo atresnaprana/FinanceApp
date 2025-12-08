@@ -114,6 +114,29 @@ namespace BaseLineProject.Areas.Identity
             [DataType(DataType.Text)]
             [Display(Name = "Software Plan")]
             public string SoftwarePlan { get; set; }
+
+
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "NPWP")]
+            public string NPWP { get; set; }
+
+
+            [Required]
+            [DataType(DataType.Date)]
+            [Display(Name = "Tanggal Registrasi Perusahaan")]
+            public DateTime REG_DATE { get; set; }
+
+
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "Tipe User")]
+            public string customertype { get; set; }
+
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "Omset lebih dari 4.8M atau tidak")]
+            public bool isomset { get; set; }
             //[Required]
             //[DataType(DataType.Upload)]
             //[Display(Name = "KTP")]
@@ -187,25 +210,36 @@ namespace BaseLineProject.Areas.Identity
                         fieldCustomer.province = Input.Province;
                         fieldCustomer.postal = Input.Postal;
                         fieldCustomer.FLAG_AKTIF = "0";
-                        fieldCustomer.REG_DATE = DateTime.Now;
+                        fieldCustomer.REG_DATE = Input.REG_DATE;
                         fieldCustomer.UPDATE_DATE = DateTime.Now;
                         fieldCustomer.ENTRY_DATE = DateTime.Now;
                         fieldCustomer.ENTRY_USER = Input.Email;
                         fieldCustomer.UPDATE_USER = Input.Email;
                         fieldCustomer.VA1NOTE = Input.SoftwarePlan;
                         fieldCustomer.BL_FLAG = "0";
-                        
+                        fieldCustomer.NPWP = Input.NPWP;
+                        fieldCustomer.customertype = Input.customertype;
+                        if (Input.isomset)
+                        {
+                            fieldCustomer.taxflagpercentage = "Y";
+                        }
+                        else
+                        {
+                            fieldCustomer.taxflagpercentage = "N";
+
+                        }
+
 
                         try
-                        {
-                            db.CustomerTbl.Add(fieldCustomer);
-                            db.SaveChanges();
-                            //db.Dispose();
-                        }
-                        catch (Exception ex)
-                        {
-                            var testex = ex;
-                        }
+                            {
+                                db.CustomerTbl.Add(fieldCustomer);
+                                db.SaveChanges();
+                                //db.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                var testex = ex;
+                            }
 
                         _logger.LogInformation("User created a new account with password.");
 

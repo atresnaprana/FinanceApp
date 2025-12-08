@@ -41,12 +41,14 @@ namespace FinanceApp.Controllers
             var datetostr = HttpContext.Session.GetString(SessionKeyNameTo);
             var datefrom = Convert.ToDateTime(datefromstr);
             var dateto = Convert.ToDateTime(datetostr);
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
             if (!string.IsNullOrEmpty(datefromstr) && !string.IsNullOrEmpty(datetostr))
             {
                 ViewData["datefromstr"] = datefromstr;
                 ViewData["datetostr"] = datetostr;
                 List<dbJpn> TblDt = new List<dbJpn>();
-                TblDt = db.JpnTbl.Where(y => y.flag_aktif == "1").ToList();
+                TblDt = db.JpnTbl.Where(y => y.flag_aktif == "1" && y.company_id == datas.COMPANY_ID).ToList();
                 var tbldt2 = TblDt.Select(y => new dbJpn()
                 {
                     TransDate = y.TransDate,
@@ -79,10 +81,11 @@ namespace FinanceApp.Controllers
             HttpContext.Session.SetString(SessionKeyNameTo, to);
             var datefrom = Convert.ToDateTime(from);
             var dateto = Convert.ToDateTime(to);
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
 
             //Creating List    
             List<dbJpn> TblDt = new List<dbJpn>();
-            TblDt = db.JpnTbl.Where(y => y.flag_aktif == "1").ToList();
+            TblDt = db.JpnTbl.Where(y => y.flag_aktif == "1" && y.company_id == datas.COMPANY_ID).ToList();
             var tbldt2 = TblDt.Select(y => new dbJpn()
             {
                 TransDate = y.TransDate,
@@ -115,8 +118,10 @@ namespace FinanceApp.Controllers
         //[Authorize(Roles = "SuperAdmin")]
         public IActionResult Create()
         {
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
             List<dbAccount> acclist = new List<dbAccount>();
-            acclist = db.AccountTbl.Where(y => y.flag_aktif == "1").ToList().Select(y => new dbAccount()
+            acclist = db.AccountTbl.Where(y => y.flag_aktif == "1" && y.company_id == datas.COMPANY_ID).ToList().Select(y => new dbAccount()
             {
                 account_no = y.account_no,
                 account_name = y.account_no.ToString() + " - " + y.account_name
@@ -124,7 +129,7 @@ namespace FinanceApp.Controllers
             dbJpn fld = new dbJpn();
             fld.TransDate = DateTime.Now;
             fld.dddbacc = acclist.OrderBy(y => y.account_no).ToList();
-            var existingsales = db.JpnTbl.ToList();
+            var existingsales = db.JpnTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList();
             var number = "0001";
             var trans_nodata = existingsales.Select(y => new dbJpn()
             {
@@ -168,12 +173,14 @@ namespace FinanceApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var dataclosing = db.ClosingTbl.Where(y => y.datefrom <= obj.TransDate && y.dateto >= obj.TransDate && y.isclosed == "Y").ToList();
+                var datas1 = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
+                var dataclosing = db.ClosingTbl.Where(y => y.datefrom <= obj.TransDate && y.dateto >= obj.TransDate && y.isclosed == "Y" && y.company_id == datas1.COMPANY_ID).ToList();
                 if (dataclosing.Count() == 0)
                 {
                     var transdate = obj.TransDate;
 
-                    var existingsales = db.JpnTbl.ToList();
+                    var existingsales = db.JpnTbl.Where(y => y.company_id == datas1.COMPANY_ID).ToList();
                     var number = "0001";
                     var trans_nodata = existingsales.Select(y => new dbJpn()
                     {
@@ -270,8 +277,10 @@ namespace FinanceApp.Controllers
             }
             else
             {
+                var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
                 List<dbAccount> acclist = new List<dbAccount>();
-                acclist = db.AccountTbl.Where(y => y.flag_aktif == "1").ToList().Select(y => new dbAccount()
+                acclist = db.AccountTbl.Where(y => y.flag_aktif == "1" && y.company_id == datas.COMPANY_ID).ToList().Select(y => new dbAccount()
                 {
                     account_no = y.account_no,
                     account_name = y.account_no.ToString() + " - " + y.account_name

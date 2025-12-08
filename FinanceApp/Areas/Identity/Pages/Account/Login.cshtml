@@ -3,78 +3,85 @@
 
 @{
     ViewData["Title"] = "Log in";
+    // Using a special layout for the login page that has no navbar
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
-<div id="bootstrap-overrides" class="row">
-    <div id="bootstrap-overrides" class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <h4 class="display-5">Silahkan login menggunakan akun yang sudah terdaftar</h4>
-                <hr />
-                <div asp-validation-summary="All" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="Input.Email"></label>
-                    <input asp-for="Input.Email" class="form-control" />
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+<!-- FontAwesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-5">
+
+            <!-- The Login Card -->
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+
+                <!-- Card Header with Logo -->
+                <div class="card-header text-center bg-white border-bottom-0 pt-4">
+                    <img src="~/images/easytaxlandscapewb.png" alt="EasyTax Logo" style="max-width: 150px;" class="mb-3" />
+                    <h3 class="font-weight-bold text-primary">Log In</h3>
+                    <p class="text-muted small">Silahkan login menggunakan akun yang sudah terdaftar</p>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Input.Password"></label>
-                    <input asp-for="Input.Password" class="form-control" />
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+
+                <!-- Card Body with Form -->
+                <div class="card-body">
+                    <form id="account" method="post">
+
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+
+                        <!-- Email Input with Icon -->
+                        <div class="form-group">
+                            <label class="small mb-1" asp-for="Input.Email"></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                </div>
+                                <input asp-for="Input.Email" class="form-control" placeholder="name@example.com" />
+                            </div>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Password Input with Icon -->
+                        <div class="form-group">
+                            <label class="small mb-1" asp-for="Input.Password"></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                </div>
+                                <input asp-for="Input.Password" class="form-control" placeholder="Enter password" />
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
+                            <div class="custom-control custom-checkbox">
+                                <input class="custom-control-input" asp-for="Input.RememberMe" />
+                                <label class="custom-control-label" asp-for="Input.RememberMe">
+                                    @Html.DisplayNameFor(m => m.Input.RememberMe)
+                                </label>
+                            </div>
+                            <a class="small" id="forgot-password" asp-page="./ForgotPassword">Lupa Password?</a>
+                        </div>
+
+                        <!-- Login Button (Full Width) -->
+                        <div class="form-group mt-4 mb-0">
+                            <button type="submit" class="btn btn-primary btn-block shadow-sm">Log in</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label asp-for="Input.RememberMe">
-                            <input asp-for="Input.RememberMe" />
-                            @Html.DisplayNameFor(m => m.Input.RememberMe)
-                        </label>
+
+                <!-- Card Footer for Registration Link -->
+                <div class="card-footer text-center bg-white border-top-0">
+                    <div class="small">
+                        <a asp-page="./RegisterCustomer" asp-route-returnUrl="@Model.ReturnUrl">Belum punya akun? Daftar Akun Customer</a>
                     </div>
                 </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-red">Log in</button>
-                </div>
-                <div class="form-group">
-                    <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Lupa Password?</a>
-                    </p>
+            </div>
 
-                    <p>
-                        <a asp-page="./RegisterCustomer" asp-route-returnUrl="@Model.ReturnUrl">Daftar Akun Customer</a>
-                    </p>
-                </div>
-            </form>
-        </section>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        @*<section>
-        <h4>Use another service to log in.</h4>
-        <hr />
-        @{
-        if ((Model.ExternalLogins?.Count ?? 0) == 0)
-        {
-        <div>
-        <p>
-        There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
-        for details on setting up this ASP.NET application to support logging in via external services.
-        </p>
         </div>
-        }
-        else
-        {
-        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-        <div>
-        <p>
-        @foreach (var provider in Model.ExternalLogins)
-        {
-        <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-        }
-        </p>
-        </div>
-        </form>
-        }
-        }
-        </section>*@
     </div>
 </div>
 

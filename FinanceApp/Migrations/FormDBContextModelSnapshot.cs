@@ -252,6 +252,9 @@ namespace BaseLineProject.Migrations
                     b.Property<string>("city")
                         .HasColumnType("varchar(80)");
 
+                    b.Property<string>("customertype")
+                        .HasColumnType("varchar(50)");
+
                     b.Property<string>("discount_customer")
                         .HasColumnType("varchar(50)");
 
@@ -269,6 +272,9 @@ namespace BaseLineProject.Migrations
 
                     b.Property<string>("store_area")
                         .HasColumnType("varchar(50)");
+
+                    b.Property<string>("taxflagpercentage")
+                        .HasColumnType("varchar(1)");
 
                     b.Property<int>("totalstoreconfig")
                         .HasColumnType("int");
@@ -328,6 +334,31 @@ namespace BaseLineProject.Migrations
                         .HasName("PK_SliderImg");
 
                     b.ToTable("dbSliderImg");
+                });
+
+            modelBuilder.Entity("FinanceApp.Models.TaxEligibility", b =>
+                {
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TaxYear")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("AnnualGross")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("CrossingDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("DetectionDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("EligiblePp23")
+                        .HasColumnType("char(1)");
+
+                    b.HasKey("CustomerId", "TaxYear");
+
+                    b.ToTable("tax_eligibility");
                 });
 
             modelBuilder.Entity("FinanceApp.Models.dbAccount", b =>

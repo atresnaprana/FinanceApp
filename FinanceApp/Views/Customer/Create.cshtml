@@ -1,125 +1,136 @@
 ﻿@model BaseLineProject.Models.dbCustomer
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Customer";
     var errmsg = "";
-    if(Model != null)
+    if (Model != null)
     {
         if (!string.IsNullOrEmpty(Model.errmsg))
         {
             errmsg = Model.errmsg;
         }
     }
-
 }
-<style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
-    }
 
-    #panel, #flip {
-        padding: 5px;
-        text-align: center;
-        background-color: #e5eecc;
-        border: solid 1px #c3c3c3;
-    }
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
 
-    #panel {
-        padding: 50px;
-        display: none;
-    }
-</style>
-<h1>Create</h1>
-<h3>Customer Create</h3>
-<hr />
-<form asp-action="Create" id="formcreate" enctype="multipart/form-data">
-    <div class="row">
-        <div class="col-sm">
-            <div class="row">
-                <div class="col-sm">
-                    <div class="form-group">
-                        <label class="control-label">Name</label>
-                        <input asp-for="CUST_NAME" class="form-control" />
-                        <span asp-validation-for="CUST_NAME" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
+        <form asp-action="Create" id="formcreate" enctype="multipart/form-data">
 
-                        <label class="control-label">Phone</label>
-                        <input asp-for="PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" />
-                        <span asp-validation-for="PHONE1" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Email</label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Password"></label>
-                        <input asp-for="Password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="ConfirmPassword"></label>
-                        <input asp-for="ConfirmPassword" class="form-control" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-user-plus mr-2"></i>Create Customer
+                        </h5>
+                        <small class="text-muted">Registration Form</small>
                     </div>
                 </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <!-- Server-side Error Alert (Visual Backup) -->
+                    @if (!string.IsNullOrEmpty(errmsg))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle mr-2"></i> @errmsg
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <!-- Name -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Full Name</label>
+                        <input asp-for="CUST_NAME" class="form-control" placeholder="Enter full name" />
+                        <span asp-validation-for="CUST_NAME" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Phone Number</label>
+                        <input asp-for="PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" placeholder="e.g. 08123456789" />
+                        <span asp-validation-for="PHONE1" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Email Address</label>
+                        <input asp-for="Email" class="form-control" placeholder="name@company.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Password Section (Grid Layout) -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6 mb-3">
+                            <label asp-for="Password" class="font-weight-bold text-dark small text-uppercase"></label>
+                            <input asp-for="Password" class="form-control" type="password" placeholder="********" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="form-group col-md-6 mb-3">
+                            <label asp-for="ConfirmPassword" class="font-weight-bold text-dark small text-uppercase"></label>
+                            <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Confirm password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Card Footer: Actions -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke List
+                    </a>
+
+                    <!-- Save Button -->
+                    <button type="button" onclick="alertfirst()" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Simpan Data
+                    </button>
+                </div>
+
             </div>
-            
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm">
-            <div class="form-group">
-                <input type="button" value="Simpan Data" onclick="alertfirst()" class="btn btn-red" />
-            </div>
-        </div>
+        </form>
 
     </div>
-
-</form>
-
-
-<div>
-    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
-@section Scripts{
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    <script>
-    $(document).ready(function () {
-        
-        $("#flip").click(function () {
-            $("#panel").slideToggle();
-            //$("#panel").slideUp("slow");
-        });
-        var errmsg = '@errmsg';
-        if (errmsg != "" && errmsg != null) {
-            alert(errmsg);
-        }
-       
 
-    });
-    
-    function allowOnlyNumber(evt) {
-        var charCode = (evt.which) ? evt.which : event.keyCode
-        if (charCode > 31 && (charCode < 48 || charCode > 57))
-            return false;
-        return true;
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    function alertfirst() {
-        var pass = $("#Password").val();
-        if (pass == "" || pass == null) {
-            alert("empty password");
-        } else {
-            if (confirm("Are you sure saving data?")) {
-                $('#formcreate').submit();
-            } else {
+    <script>
+        $(document).ready(function () {
+            // Keep existing logic for popup alert
+            var errmsg = '@errmsg';
+            if (errmsg != "" && errmsg != null) {
+                alert(errmsg);
+            }
+        });
+
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
                 return false;
+            return true;
+        }
+
+        function alertfirst() {
+            var pass = $("#Password").val();
+            if (pass == "" || pass == null) {
+                // You might want to use a prettier alert here later, but keeping logic as requested
+                alert("Password cannot be empty");
+            } else {
+                if (confirm("Are you sure you want to save this data?")) {
+                    $('#formcreate').submit();
+                } else {
+                    return false;
+                }
             }
         }
-       
-    }
-
-
     </script>
 }

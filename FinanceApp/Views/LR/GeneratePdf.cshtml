@@ -4,63 +4,97 @@
     ViewData["Title"] = "Generate Laba Rugi";
     var msg = ViewBag.Message;
 }
-<style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
-    }
-</style>
-<h1>Download Report Laba rugi</h1>
-<hr />
-<form asp-action="GeneratePdf" id="formcreate" enctype="multipart/form-data">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm">
-                <div class="form-group">
-                    <label class="control-label">Tahun:</label>
-                    <input asp-for="year" class="form-control" />
-                    <span asp-validation-for="year" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Bulan:</label>
-                    <br />
-                    @Html.DropDownListFor(model => model.month, new List<SelectListItem>
-                    {
-                    new SelectListItem{ Text="Jan", Value = "1" },
-                    new SelectListItem{ Text="Feb", Value = "2" },
-                    new SelectListItem{ Text="Mar", Value = "3" },
-                    new SelectListItem{ Text="Apr", Value = "4" },
-                    new SelectListItem{ Text="May", Value = "5" },
-                    new SelectListItem{ Text="Jun", Value = "6" },
-                    new SelectListItem{ Text="Jul", Value = "7" },
-                    new SelectListItem{ Text="Aug", Value = "8" },
-                    new SelectListItem{ Text="Sep", Value = "9" },
-                    new SelectListItem{ Text="Oct", Value = "10" },
-                    new SelectListItem{ Text="Nov", Value = "11" },
-                    new SelectListItem{ Text="Dec", Value = "12" }
 
-                    })
-                    <span asp-validation-for="month" class="text-danger"></span>
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        <form asp-action="GeneratePdf" id="formcreate" enctype="multipart/form-data">
+
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-file-invoice-dollar mr-2"></i>Download Profit & Loss
+                        </h5>
+                        <small class="text-muted">Report Generation</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="control-label">is Yearly:</label>
-                    <br />
-                    <input asp-for="isYearly" class="largerCheckbox" />
-                    <span asp-validation-for="isYearly" class="text-danger"></span>
+
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <!-- Alert Message (Visual Backup for JS Alert) -->
+                    @if (msg != null && !string.IsNullOrEmpty(msg.ToString()))
+                    {
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="fas fa-info-circle mr-2"></i> @msg
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <div class="alert alert-light border small mb-3">
+                        Select the Period and Year for the Laba Rugi (Profit & Loss) report.
+                    </div>
+
+                    <!-- Row: Year and Month -->
+                    <div class="form-row">
+
+                        <!-- Year Input -->
+                        <div class="form-group col-md-6 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Tahun (Year)</label>
+                            <input asp-for="year" class="form-control" placeholder="YYYY" type="number" />
+                            <span asp-validation-for="year" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Month Dropdown -->
+                        <div class="form-group col-md-6 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Bulan (Month)</label>
+                            <!-- Added 'form-control' class to styling -->
+                            @Html.DropDownListFor(model => model.month, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "Januari", Value = "1" },
+                                                        new SelectListItem { Text = "Februari", Value = "2" },
+                                                        new SelectListItem { Text = "Maret", Value = "3" },
+                                                        new SelectListItem { Text = "April", Value = "4" },
+                                                        new SelectListItem { Text = "Mei", Value = "5" },
+                                                        new SelectListItem { Text = "Juni", Value = "6" },
+                                                        new SelectListItem { Text = "Juli", Value = "7" },
+                                                        new SelectListItem { Text = "Agustus", Value = "8" },
+                                                        new SelectListItem { Text = "September", Value = "9" },
+                                                        new SelectListItem { Text = "Oktober", Value = "10" },
+                                                        new SelectListItem { Text = "November", Value = "11" },
+                                                        new SelectListItem { Text = "Desember", Value = "12" }
+                                                        }, new { @class = "form-control" }) <!-- Added CSS Class here -->
+                            <span asp-validation-for="month" class="text-danger small"></span>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="form-group">
-                    <input type="button" value="Download Report" onclick="alertfirst()" class="btn btn-red" />
+
+                <!-- Card Footer: Actions -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke List
+                    </a>
+
+                    <!-- Download Button -->
+                    <button type="button" onclick="alertfirst()" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-file-pdf mr-2"></i> Download Report
+                    </button>
                 </div>
 
             </div>
-        </div>
+        </form>
+
     </div>
-</form>
-
-
-<div>
-    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -71,7 +105,6 @@
             if(msg != "" ){
                 alert(msg);
             }
-
         });
 
         function allowOnlyNumber(evt) {
@@ -80,17 +113,10 @@
                 return false;
             return true;
         }
+
         function alertfirst() {
+            // Direct submit as requested
             $('#formcreate').submit();
-
-            // if (confirm("Are you sure saving data?")) {
-            //     $('#formcreate').submit();
-            // } else {
-            //     return false;
-            // }
-
         }
     </script>
 }
-
-

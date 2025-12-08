@@ -29,6 +29,7 @@ namespace BaseLineProject.Data
         public DbSet<dbLd> LDTbl { get; set; }
         public DbSet<dbClosedValue> ClosingValueTbl { get; set; }
 
+        public DbSet<TaxEligibility> TaxEligibilities { get; set; }
 
         public FormDBContext(DbContextOptions<FormDBContext> options) : base(options)
         {
@@ -57,7 +58,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbLd>().ToTable("dbLd");
             modelBuilder.Entity<dbClosedValue>().ToTable("dbClosedValue");
 
-
+            modelBuilder.Entity<TaxEligibility>().HasKey(t => new { t.CustomerId, t.TaxYear });
 
 
             modelBuilder.Entity<SystemTabModel>().HasKey(ug => ug.ID).HasName("PK_TAB_Seq");
@@ -181,6 +182,9 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.FILE_SKT_NAME).HasColumnType("varchar(255)");
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.store_area).HasColumnType("varchar(50)");
             modelBuilder.Entity<dbCustomer>().Property(ug => ug.discount_customer).HasColumnType("varchar(50)");
+            modelBuilder.Entity<dbCustomer>().Property(ug => ug.taxflagpercentage).HasColumnType("varchar(1)");
+            modelBuilder.Entity<dbCustomer>().Property(ug => ug.customertype).HasColumnType("varchar(50)");
+
 
             //dbaccount model
             modelBuilder.Entity<dbAccount>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
@@ -344,7 +348,16 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbClosedValue>().Property(ug => ug.entry_date).HasColumnType("datetime");
             modelBuilder.Entity<dbClosedValue>().Property(ug => ug.update_date).HasColumnType("datetime");
             modelBuilder.Entity<dbClosedValue>().Property(ug => ug.src).HasColumnType("varchar(255)").IsRequired();
-            
+
+
+            //TAXELIGIBILITY MODEL
+
+            modelBuilder.Entity<TaxEligibility>().Property(ug => ug.CustomerId).HasColumnType("int").IsRequired(true);
+            modelBuilder.Entity<TaxEligibility>().Property(ug => ug.TaxYear).HasColumnType("int").IsRequired(true);
+            modelBuilder.Entity<TaxEligibility>().Property(ug => ug.AnnualGross).HasColumnType("decimal(18,2)").IsRequired(true);
+            modelBuilder.Entity<TaxEligibility>().Property(ug => ug.EligiblePp23).HasColumnType("char(1)").IsRequired(false);
+            modelBuilder.Entity<TaxEligibility>().Property(ug => ug.CrossingDate).HasColumnType("datetime").IsRequired(false);
+            modelBuilder.Entity<TaxEligibility>().Property(ug => ug.DetectionDate).HasColumnType("datetime").IsRequired(true);
 
             #endregion appmodel
 

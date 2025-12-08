@@ -1,106 +1,179 @@
 ﻿@model FinanceApp.Models.dbJm
 
 @{
-    ViewData["Title"] = "Input Data Baru";
-    var msg = Model.errormessage;
-
+    ViewData["Title"] = "Input Jurnal Memorial";
+    var msg = Model?.errormessage ?? "";
 }
+
+<!-- Specific CSS to make Select2 look like Bootstrap 4 Controls -->
 <style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
+    .select2-container .select2-selection--single {
+        height: calc(1.5em + .75rem + 2px) !important;
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: calc(1.5em + .75rem);
+        top: 1px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 1.5;
+        padding-left: 0;
+        color: #495057;
     }
 </style>
-<h1>Input Data Jurnal Memorial Baru</h1>
-<h3 class="display-5">Form Entry</h3>
-<hr />
-<form asp-action="Create" id="formcreate" enctype="multipart/form-data">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm">
-                <div class="form-group">
-                    <label class="control-label">Tanggal Transaksi:</label>
-                    <input type="date" asp-for="TransDate" class="form-control" />
-                    <span asp-validation-for="TransDate" class="text-danger"></span>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+
+        <form asp-action="Create" id="formcreate" enctype="multipart/form-data">
+
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-book mr-2"></i>New Memorial Journal
+                        </h5>
+                        <small class="text-muted">General Ledger Entry</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="control-label">Trans No:</label>
-                    <input asp-for="Trans_no" class="form-control" readonly />
-                    <span asp-validation-for="Trans_no" class="text-danger"></span>
+
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <!-- Error Alert -->
+                    @if (!string.IsNullOrEmpty(msg))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> @msg
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <!-- SECTION 1: HEADER INFO -->
+                    <h6 class="text-uppercase text-muted small font-weight-bold mb-3">Transaction Header</h6>
+                    <div class="form-row">
+                        <!-- Trans No -->
+                        <div class="form-group col-md-4">
+                            <label class="font-weight-bold text-dark small">Trans No</label>
+                            <input asp-for="Trans_no" class="form-control bg-light" readonly />
+                            <span asp-validation-for="Trans_no" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Trans Date -->
+                        <div class="form-group col-md-4">
+                            <label class="font-weight-bold text-dark small">Transaction Date</label>
+                            <input type="date" asp-for="TransDate" class="form-control" />
+                            <span asp-validation-for="TransDate" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group col-md-4">
+                            <label class="font-weight-bold text-dark small">Description</label>
+                            <input asp-for="Description" class="form-control" placeholder="Entry description" />
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- SECTION 2: GL ACCOUNTS -->
+                    <h6 class="text-uppercase text-muted small font-weight-bold mb-3">GL Accounts</h6>
+                    <div class="bg-light p-3 rounded border mb-4">
+                        <div class="form-row">
+                            <!-- Debit Account -->
+                            <div class="form-group col-md-6 border-right">
+                                <label class="font-weight-bold text-primary small">Akun Debit</label>
+                                @Html.DropDownListFor(m => m.Akun_Debit, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
+                                <span asp-validation-for="Akun_Debit" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Credit Account -->
+                            <div class="form-group col-md-6 pl-md-3">
+                                <label class="font-weight-bold text-success small">Akun Kredit</label>
+                                @Html.DropDownListFor(m => m.Akun_Credit, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
+                                <span asp-validation-for="Akun_Credit" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: VALUES -->
+                    <h6 class="text-uppercase text-muted small font-weight-bold mb-3">Financial Values</h6>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold text-dark small">Debit Amount</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Rp</span>
+                                </div>
+                                <input asp-for="Debit" class="form-control font-weight-bold" placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="Debit" class="text-danger small"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold text-dark small">Credit Amount</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Rp</span>
+                                </div>
+                                <input asp-for="Credit" class="form-control font-weight-bold" placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="Credit" class="text-danger small"></span>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="form-group">
-                    <label class="control-label">Description:</label>
-                    <input asp-for="Description" class="form-control" />
-                    <span asp-validation-for="Description" class="text-danger"></span>
+
+                <!-- Card Footer: Actions -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke List
+                    </a>
+
+                    <!-- Save Button -->
+                    <button type="button" onclick="alertfirst()" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Simpan Data Baru
+                    </button>
                 </div>
 
             </div>
-            <div class="col-sm">
-                <div class="form-group">
-                    <label class="control-label">Akun Debit :</label>
-                    <br />
-                    @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
-                    @Html.DropDownListFor(m => m.Akun_Debit, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
-                    <span asp-validation-for="Akun_Debit" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Akun Kredit :</label>
-                    <br />
-                    @*<input asp-for="EDP_CODE" class="form-control" onkeypress="return allowOnlyNumber(event);" />*@
-                    @Html.DropDownListFor(m => m.Akun_Credit, new SelectList(Model.dddbacc, "account_no", "account_name"), new { @class = "form-control" })
-                    <span asp-validation-for="Akun_Credit" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Debit:</label>
-                    <input asp-for="Debit" class="form-control" />
-                    <span asp-validation-for="Debit" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Credit:</label>
-                    <input asp-for="Credit" class="form-control" />
-                    <span asp-validation-for="Credit" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <input type="button" value="Simpan data baru" onclick="alertfirst()" class="btn btn-red" />
-                </div>
-            </div>
-        </div>
+        </form>
+
     </div>
-</form>
-
-
-<div>
-    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
         $(document).ready(function () {
-            $("#Akun_Debit").select2({
+
+            // Standard Select2 Configuration
+            var select2Config = {
                 placeholder: "Pilih Akun",
-                initSelection: function (element, callback) {
-                },
-                dropdownAutoWidth: true,
-                width: 'auto'
-            });
-            $("#Akun_Debit").val(null);
-            $("#Akun_Debit").trigger('change');
-            $("#Akun_Credit").select2({
-                placeholder: "Pilih Akun",
-                initSelection: function (element, callback) {
-                },
-                dropdownAutoWidth: true,
-                width: 'auto'
-            });
-            $("#Akun_Credit").val(null);
-            $("#Akun_Credit").trigger('change');
+                allowClear: true,
+                width: '100%',
+                theme: "default"
+            };
+
+            // Initialize Select2 and clear values (standard for new entry)
+            $("#Akun_Debit").select2(select2Config).val(null).trigger('change');
+            $("#Akun_Credit").select2(select2Config).val(null).trigger('change');
+
             var msg = '@msg';
             if (msg != "") {
                 alert(msg);
             }
-
         });
 
         function allowOnlyNumber(evt) {
@@ -109,16 +182,13 @@
                 return false;
             return true;
         }
-        function alertfirst() {
 
-            if (confirm("Are you sure saving data?")) {
+        function alertfirst() {
+            if (confirm("Are you sure you want to save this transaction?")) {
                 $('#formcreate').submit();
             } else {
                 return false;
             }
-
         }
     </script>
 }
-
-

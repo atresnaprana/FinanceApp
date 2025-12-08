@@ -1,100 +1,142 @@
-﻿@model List<SystemTabModel>
+﻿@model List<BaseLineProject.Models.SystemTabModel>
 
 @{
     var countModel = @Model.Count();
-
     var roleId = ViewBag.roleId;
+    ViewData["Title"] = "Manage Tab Access";
 }
 
-<form id="formEdit">
-    <div class="card">
-        <div class="card-header">
-            <h2>Add or remove users from this role</h2>
-        </div>
-        <div class="card-body">
+<!-- Layout Container -->
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
 
-            @for (int i = 0; i < Model.Count; i++)
-            {
-                <div class="form-check m-1">
-                    <input type="hidden" id="Uid" value="@Model[i].ID" />
-                    <input type="hidden" asp-for="@Model[i].ID" />
-                    <input type="hidden" asp-for="@Model[i].TAB_TXT" />
-                    <input asp-for="@Model[i].IsSelected" class="form-check-input" />
-                    <label class="form-check-label" asp-for="@Model[i].IsSelected">
-                        @Model[i].TAB_DESC
-                    </label>
+        <!-- Form ID must match JS: "formEdit" -->
+        <form id="formEdit">
+
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-folder-open mr-2"></i>Manage Tab Access
+                        </h5>
+                        <small class="text-muted">Grant visibility</small>
+                    </div>
                 </div>
-            }
-        </div>
-        <div class="card-footer">
-            <input type="button" id="SubmitBtn" value="Update" class="btn btn-primary"
-                   style="width:auto" />
-            <a asp-action="Index"
-               class="btn btn-primary" style="width:auto">Cancel</a>
-        </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="alert alert-info small mb-3">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Check the box to allow this role to view the specific Tab.
+                    </div>
+
+                    <!-- Scrollable Container -->
+                    <div class="tab-list-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #e3e6f0; border-radius: 5px;">
+
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <!--
+                                THE FLEXBOX FIX:
+                                1. Removed 'form-check' (fixes padding issues)
+                                2. Added 'd-flex align-items-center' (fixes alignment)
+                            -->
+                            <div class="p-3 border-bottom d-flex align-items-center bg-white hover-effect">
+
+                                <!-- CRITICAL: Hidden Inputs (Logic Preserved) -->
+                                <input type="hidden" id="Uid" value="@Model[i].ID" />
+                                <input type="hidden" asp-for="@Model[i].ID" />
+                                <input type="hidden" asp-for="@Model[i].TAB_TXT" />
+
+                                <!--
+                                    CHECKBOX FIX:
+                                    Added 'position-static' and 'm-0' to stop cropping
+                                -->
+                                <input asp-for="@Model[i].IsSelected"
+                                       class="form-check-input position-static m-0"
+                                       style="transform: scale(1.3); cursor: pointer;" />
+
+                                <!-- Label -->
+                                <label class="ml-3 mb-0 font-weight-bold text-dark w-100"
+                                       asp-for="@Model[i].IsSelected"
+                                       style="cursor: pointer;">
+                                    @Model[i].TAB_DESC
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Cancel Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Cancel
+                    </a>
+
+                    <!-- Update Button (ID "SubmitBtn" preserved for JS) -->
+                    <input type="button" id="SubmitBtn" value="Update Tabs" class="btn btn-primary px-4 shadow-sm" />
+                </div>
+            </div>
+        </form>
+
     </div>
-</form>
+</div>
+
+<!-- Hover Effect CSS -->
+<style>
+    .hover-effect:hover {
+        background-color: #f8f9fa !important;
+    }
+</style>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <!-- YOUR ORIGINAL JAVASCRIPT LOGIC (Unchanged) -->
     <script>
         $(function () {
             $("#SubmitBtn").click(function () {
                 SaveForm();
-            //    $.ajax({
-            //        type: "POST",
-            //        url: "/CreateRole/EditUsersInRoles",
-            //        method: "POST",
-            //        data: $("#formEdit").serialize(),
-            //        success: function () {
-            //            alert("ok");
-            //        },
-            //        error: function () {
-            //            alert("zzz");
-            //        }
-            //    })
             })
         })
         function getFormDataForm() {
-            debugger;
+            // debugger;
             var formList = [];
             var lengthVal = '@countModel';
             var lengths = 0;
             if (lengthVal != '') {
                 lengths = parseInt(lengthVal);
             }
-            debugger;
+            // debugger;
             for (var i = 0; i < lengths; i++) {
                 var formJson = {};
 
+                // IDs generated by ASP-FOR match these exactly
                 var tabid = $("#z" + i + "__ID").val();
                 var tabtxt = $('#z' + i + "__TAB_TXT").val();
                 var selected = $('#z' + i + "__IsSelected").is(":checked");
 
-                //var isonline = $("#isonline" + i).is(":checked");
-                //var chk = "N";
-                //if (isonline) {
-                //    chk = "Y";
-                //}
-                //var price = $('#PriceTxt' + i).val();
                 formJson["ID"] = tabid;
                 formJson["TAB_TXT"] = tabtxt;
                 formJson["isSelected"] = selected;
-                //formJson["IS_ONLINE"] = chk;
-                //formJson["PRICE"] = price;
+
                 formList.push(formJson);
             }
             return JSON.stringify(formList);
         }
         function SaveForm() {
-            debugger;
+            // debugger;
             var formTrans = getFormDataForm();
             var getReportColumnsParams = {
                 "formTrans": formTrans,
                 "roleid": '@roleId'
             };
-            debugger;
+            // debugger;
             $.ajax({
                 type: "POST",
                 traditional: true,
@@ -104,7 +146,7 @@
                 context: document.body,
                 data: getReportColumnsParams,
                 success: function (result) {
-                    debugger;
+                    // debugger;
                     if (result == "ok") {
                         window.location = "/CreateRole/Index"
 

@@ -3,144 +3,132 @@
     ViewData["Title"] = "Closing Info";
 }
 
-<style>
-    #myPopup {
-        display: none;
-        position: absolute;
-        top: 50px;
-        right: 50%;
-        background-color: blue;
-        height: 100px;
-        width: 100px;
-    }
+<!-- Ensure FontAwesome is loaded -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
-    #myExit {
-        position: absolute;
-        right: 0px;
-        text-align: right;
-        color: white;
-        background-color: red;
-    }
+<div class="row">
+    <div class="col-12">
 
-    .btn-primary2 {
-        color: #ffffff;
-        background-color: #000000;
-        border-color: #000000 !important
-    }
+        <!-- Main Card Container -->
+        <div class="card shadow-sm border-0">
 
-        .btn-primary2:hover {
-            color: #fff;
-            background-color: #be0000;
-            border-color: #be0000 !important
-        }
-</style>
-<p>
-</p>
-<div class="container" id="bootstrap-overrides">
-    <div class="row">
-        <div class="col-sm align-self-end">
-            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
+            <!-- Card Header: Title Left, Create Button Right -->
+            <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
+                <h5 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-calendar-check mr-2"></i>Closing Period List
+                </h5>
+
+                <a asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
+                    <i class="fas fa-plus fa-sm text-white-50 mr-2"></i> Input Data Baru
+                </a>
+            </div>
+
+            <!-- Card Body: The Table -->
+            <div class="card-body">
+                <div class="table-responsive">
+                    <!-- Added table-sm to make rows more compact -->
+                    <table class="table table-hover table-bordered table-sm" id="IndexTbl" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr class="text-center">
+                                <th style="width: 5%">No.</th>
+                                <th>Description</th>
+                                <th>Periode / Year</th>
+                                <th>Date Range</th>
+                                <th>Status</th>
+                                <th style="width: 15%">Entry Info</th>
+                                <th style="width: 15%">Update Info</th>
+                                <th style="width: 10%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                            }
+                            @foreach (var dt in Model)
+                            {
+                                <tr>
+                                    <td class="align-middle text-center">@i</td>
+
+                                    <!-- Description -->
+                                    <td class="align-middle font-weight-bold text-dark">
+                                        @Html.DisplayFor(modelItem => dt.description)
+                                    </td>
+
+                                    <!-- Combined Period & Year -->
+                                    <td class="align-middle text-center">
+                                        <span class="badge badge-light border text-secondary px-2">
+                                            @Html.DisplayFor(modelItem => dt.periode) / @Html.DisplayFor(modelItem => dt.year)
+                                        </span>
+                                    </td>
+
+                                    <!-- Date Range -->
+                                    <td class="align-middle small text-muted text-center text-nowrap">
+                                        <div>From: @Html.DisplayFor(modelItem => dt.datefrom)</div>
+                                        <div>To: &nbsp;&nbsp;&nbsp;&nbsp;@Html.DisplayFor(modelItem => dt.dateto)</div>
+                                    </td>
+
+                                    <!-- Status (IsClosed) -->
+                                    <td class="align-middle text-center">
+                                        @if (dt.isclosed == "Y")
+                                        {
+                                            <span class="badge badge-success px-2 py-1"><i class="fas fa-lock"></i> Closed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning text-white px-2 py-1"><i class="fas fa-lock-open"></i> Open</span>
+                                        }
+                                    </td>
+
+                                    <!-- Entry Info (Stacked) -->
+                                    <td class="align-middle small text-muted">
+                                        <div><i class="fas fa-user mr-1"></i> @Html.DisplayFor(modelItem => dt.entry_user)</div>
+                                        <div><i class="far fa-clock mr-1"></i> @Html.DisplayFor(modelItem => dt.entry_date)</div>
+                                    </td>
+
+                                    <!-- Update Info (Stacked) -->
+                                    <td class="align-middle small text-muted">
+                                        @if (dt.update_user != null)
+                                        {
+                                            <div><i class="fas fa-user-edit mr-1"></i> @Html.DisplayFor(modelItem => dt.update_user)</div>
+                                            <div><i class="far fa-clock mr-1"></i> @Html.DisplayFor(modelItem => dt.update_date)</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-center">-</span>
+                                        }
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="text-center align-middle">
+                                        <!-- YOUR ORIGINAL LOGIC PRESERVED -->
+                                        @if (dt.isclosed != "Y")
+                                        {
+                                            <div class="btn-group" role="group">
+                                                <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-outline-primary btn-sm" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-outline-danger btn-sm ml-1" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <!-- Visual feedback that actions are locked -->
+                                            <span class="text-muted small"><i class="fas fa-lock"></i> Locked</span>
+                                        }
+                                    </td>
+                                </tr>
+                                i++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
 </div>
-<br />
-<table class="table table-striped" id="IndexTbl">
-    <thead>
-        <tr>
-            <th>Num.</th>
-            <th>
-                 Desc
-            </th>
-            <th>
-                Periode
-            </th>
-            <th>
-                Year
-            </th>
-            <th>
-                date from
-            </th>
-            <th>
-                date To
-            </th>
-            <th>
-                isclosed
-
-            </th>
-            <th>
-                update date
-            </th>
-            <th>
-                update user
-            </th>
-            <th>
-                entry date
-            </th>
-            <th>
-                entry user
-            </th>
-            <th>
-                <label>Actions</label>
-            </th>
-        </tr>
-    </thead>
-    <tbody id="tbodyid">
-        @{
-            var i = 1;
-        }
-        @foreach (var dt in Model)
-        {
-            <tr>
-                <td>
-                    @i
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.periode)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.year)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.datefrom)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.dateto)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.isclosed)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.update_date)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.update_user)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.entry_date)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.entry_user)
-                </td>
-                <td>
-                    @if(dt.isclosed != "Y")
-                    {
-                        <div>
-                            <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
-                            &nbsp;
-                            <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
-                        </div>
-                    }
-            
-                </td>
-            </tr>
-            i++;
-        }
-    </tbody>
-</table>
 
 @section Scripts {
     @{
@@ -150,6 +138,13 @@
         $(document).ready(function () {
             $('#IndexTbl').DataTable({
                 stateSave: true,
+                "language": {
+                    "search": "Search:",
+                },
+                // Optimized DOM for Bootstrap 4
+                "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                       '<"row"<"col-sm-12"tr>>' +
+                       '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
             });
         });
     </script>

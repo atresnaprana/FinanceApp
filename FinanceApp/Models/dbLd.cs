@@ -12,7 +12,7 @@ namespace FinanceApp.Models
         public string company_id { get; set; }
         
         public int year { get; set; }
-        public int value { get; set; }
+        public long value { get; set; }
         public string entry_user { get; set; }
         public string update_user { get; set; }
 

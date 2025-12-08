@@ -59,7 +59,7 @@ namespace FinanceApp.Controllers
             var year = obj.year;
             var month = obj.month;
             var isyearly = obj.isYearly;
-            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.isclosed == "N" || String.IsNullOrEmpty(y.isclosed)).ToList();
+            var dataclosing = db.ClosingTbl.Where(y => y.year == year && y.isclosed == "N" && y.periode == month || String.IsNullOrEmpty(y.isclosed)).ToList();
             QuestPDF.Settings.License = LicenseType.Community;
             QuestPDF.Settings.EnableDebugging = true;
             var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
@@ -68,13 +68,342 @@ namespace FinanceApp.Controllers
 
             if (dataclosing.Count == 0)
             {
+                if (isyearly)
+                {
+                    var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
+                    var dataacc_TB = db.AccountTbl.Where(y => y.account_no < 4000000 && y.company_id == datas.COMPANY_ID).ToList();
+                    var dataacc_K = dataacc_TB.Where(y => y.account_no >= 2000000 && y.company_id == datas.COMPANY_ID).ToList();
+                    var dataacc_D = dataacc_TB.Where(y => y.account_no < 2000000 && y.company_id == datas.COMPANY_ID).ToList();
+
+
+                    var jpballdt = db.JpbTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                    var startdatejpb = jpballdt.TransDate.Year;
+
+                    var jpnalldt = db.JpnTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                    var startdatejpn = jpnalldt.TransDate.Year;
+
+                    var jmalldt = db.JmTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                    var startdatejm = jmalldt.TransDate.Year;
+
+
+
+
+                    var datajpb = db.JpbTbl.Where(y => y.TransDate.Year >= startdatejpb && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajpn = db.JpnTbl.Where(y => y.TransDate.Year >= startdatejpn && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajm = db.JmTbl.Where(y => y.TransDate.Year >= startdatejm && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
+
+                    obj.akundata = dataacc;
+                    obj.jpbdata = datajpb;
+                    obj.jpndata = datajpn;
+                    obj.jmdata = datajm;
+                    obj.closingdata = dataclosing;
+
+                    List<LRRptModel> rptdata = new List<LRRptModel>();
+
+                    foreach (var dt in dataacc)
+                    {
+                        LRRptModel fld = new LRRptModel();
+                        fld.akun = dt.account_no.ToString();
+                        fld.description = dt.account_name;
+                        fld.akundk = dt.akundk;
+                        if (dt.akundk == "K")
+                        {
+                            var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                            var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                            var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
+                            var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                            var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                            
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
+
+
+                        }
+                        else
+                        {
+                            var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                            var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                            var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit);
+                            var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                            var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
+
+                        }
+
+
+                        rptdata.Add(fld);
+                    }
+                    obj.ReportModel = rptdata;
+                    List<TBModel> TBData_D = new List<TBModel>();
+                    foreach (var dt in dataacc_D)
+                    {
+                        TBModel fld = new TBModel();
+                        fld.AccountNo_D = dt.account_no;
+                        fld.Desc_D = dt.account_name;
+                        fld.akundk_D = dt.akundk;
+                        var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) - datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) - datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit) - datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        if (dt.account_no >= 1200006 && dt.account_no <= 1200009)
+                        {
+                            fld.Value_D = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
+
+                            fld.Value_D_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+                        }
+                        else
+                        {
+                            fld.Value_D = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
+                            fld.Value_D_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+
+                        }
+                        TBData_D.Add(fld);
+
+
+
+                    }
+
+                    List<TBModel> TBData_K = new List<TBModel>();
+                    foreach (var dt in dataacc_K)
+                    {
+                        TBModel fld = new TBModel();
+                        fld.AccountNo_K = dt.account_no;
+                        fld.Desc_K = dt.account_name;
+                        fld.akundk_K = dt.akundk;
+                        var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) - datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) - datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) - datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+
+
+                        fld.Value_K = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
+                        fld.Value_K_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                        TBData_K.Add(fld);
+
+
+
+                    }
+                    obj.TB_D = TBData_D;
+                    obj.TB_K = TBData_K;
+                    byte[] pdfBytes = GenerateTrialBalancePdf(obj);
+                    var FileName = "Neraca" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                    return File(pdfBytes, "application/pdf", FileName);
+                }
+                else
+                {
+                    var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
+                    
+                    var dataacc_TB = db.AccountTbl.Where(y => y.account_no < 4000000 && y.company_id == datas.COMPANY_ID).ToList();
+
+                    var dataacc_K = dataacc_TB.Where(y => y.account_no >= 2000000 && y.company_id == datas.COMPANY_ID).ToList();
+                    var dataacc_D = dataacc_TB.Where(y => y.account_no < 2000000 && y.company_id == datas.COMPANY_ID).ToList();
+
+
+                    var jpballdt = db.JpbTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                    var startdatejpb = jpballdt.TransDate.Year;
+                    var startmonthjpb = jpballdt.TransDate.Month;
+
+                    var jpnalldt = db.JpnTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                    var startdatejpn = jpnalldt.TransDate.Year;
+                    var startmonthjpn = jpnalldt.TransDate.Month;
+
+                    var jmalldt = db.JmTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                    var startdatejm = jmalldt.TransDate.Year;
+                    var startmonthjm = jmalldt.TransDate.Month;
+
+
+
+
+                    var datajpb = db.JpbTbl.Where(y => (y.TransDate.Year > startdatejpb ||
+                                     (y.TransDate.Year == startdatejpb && y.TransDate.Month >= startmonthjpb))
+                                    &&
+                                    (y.TransDate.Year < year ||
+                                     (y.TransDate.Year == year && y.TransDate.Month <= month)) && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajpn = db.JpnTbl.Where(y => (y.TransDate.Year > startdatejpn ||
+                                     (y.TransDate.Year == startdatejpn && y.TransDate.Month >= startmonthjpn))
+                                    &&
+                                    (y.TransDate.Year < year ||
+                                     (y.TransDate.Year == year && y.TransDate.Month <= month)) && y.company_id == datas.COMPANY_ID).ToList();
+                    var datajm = db.JmTbl.Where(y => (y.TransDate.Year > startdatejm ||
+                                     (y.TransDate.Year == startdatejm && y.TransDate.Month >= startmonthjm))
+                                    &&
+                                    (y.TransDate.Year < year ||
+                                     (y.TransDate.Year == year && y.TransDate.Month <= month)) && y.company_id == datas.COMPANY_ID).ToList();
+
+                    obj.akundata = dataacc;
+                    obj.jpbdata = datajpb;
+                    obj.jpndata = datajpn;
+                    obj.jmdata = datajm;
+                    obj.closingdata = dataclosing;
+
+                    List<LRRptModel> rptdata = new List<LRRptModel>();
+
+                    foreach (var dt in dataacc)
+                    {
+                        LRRptModel fld = new LRRptModel();
+                        fld.akun = dt.account_no.ToString();
+                        fld.description = dt.account_name;
+                        fld.akundk = dt.akundk;
+                        if (dt.akundk == "K")
+                        {
+                            var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                            var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                            var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
+                            var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                            var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                            fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                            fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
+
+
+                        }
+                        else
+                        {
+                            var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                            var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                            var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit);
+                            var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                            var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+
+                            var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                            var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                            var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                            var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                            fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                            fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
+
+                        }
+
+
+                        rptdata.Add(fld);
+                    }
+                    obj.ReportModel = rptdata;
+                    List<TBModel> TBData_D = new List<TBModel>();
+                    foreach (var dt in dataacc_D)
+                    {
+                        TBModel fld = new TBModel();
+                        fld.AccountNo_D = dt.account_no;
+                        fld.Desc_D = dt.account_name;
+                        fld.akundk_D = dt.akundk;
+                        var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) - datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) - datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit) - datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        if (dt.account_no >= 1200006 && dt.account_no <= 1200009)
+                        {
+                            fld.Value_D = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
+
+                            fld.Value_D_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+                        }
+                        else
+                        {
+                            fld.Value_D = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
+                            fld.Value_D_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+
+                        }
+                        TBData_D.Add(fld);
+
+
+
+                    }
+
+                    List<TBModel> TBData_K = new List<TBModel>();
+                    foreach (var dt in dataacc_K)
+                    {
+                        TBModel fld = new TBModel();
+                        fld.AccountNo_K = dt.account_no;
+                        fld.Desc_K = dt.account_name;
+                        fld.akundk_K = dt.akundk;
+                        var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) - datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) - datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) - datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+
+
+                        fld.Value_K = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
+                        fld.Value_K_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                        TBData_K.Add(fld);
+
+
+
+                    }
+                    obj.TB_D = TBData_D;
+                    obj.TB_K = TBData_K;
+                    byte[] pdfBytes = GenerateTrialBalancePdf(obj);
+                    var FileName = "Neraca" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                    return File(pdfBytes, "application/pdf", FileName);
+                }
+                
+            }
+            else
+            {
+                return RedirectToAction("GeneratePdf", new { message = "Incorrect Periode Settings" });
+            }
+
+        }
+
+        public IActionResult GeneratePreview(string message)
+        {
+            ViewBag.Message = message;
+            return View();
+        }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GeneratePreview([Bind] LRModel obj)
+        {
+            var year = obj.year;
+            var month = obj.month;
+            var isyearly = obj.isYearly;
+            QuestPDF.Settings.License = LicenseType.Community;
+            QuestPDF.Settings.EnableDebugging = true;
+            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
+            // Render the "Index" view as a PDF
+            if (isyearly)
+            {
                 var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
                 var dataacc_TB = db.AccountTbl.Where(y => y.account_no < 4000000 && y.company_id == datas.COMPANY_ID).ToList();
                 var dataacc_K = dataacc_TB.Where(y => y.account_no >= 2000000 && y.company_id == datas.COMPANY_ID).ToList();
                 var dataacc_D = dataacc_TB.Where(y => y.account_no < 2000000 && y.company_id == datas.COMPANY_ID).ToList();
 
 
-                var jpballdt = db.JpbTbl.Where(y =>  y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                var jpballdt = db.JpbTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
                 var startdatejpb = jpballdt.TransDate.Year;
 
                 var jpnalldt = db.JpnTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
@@ -89,13 +418,12 @@ namespace FinanceApp.Controllers
                 var datajpb = db.JpbTbl.Where(y => y.TransDate.Year >= startdatejpb && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
                 var datajpn = db.JpnTbl.Where(y => y.TransDate.Year >= startdatejpn && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
                 var datajm = db.JmTbl.Where(y => y.TransDate.Year >= startdatejm && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
-                
+
                 obj.akundata = dataacc;
                 obj.jpbdata = datajpb;
                 obj.jpndata = datajpn;
                 obj.jmdata = datajm;
-                obj.closingdata = dataclosing;
-
+                obj.ispreview = true;
                 List<LRRptModel> rptdata = new List<LRRptModel>();
 
                 foreach (var dt in dataacc)
@@ -106,26 +434,42 @@ namespace FinanceApp.Controllers
                     fld.akundk = dt.akundk;
                     if (dt.akundk == "K")
                     {
-                        var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
-                        var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
-                        var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Credit);
-                        var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                        var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
+                        var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+
+                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
 
 
                     }
                     else
                     {
-                        var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
-                        var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
-                        var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Debit);
-                        var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                        var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                        var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
 
                     }
 
@@ -140,11 +484,11 @@ namespace FinanceApp.Controllers
                     fld.AccountNo_D = dt.account_no;
                     fld.Desc_D = dt.account_name;
                     fld.akundk_D = dt.akundk;
-                    var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value) - datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
-                    var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value) - datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
-                    var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Debit) - datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Credit);
-                    var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc) - datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                    var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc) - datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                    var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) - datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                    var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) - datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                    var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit) - datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
+                    var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                    var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
                     if (dt.account_no >= 1200006 && dt.account_no <= 1200009)
                     {
                         fld.Value_D = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
@@ -172,11 +516,11 @@ namespace FinanceApp.Controllers
                     fld.AccountNo_K = dt.account_no;
                     fld.Desc_K = dt.account_name;
                     fld.akundk_K = dt.akundk;
-                    var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value) - datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
-                    var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value) - datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
-                    var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Credit) - datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Debit);
-                    var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc) - datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                    var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc) - datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                    var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) - datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                    var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) - datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                    var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) - datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit);
+                    var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                    var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
 
                     fld.Value_K = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
@@ -189,157 +533,169 @@ namespace FinanceApp.Controllers
                 obj.TB_D = TBData_D;
                 obj.TB_K = TBData_K;
                 byte[] pdfBytes = GenerateTrialBalancePdf(obj);
-                var FileName = "Neraca" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                var FileName = "NeracaPreview" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
                 return File(pdfBytes, "application/pdf", FileName);
             }
             else
             {
-                return RedirectToAction("GeneratePdf", new { message = "Incorrect Periode Settings" });
-            }
+                var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
 
-        }
+                var dataacc_TB = db.AccountTbl.Where(y => y.account_no < 4000000 && y.company_id == datas.COMPANY_ID).ToList();
 
-        public IActionResult GeneratePreview(string message)
-        {
-            ViewBag.Message = message;
-            return View();
-        }
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GeneratePreview([Bind] LRModel obj)
-        {
-            var year = obj.year;
-            var month = obj.month;
-            var isyearly = obj.isYearly;
-            QuestPDF.Settings.License = LicenseType.Community;
-            QuestPDF.Settings.EnableDebugging = true;
-            var datas = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
-
-            // Render the "Index" view as a PDF
-
-            var dataacc = db.AccountTbl.Where(y => y.account_no >= 4000000 && y.company_id == datas.COMPANY_ID).ToList();
-            var dataacc_TB = db.AccountTbl.Where(y => y.account_no < 4000000 && y.company_id == datas.COMPANY_ID).ToList();
-            var dataacc_K = dataacc_TB.Where(y => y.account_no >= 2000000 && y.company_id == datas.COMPANY_ID).ToList();
-            var dataacc_D = dataacc_TB.Where(y => y.account_no < 2000000 && y.company_id == datas.COMPANY_ID).ToList();
+                var dataacc_K = dataacc_TB.Where(y => y.account_no >= 2000000 && y.company_id == datas.COMPANY_ID).ToList();
+                var dataacc_D = dataacc_TB.Where(y => y.account_no < 2000000 && y.company_id == datas.COMPANY_ID).ToList();
 
 
-            var jpballdt = db.JpbTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
-            var startdatejpb = jpballdt.TransDate.Year;
+                var jpballdt = db.JpbTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                var startdatejpb = jpballdt.TransDate.Year;
+                var startmonthjpb = jpballdt.TransDate.Month;
 
-            var jpnalldt = db.JpnTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
-            var startdatejpn = jpnalldt.TransDate.Year;
+                var jpnalldt = db.JpnTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                var startdatejpn = jpnalldt.TransDate.Year;
+                var startmonthjpn = jpnalldt.TransDate.Month;
 
-            var jmalldt = db.JmTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
-            var startdatejm = jmalldt.TransDate.Year;
+                var jmalldt = db.JmTbl.Where(y => y.company_id == datas.COMPANY_ID).ToList().OrderBy(y => y.TransDate).FirstOrDefault();
+                var startdatejm = jmalldt.TransDate.Year;
+                var startmonthjm = jmalldt.TransDate.Month;
 
 
 
 
-            var datajpb = db.JpbTbl.Where(y => y.TransDate.Year >= startdatejpb && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
-            var datajpn = db.JpnTbl.Where(y => y.TransDate.Year >= startdatejpn && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
-            var datajm = db.JmTbl.Where(y => y.TransDate.Year >= startdatejm && y.TransDate.Year <= year && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpb = db.JpbTbl.Where(y => (y.TransDate.Year > startdatejpb ||
+                                 (y.TransDate.Year == startdatejpb && y.TransDate.Month >= startmonthjpb))
+                                &&
+                                (y.TransDate.Year < year ||
+                                 (y.TransDate.Year == year && y.TransDate.Month <= month)) && y.company_id == datas.COMPANY_ID).ToList();
+                var datajpn = db.JpnTbl.Where(y => (y.TransDate.Year > startdatejpn ||
+                                 (y.TransDate.Year == startdatejpn && y.TransDate.Month >= startmonthjpn))
+                                &&
+                                (y.TransDate.Year < year ||
+                                 (y.TransDate.Year == year && y.TransDate.Month <= month)) && y.company_id == datas.COMPANY_ID).ToList();
+                var datajm = db.JmTbl.Where(y => (y.TransDate.Year > startdatejm ||
+                                 (y.TransDate.Year == startdatejm && y.TransDate.Month >= startmonthjm))
+                                &&
+                                (y.TransDate.Year < year ||
+                                 (y.TransDate.Year == year && y.TransDate.Month <= month)) && y.company_id == datas.COMPANY_ID).ToList();
 
-            obj.akundata = dataacc;
-            obj.jpbdata = datajpb;
-            obj.jpndata = datajpn;
-            obj.jmdata = datajm;
-            obj.ispreview = true;
-            List<LRRptModel> rptdata = new List<LRRptModel>();
+                obj.akundata = dataacc;
+                obj.jpbdata = datajpb;
+                obj.jpndata = datajpn;
+                obj.jmdata = datajm;
+                obj.ispreview = true;
 
-            foreach (var dt in dataacc)
-            {
-                LRRptModel fld = new LRRptModel();
-                fld.akun = dt.account_no.ToString();
-                fld.description = dt.account_name;
-                fld.akundk = dt.akundk;
-                if (dt.akundk == "K")
+                List<LRRptModel> rptdata = new List<LRRptModel>();
+
+                foreach (var dt in dataacc)
                 {
-                    var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
-                    var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
-                    var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Credit);
-                    var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                    var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                    fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                    fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc;
+                    LRRptModel fld = new LRRptModel();
+                    fld.akun = dt.account_no.ToString();
+                    fld.description = dt.account_name;
+                    fld.akundk = dt.akundk;
+                    if (dt.akundk == "K")
+                    {
+                        var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                        fld.total = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00");
+                        fld.totalint = totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal;
+
+
+                    }
+                    else
+                    {
+                        var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                        var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit);
+                        var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                        var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+
+                        var totaljpbreversal = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljpnreversal = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) * -1;
+                        var totaljmreversal = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) * -1;
+                        var totaljpndiscreversal = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+                        var totaljpbdiscreversal = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) * -1;
+
+
+                        fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal).ToString("#,##0.00") + ")";
+                        fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc + totaljpbdiscreversal + totaljpnreversal + totaljmreversal + totaljpndiscreversal + totaljpbdiscreversal);
+
+                    }
+
+
+                    rptdata.Add(fld);
+                }
+                obj.ReportModel = rptdata;
+                List<TBModel> TBData_D = new List<TBModel>();
+                foreach (var dt in dataacc_D)
+                {
+                    TBModel fld = new TBModel();
+                    fld.AccountNo_D = dt.account_no;
+                    fld.Desc_D = dt.account_name;
+                    fld.akundk_D = dt.akundk;
+                    var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) - datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                    var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value) - datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value);
+                    var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit) - datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit);
+                    var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                    var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                    
+                    if (dt.account_no >= 1200006 && dt.account_no <= 1200009)
+                    {
+                        fld.Value_D = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
+
+                        fld.Value_D_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+                    }
+                    else
+                    {
+                        fld.Value_D = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
+                        fld.Value_D_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+
+
+                    }
+                    TBData_D.Add(fld);
+
 
 
                 }
-                else
+
+                List<TBModel> TBData_K = new List<TBModel>();
+                foreach (var dt in dataacc_K)
                 {
-                    var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
-                    var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
-                    var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Debit);
-                    var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                    var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
+                    TBModel fld = new TBModel();
+                    fld.AccountNo_K = dt.account_no;
+                    fld.Desc_K = dt.account_name;
+                    fld.akundk_K = dt.akundk;
+                    var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) - datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                    var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Value) - datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Value);
+                    var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => (long)y.Credit) - datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => (long)y.Debit);
+                    var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
+                    var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => (long)y.Value_Disc) - datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => (long)y.Value_Disc);
 
-                    fld.total = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-                    fld.totalint = -1 * (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
 
-                }
+                    fld.Value_K = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
+                    fld.Value_K_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
+                    TBData_K.Add(fld);
 
-
-                rptdata.Add(fld);
-            }
-            obj.ReportModel = rptdata;
-            List<TBModel> TBData_D = new List<TBModel>();
-            foreach (var dt in dataacc_D)
-            {
-                TBModel fld = new TBModel();
-                fld.AccountNo_D = dt.account_no;
-                fld.Desc_D = dt.account_name;
-                fld.akundk_D = dt.akundk;
-                var totaljpb = datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value) - datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
-                var totaljpn = datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value) - datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value);
-                var totaljm = datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Debit) - datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Credit);
-                var totaljpndisc = datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc) - datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                var totaljpbdisc = datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc) - datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                if (dt.account_no >= 1200006 && dt.account_no <= 1200009)
-                {
-                    fld.Value_D = "(" + (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00") + ")";
-
-                    fld.Value_D_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
-
-                }
-                else
-                {
-                    fld.Value_D = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                    fld.Value_D_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
 
 
                 }
-                TBData_D.Add(fld);
-
-
-
+                obj.TB_D = TBData_D;
+                obj.TB_K = TBData_K;
+                byte[] pdfBytes = GenerateTrialBalancePdf(obj);
+                var FileName = "NeracaPreview" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
+                return File(pdfBytes, "application/pdf", FileName);
             }
-
-            List<TBModel> TBData_K = new List<TBModel>();
-            foreach (var dt in dataacc_K)
-            {
-                TBModel fld = new TBModel();
-                fld.AccountNo_K = dt.account_no;
-                fld.Desc_K = dt.account_name;
-                fld.akundk_K = dt.akundk;
-                var totaljpb = datajpb.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value) - datajpb.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
-                var totaljpn = datajpn.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Value) - datajpn.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Value);
-                var totaljm = datajm.Where(y => y.Akun_Credit == dt.account_no).Sum(y => y.Credit) - datajm.Where(y => y.Akun_Debit == dt.account_no).Sum(y => y.Debit);
-                var totaljpndisc = datajpn.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc) - datajpn.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
-                var totaljpbdisc = datajpb.Where(y => y.Akun_Credit_disc == dt.account_no).Sum(y => y.Value_Disc) - datajpb.Where(y => y.Akun_Debit_disc == dt.account_no).Sum(y => y.Value_Disc);
-
-
-                fld.Value_K = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc).ToString("#,##0.00");
-                fld.Value_K_int = (totaljpb + totaljpn + totaljm + totaljpndisc + totaljpbdisc);
-                TBData_K.Add(fld);
-
-
-
-            }
-            obj.TB_D = TBData_D;
-            obj.TB_K = TBData_K;
-            byte[] pdfBytes = GenerateTrialBalancePdf(obj);
-            var FileName = "NeracaPreview" + (DateTime.Now).ToString("dd-MM-yyyy HH-mm-ss") + ".pdf";
-            return File(pdfBytes, "application/pdf", FileName);
+            
 
         }
 

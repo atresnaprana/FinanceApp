@@ -1,130 +1,127 @@
 ﻿@model IEnumerable<FinanceApp.Models.dbAccount>
 @{
-    ViewData["Title"] = "System Tab List";
+    ViewData["Title"] = "Daftar Akun";
 }
 
-<style>
-    #myPopup {
-        display: none;
-        position: absolute;
-        top: 50px;
-        right: 50%;
-        background-color: blue;
-        height: 100px;
-        width: 100px;
-    }
+<!-- Ensure FontAwesome is loaded -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 
-    #myExit {
-        position: absolute;
-        right: 0px;
-        text-align: right;
-        color: white;
-        background-color: red;
-    }
+<div class="row">
+    <div class="col-12">
 
-    .btn-primary2 {
-        color: #ffffff;
-        background-color: #000000;
-        border-color: #000000 !important
-    }
+        <!-- Main Card Container -->
+        <div class="card shadow-sm border-0">
 
-        .btn-primary2:hover {
-            color: #fff;
-            background-color: #be0000;
-            border-color: #be0000 !important
-        }
-</style>
-<p>
-</p>
-<div class="container" id="bootstrap-overrides">
-    <div class="row">
-        <div class="col-sm align-self-end">
-            <a asp-action="Create" class="btn btn-dark">Input Data Baru</a>
+            <!-- Card Header -->
+            <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
+                <h5 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-file-invoice-dollar mr-2"></i>Daftar Akun (Chart of Accounts)
+                </h5>
+
+                <a asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
+                    <i class="fas fa-plus fa-sm text-white-50 mr-2"></i> Input Data Baru
+                </a>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered" id="IndexTbl" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 10%">No. Akun</th>
+                                <th style="width: 20%">Nama Akun</th>
+                                <th class="text-center">D/K</th>
+                                <th class="text-center">NR/LR</th>
+                                <th class="text-center">Status</th>
+
+                                <!-- Grouping Audit info to save cognitive load -->
+                                <th style="width: 15%">Entry Info</th>
+                                <th style="width: 15%">Update Info</th>
+
+                                <th style="width: 10%" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var dt in Model)
+                            {
+                                <tr>
+                                    <!-- Account No: Monospace for readability -->
+                                    <td class="align-middle text-monospace text-primary font-weight-bold">
+                                        @Html.DisplayFor(modelItem => dt.account_no)
+                                    </td>
+
+                                    <!-- Account Name -->
+                                    <td class="align-middle font-weight-bold text-dark">
+                                        @Html.DisplayFor(modelItem => dt.account_name)
+                                    </td>
+
+                                    <!-- D/K Badge -->
+                                    <td class="align-middle text-center">
+                                        <span class="badge badge-light border px-2">
+                                            @Html.DisplayFor(modelItem => dt.akundk)
+                                        </span>
+                                    </td>
+
+                                    <!-- NR/LR Badge -->
+                                    <td class="align-middle text-center">
+                                        <span class="badge badge-light border px-2">
+                                            @Html.DisplayFor(modelItem => dt.akunnrlr)
+                                        </span>
+                                    </td>
+
+                                    <!-- Status (Active Flag) -->
+                                    <td class="align-middle text-center">
+                                        @if (dt.flag_aktif == "1" || dt.flag_aktif == "Y" || dt.flag_aktif == "True")
+                                        {
+                                            <span class="badge badge-success"><i class="fas fa-check"></i> Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary">Non-Aktif</span>
+                                        }
+                                    </td>
+
+                                    <!-- Entry Info (Stacked for space) -->
+                                    <td class="align-middle small text-muted">
+                                        <div><i class="fas fa-user mr-1"></i> @Html.DisplayFor(modelItem => dt.entry_user)</div>
+                                        <div><i class="far fa-clock mr-1"></i> @Html.DisplayFor(modelItem => dt.entry_date)</div>
+                                    </td>
+
+                                    <!-- Update Info (Stacked for space) -->
+                                    <td class="align-middle small text-muted">
+                                        @if (dt.update_user != null)
+                                        {
+                                            <div><i class="fas fa-user-edit mr-1"></i> @Html.DisplayFor(modelItem => dt.update_user)</div>
+                                            <div><i class="far fa-clock mr-1"></i> @Html.DisplayFor(modelItem => dt.update_date)</div>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="text-center align-middle">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-outline-primary btn-sm" title="Edit">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-outline-danger btn-sm ml-1" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
 </div>
-<br />
-<table class="table table-striped" id="IndexTbl">
-    <thead>
-        <tr>
-            <th>No. Akun</th>
-            <th>
-                Nama Akun
-            </th>
-            <th>
-                Akun D/K
-            </th>
-            <th>
-                Akun NR/LR
-            </th>
-            <th>
-                Flag Aktif
-            </th>
-            <th>
-                Entry User
-            </th>
-
-            <th>
-                Update User
-            </th>
-            <th>
-                Entry Date
-            </th>
-            <th>
-                Update Date
-            </th>
-            <th>
-                <label>Actions</label>
-            </th>
-        </tr>
-    </thead>
-    <tbody id="tbodyid">
-        @{
-            var i = 1;
-        }
-        @foreach (var dt in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.account_no)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.account_name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.akundk)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.akunnrlr)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.flag_aktif)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.entry_user)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.update_user)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.entry_date)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => dt.update_date)
-                </td>
-                <td>
-                    <div>
-                        <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Edit</a>
-                        &nbsp;
-                        <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-sm btn-dark">Delete</a>
-                    </div>
-                </td>
-            </tr>
-            i++;
-        }
-    </tbody>
-</table>
 
 @section Scripts {
     @{
@@ -134,6 +131,13 @@
         $(document).ready(function () {
             $('#IndexTbl').DataTable({
                 stateSave: true,
+                "language": {
+                    "search": "Search Account:",
+                },
+                // Optimized DOM layout for DataTables
+                "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                       '<"row"<"col-sm-12"tr>>' +
+                       '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
             });
         });
     </script>

@@ -3,91 +3,128 @@
 @{
     ViewData["Title"] = "Update Data";
 }
-<style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
-    }
-</style>
-<h1>Input Data Baru</h1>
-<h3 class="display-5">Form Entry</h3>
-<hr />
-<form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm">
-                <div class="form-group">
-                    <label class="control-label">Image Desc:</label>
-                    <input asp-for="IMG_DESC" class="form-control" />
-                    <span asp-validation-for="IMG_DESC" class="text-danger"></span>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        <form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
+
+            <!-- Crucial: Hidden ID for Edit Action -->
+            @Html.HiddenFor(m => m.ID)
+
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-edit mr-2"></i>Update Slider Image
+                        </h5>
+                        <small class="text-muted">Edit Banner</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="control-label">Slide: </label>
-                    <i style="font-size:smaller">
-                        Max: 4MB,
-                        file: JPG, JPEG, PNG
-                    </i>
-                    <br />
-                    <input type="file" asp-for="fileImg" />
-                    <br />
-                    <br />
-                    <img id="StorePhotoId" src="@ViewBag.ImageData" width="400" height="200">
-                    <span asp-validation-for="fileImg" class="text-danger"></span>
+
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <!-- Image Description -->
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bold text-dark small text-uppercase">Image Description</label>
+                        <input asp-for="IMG_DESC" class="form-control" />
+                        <span asp-validation-for="IMG_DESC" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Current Image Preview -->
+                    <div class="form-group mb-4 text-center">
+                        <label class="font-weight-bold text-dark small text-uppercase d-block text-left">Current Image</label>
+                        <div class="p-2 border rounded bg-light d-inline-block">
+                            <!-- Added max-width to ensure it fits the card, auto height to maintain aspect ratio -->
+                            <img id="StorePhotoId" src="@ViewBag.ImageData" class="img-fluid rounded shadow-sm" style="max-height: 200px;" alt="Current Slide">
+                        </div>
+                    </div>
+
+                    <!-- File Upload Section -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Change Image (Optional)</label>
+
+                        <div class="p-3 border rounded text-center">
+                            <input type="file" asp-for="fileImg" class="form-control-file mb-2" style="margin: 0 auto; display: block; max-width: 100%;" />
+                            <span asp-validation-for="fileImg" class="text-danger small d-block"></span>
+
+                            <div class="mt-2 text-muted small">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Max: 4MB | Formats: JPG, JPEG, PNG
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="form-group">
-                    <input type="button" value="Update Data" onclick="alertfirst()" class="btn btn-red" />
+
+                <!-- Card Footer: Actions -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke List
+                    </a>
+
+                    <!-- Update Button -->
+                    <button type="button" onclick="alertfirst()" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Update Data
+                    </button>
                 </div>
+
             </div>
-        </div>
+        </form>
+
     </div>
-</form>
-
-
-<div>
-    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
-@section Scripts{
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-<script>
 
-    function allowOnlyNumber(evt) {
-        var charCode = (evt.which) ? evt.which : event.keyCode
-        if (charCode > 31 && (charCode < 48 || charCode > 57))
-            return false;
-        return true;
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    function alertfirst() {
-
-        if (confirm("Are you sure saving data?")) {
-            $('#formcreate').submit();
-        } else {
-            return false;
+    <script>
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
         }
 
-    }
-    $('#fileImg').on('change', function () {
-        const size =
-            (this.files[0].size / 1024 / 1024).toFixed(2);
-        debugger;
-        var errmsg = "";
-        if (size > 4) {
-            $('#filePhoto').val('');
-            //alert("File size maximum is 4 MB");
-            errmsg += "File size maximum is 4 MB \r\n";
-        }
-        var fileExtension = ['jpeg', 'jpg', 'png'];
-        if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
-            //alert("Only formats are allowed : " + fileExtension.join(', '));
-            errmsg += "Only formats are allowed : " + fileExtension.join(', ');
-
-        }
-        if (errmsg != "") {
-            $('#filePhoto').val('');
-            alert(errmsg);
+        function alertfirst() {
+            if (confirm("Are you sure you want to update this data?")) {
+                $('#formcreate').submit();
+            } else {
+                return false;
+            }
         }
 
-    });
-</script>   
+        // File Validation
+        $('#fileImg').on('change', function () {
+            if (this.files && this.files[0]) {
+                const size = (this.files[0].size / 1024 / 1024).toFixed(2);
+
+                var errmsg = "";
+
+                // Check Size
+                if (size > 4) {
+                    errmsg += "File size maximum is 4 MB \r\n";
+                }
+
+                // Check Extension
+                var fileExtension = ['jpeg', 'jpg', 'png'];
+                if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+                    errmsg += "Only formats are allowed : " + fileExtension.join(', ');
+                }
+
+                // Error Handling
+                if (errmsg != "") {
+                    // FIX: Clears the correct input ID (#fileImg) instead of #filePhoto
+                    $('#fileImg').val('');
+                    alert(errmsg);
+                }
+            }
+        });
+    </script>
 }
-
-

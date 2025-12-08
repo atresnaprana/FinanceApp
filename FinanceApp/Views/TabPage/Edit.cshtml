@@ -3,61 +3,83 @@
 @{
     ViewData["Title"] = "Ubah Data";
 }
-<style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
-    }
-</style>
-<h1>Ubah Data</h1>
-<h3 class="display-5">Form Update</h3>
-<hr />
-<form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm">
-                <div class="form-group">
-                    <label class="control-label">Tab Description:</label>
-                    <input asp-for="TAB_DESC" class="form-control" />
-                    <span asp-validation-for="TAB_DESC" class="text-danger"></span>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        <form asp-action="Edit" id="formcreate" enctype="multipart/form-data">
+
+            <!-- Important: Keep the ID hidden for the Edit action -->
+            @Html.HiddenFor(m => m.ID)
+
+            <!-- Main Card Container -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-edit mr-2"></i>Ubah Data
+                        </h5>
+                        <small class="text-muted">Form Update</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="control-label">Tab Display Text:</label>
-                    <input asp-for="TAB_TXT" class="form-control" />
-                    <span asp-validation-for="TAB_TXT" class="text-danger"></span>
+
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <!-- Tab Description -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Tab Description</label>
+                        <input asp-for="TAB_DESC" class="form-control" />
+                        <span asp-validation-for="TAB_DESC" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Tab Display Text -->
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small text-uppercase">Tab Display Text</label>
+                        <input asp-for="TAB_TXT" class="form-control" />
+                        <span asp-validation-for="TAB_TXT" class="text-danger small"></span>
+                    </div>
+
                 </div>
-                <div class="form-group">
-                    <input type="button" value="Ubah Data" onclick="alertfirst()" class="btn btn-red" />
+
+                <!-- Card Footer: Action Buttons -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke List
+                    </a>
+
+                    <!-- Update Button -->
+                    <button type="button" onclick="alertfirst()" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Ubah Data
+                    </button>
                 </div>
+
             </div>
-        </div>
+        </form>
     </div>
-</form>
-
-
-<div>
-    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
-@section Scripts{
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    <script>
 
-    function allowOnlyNumber(evt) {
-        var charCode = (evt.which) ? evt.which : event.keyCode
-        if (charCode > 31 && (charCode < 48 || charCode > 57))
-            return false;
-        return true;
-        }
-    function alertfirst() {
-
-        if (confirm("Are you sure saving data?")) {
-            $('#formcreate').submit();
-        } else {
-            return false;
-        }
-
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        function allowOnlyNumber(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+
+        function alertfirst() {
+            if (confirm("Are you sure you want to update this data?")) {
+                $('#formcreate').submit();
+            } else {
+                return false;
+            }
+        }
     </script>
 }
-
-

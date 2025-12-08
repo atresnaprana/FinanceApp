@@ -1,39 +1,113 @@
 ﻿@model FinanceApp.Models.LRModel
 
 @{
-    ViewData["Title"] = "Generate Preview";
+    ViewData["Title"] = "Preview Neraca";
     var msg = ViewBag.Message;
 }
-<style>
-    input.largerCheckbox {
-        width: 20px;
-        height: 20px;
-    }
-</style>
-<h1>Download Neraca Preview</h1>
-<hr />
-<form asp-action="GeneratePreview" id="formcreate" enctype="multipart/form-data">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm">
-                <div class="form-group">
-                    <label class="control-label">Tahun:</label>
-                    <input asp-for="year" class="form-control" />
-                    <span asp-validation-for="year" class="text-danger"></span>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        <form asp-action="GeneratePreview" id="formcreate" enctype="multipart/form-data">
+
+            <!-- Modern Card Wrapper -->
+            <div class="card shadow-sm border-0">
+
+                <!-- Card Header -->
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-pie mr-2"></i>Neraca Preview
+                        </h5>
+                        <small class="text-muted">Balance Sheet View</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="button" value="Download Report" onclick="alertfirst()" class="btn btn-red" />
+
+                <!-- Card Body -->
+                <div class="card-body">
+
+                    <!-- Alert Message -->
+                    @if (msg != null && !string.IsNullOrEmpty(msg.ToString()))
+                    {
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="fas fa-info-circle mr-2"></i> @msg
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <div class="alert alert-light border small mb-3">
+                        <i class="fas fa-search mr-1"></i>
+                        Preview the Balance Sheet data on screen before downloading.
+                    </div>
+
+                    <!-- Row: Year and Month -->
+                    <div class="form-row">
+
+                        <!-- Year Input -->
+                        <div class="form-group col-md-6 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Tahun (Year)</label>
+                            <input asp-for="year" class="form-control" placeholder="YYYY" type="number" />
+                            <span asp-validation-for="year" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Month Dropdown -->
+                        <div class="form-group col-md-6 mb-3">
+                            <label class="font-weight-bold text-dark small text-uppercase">Bulan (Month)</label>
+                            <!-- Added 'form-control' class for proper styling -->
+                            @Html.DropDownListFor(model => model.month, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "Januari", Value = "1" },
+                                                        new SelectListItem { Text = "Februari", Value = "2" },
+                                                        new SelectListItem { Text = "Maret", Value = "3" },
+                                                        new SelectListItem { Text = "April", Value = "4" },
+                                                        new SelectListItem { Text = "Mei", Value = "5" },
+                                                        new SelectListItem { Text = "Juni", Value = "6" },
+                                                        new SelectListItem { Text = "Juli", Value = "7" },
+                                                        new SelectListItem { Text = "Agustus", Value = "8" },
+                                                        new SelectListItem { Text = "September", Value = "9" },
+                                                        new SelectListItem { Text = "Oktober", Value = "10" },
+                                                        new SelectListItem { Text = "November", Value = "11" },
+                                                        new SelectListItem { Text = "Desember", Value = "12" }
+                                                        }, new { @class = "form-control" })
+                            <span asp-validation-for="month" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Yearly Toggle Switch -->
+                    <div class="form-group mt-2">
+                        <div class="custom-control custom-switch">
+                            <!-- Modern Switch Style -->
+                            <input type="checkbox" class="custom-control-input" asp-for="isYearly">
+                            <label class="custom-control-label font-weight-bold text-dark" asp-for="isYearly">
+                                Preview Yearly Data?
+                            </label>
+                        </div>
+                        <span asp-validation-for="isYearly" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                <!-- Card Footer: Actions -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <!-- Back Button -->
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke List
+                    </a>
+
+                    <!-- Generate Button -->
+                    <button type="button" onclick="alertfirst()" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-eye mr-2"></i> Generate Preview
+                    </button>
                 </div>
 
             </div>
-        </div>
+        </form>
+
     </div>
-</form>
-
-
-<div>
-    <a asp-action="Index" class="btn btn-dark">Kembali ke List</a>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -44,7 +118,6 @@
             if(msg != "" ){
                 alert(msg);
             }
-
         });
 
         function allowOnlyNumber(evt) {
@@ -53,17 +126,10 @@
                 return false;
             return true;
         }
+
         function alertfirst() {
+            // Direct submit logic preserved
             $('#formcreate').submit();
-
-            // if (confirm("Are you sure saving data?")) {
-            //     $('#formcreate').submit();
-            // } else {
-            //     return false;
-            // }
-
         }
     </script>
 }
-
-

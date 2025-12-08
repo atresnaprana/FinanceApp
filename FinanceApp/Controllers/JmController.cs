@@ -120,19 +120,20 @@ namespace FinanceApp.Controllers
         //[Authorize(Roles = "SuperAdmin")]
         public IActionResult Create()
         {
+            var data = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
             List<dbAccount> acclist = new List<dbAccount>();
-            acclist = db.AccountTbl.Where(y => y.flag_aktif == "1").ToList().Select(y => new dbAccount()
+            acclist = db.AccountTbl.Where(y => y.flag_aktif == "1" && y.company_id == data.COMPANY_ID).ToList().Select(y => new dbAccount()
             {
                 account_no = y.account_no,
                 account_name = y.account_no.ToString() + " - " + y.account_name
             }).ToList();
             dbJm fld = new dbJm();
-            var data = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
               
             fld.TransDate = DateTime.Now;
             fld.dddbacc = acclist.OrderBy(y => y.account_no).ToList();
             fld.company_id = data.COMPANY_ID;
-            var existingsales = db.JmTbl.ToList();
+            var existingsales = db.JmTbl.Where(y => y.company_id == data.COMPANY_ID).ToList();
             var number = "0001";
             var trans_nodata = existingsales.Select(y => new dbJm()
             {
@@ -176,13 +177,15 @@ namespace FinanceApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var dataclosing = db.ClosingTbl.Where(y => y.datefrom <= obj.TransDate && y.dateto >= obj.TransDate && y.isclosed == "Y").ToList();
+                var data = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
+                var dataclosing = db.ClosingTbl.Where(y => y.datefrom <= obj.TransDate && y.dateto >= obj.TransDate && y.isclosed == "Y" && y.company_id == data.COMPANY_ID).ToList();
                 if (dataclosing.Count == 0)
                 {
                     var transdate = obj.TransDate;
 
 
-                    var existingsales = db.JmTbl.ToList();
+                    var existingsales = db.JmTbl.Where(y => y.company_id == data.COMPANY_ID).ToList();
                     var number = "0001";
                     var trans_nodata = existingsales.Select(y => new dbJm()
                     {
@@ -276,8 +279,10 @@ namespace FinanceApp.Controllers
             }
             else
             {
+                var data = db.CustomerTbl.Where(y => y.Email == User.Identity.Name).FirstOrDefault();
+
                 List<dbAccount> acclist = new List<dbAccount>();
-                acclist = db.AccountTbl.Where(y => y.flag_aktif == "1").ToList().Select(y => new dbAccount()
+                acclist = db.AccountTbl.Where(y => y.flag_aktif == "1" && y.company_id == data.COMPANY_ID).ToList().Select(y => new dbAccount()
                 {
                     account_no = y.account_no,
                     account_name = y.account_no.ToString() + " - " + y.account_name
