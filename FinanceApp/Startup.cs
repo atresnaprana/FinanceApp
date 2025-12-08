@@ -1,25 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using BaseLineProject.Data;
+using BaseLineProject.Services;
+using DinkToPdf;
+using FinanceApp.Services;
+using FinanceApp.Services.Tax;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
-using BaseLineProject.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Pomelo.EntityFrameworkCore.MySql.Storage;
-using Microsoft.Extensions.FileProviders;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using BaseLineProject.Services;
-using DinkToPdf;
-using System.Text;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BaseLineProject
 {
@@ -74,6 +76,9 @@ namespace BaseLineProject
               Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
 
             services.AddControllersWithViews();
+            services.AddScoped<TaxEligibilityService>();
+            services.AddScoped<ITaxCalculationService, TaxCalculationService>();
+
             services.AddRazorPages();
         }
 

@@ -78,6 +78,11 @@
                                         <span asp-validation-for="Input.COMPANY" class="text-danger small"></span>
                                     </div>
                                     <div class="col-md-6 form-group">
+                                        <label asp-for="Input.REG_DATE" class="small"></label>
+                                        <input asp-for="Input.REG_DATE" class="form-control" placeholder="Tanggal Registrasi Perusahaan" />
+                                        <span asp-validation-for="Input.REG_DATE" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6 form-group">
                                         <label asp-for="Input.PHONE1" class="small"></label>
                                         <input asp-for="Input.PHONE1" class="form-control" onkeypress="return allowOnlyNumber(event);" placeholder="e.g. 0812345678" />
                                         <span asp-validation-for="Input.PHONE1" class="text-danger small"></span>

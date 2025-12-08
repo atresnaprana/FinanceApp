@@ -123,6 +123,12 @@ namespace BaseLineProject.Areas.Identity
 
 
             [Required]
+            [DataType(DataType.Date)]
+            [Display(Name = "Tanggal Registrasi Perusahaan")]
+            public DateTime REG_DATE { get; set; }
+
+
+            [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Tipe User")]
             public string customertype { get; set; }
@@ -204,7 +210,7 @@ namespace BaseLineProject.Areas.Identity
                         fieldCustomer.province = Input.Province;
                         fieldCustomer.postal = Input.Postal;
                         fieldCustomer.FLAG_AKTIF = "0";
-                        fieldCustomer.REG_DATE = DateTime.Now;
+                        fieldCustomer.REG_DATE = Input.REG_DATE;
                         fieldCustomer.UPDATE_DATE = DateTime.Now;
                         fieldCustomer.ENTRY_DATE = DateTime.Now;
                         fieldCustomer.ENTRY_USER = Input.Email;

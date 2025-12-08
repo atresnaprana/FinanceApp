@@ -14,6 +14,7 @@ using System.Security.Claims;
 using BaseLineProject.Data;
 using FinanceApp.Models;
 using BaseLineProject.Models;
+using FinanceApp.Services; 
 
 namespace FinanceApp.Controllers
 {
@@ -21,15 +22,17 @@ namespace FinanceApp.Controllers
     {
         private readonly FormDBContext db;
         public const string SessionKeyName = "TransDateStrJm";
+        private readonly TaxEligibilityService _taxEligibilityService;
 
         private IHostingEnvironment Environment;
         private readonly ILogger<ClosingController> _logger;
 
-        public ClosingController(FormDBContext db, ILogger<ClosingController> logger, IHostingEnvironment _environment)
+        public ClosingController(FormDBContext db, ILogger<ClosingController> logger, IHostingEnvironment _environment, TaxEligibilityService taxEligibilityService)
         {
             logger = logger;
             Environment = _environment;
             this.db = db;
+            _taxEligibilityService = taxEligibilityService;
         }
         [Authorize(Roles = "AccountAdmin")]
 
@@ -131,7 +134,12 @@ namespace FinanceApp.Controllers
                         fldld.entry_date = DateTime.Now;
                         fldld.update_date = DateTime.Now;
                         db.LDTbl.Add(fldld);
-                        
+
+                        _taxEligibilityService.CalculateAnnualTaxEligibility(
+                              datas.COMPANY_ID,
+                              obj.year
+                        );
+
 
                     }
                 }
@@ -437,6 +445,11 @@ namespace FinanceApp.Controllers
                         fldld.entry_date = DateTime.Now;
                         fldld.update_date = DateTime.Now;
                         db.LDTbl.Add(fldld);
+
+                        _taxEligibilityService.CalculateAnnualTaxEligibility(
+                              datas.COMPANY_ID,
+                              fld.year
+                        );
 
 
                     }
