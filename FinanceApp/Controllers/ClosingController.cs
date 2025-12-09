@@ -139,7 +139,7 @@ namespace FinanceApp.Controllers
                         fldld.entry_date = DateTime.Now;
                         fldld.update_date = DateTime.Now;
                         db.LDTbl.Add(fldld);
-                        var warningflag = incomedata.Sum(y => y.totalint) <= UMKM_LIMIT && datas.taxflagpercentage == "Y";
+                        var warningflag = incomedata.Sum(y => y.totalint) >= UMKM_LIMIT && datas.taxflagpercentage == "Y";
                         if (warningflag)
                         {
                             TempData["AlertMessage"] = "Omset sudah melebihi batas maksimal pajak UMKM, status eligibilitas di ubah untuk pajak non final";
@@ -464,7 +464,7 @@ namespace FinanceApp.Controllers
                         fldld.entry_date = DateTime.Now;
                         fldld.update_date = DateTime.Now;
                         db.LDTbl.Add(fldld);
-                        var warningflag = incomedata.Sum(y => y.totalint) <= UMKM_LIMIT && datas.taxflagpercentage == "Y";
+                        var warningflag = incomedata.Sum(y => y.totalint) >= UMKM_LIMIT && datas.taxflagpercentage == "Y";
                         if (warningflag)
                         {
                             TempData["AlertMessage"] = "Omset sudah melebihi batas maksimal pajak UMKM, status eligibilitas di ubah untuk pajak non final";
