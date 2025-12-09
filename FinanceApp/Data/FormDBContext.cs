@@ -326,7 +326,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbLd>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
             modelBuilder.Entity<dbLd>().Property(ug => ug.company_id).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbLd>().Property(ug => ug.year).HasColumnType("int");
-            modelBuilder.Entity<dbLd>().Property(ug => ug.value).HasColumnType("int");
+            modelBuilder.Entity<dbLd>().Property(ug => ug.value).HasColumnType("bigint(20)");
             modelBuilder.Entity<dbLd>().Property(ug => ug.entry_user).HasColumnType("varchar(255)").IsRequired(false);
             modelBuilder.Entity<dbLd>().Property(ug => ug.update_user).HasColumnType("varchar(255)").IsRequired();
             modelBuilder.Entity<dbLd>().Property(ug => ug.entry_date).HasColumnType("datetime");

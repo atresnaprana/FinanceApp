@@ -14,7 +14,9 @@ using System.Security.Claims;
 using BaseLineProject.Data;
 using FinanceApp.Models;
 using BaseLineProject.Models;
-using FinanceApp.Services; 
+using FinanceApp.Services;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FinanceApp.Controllers
 {
@@ -23,7 +25,7 @@ namespace FinanceApp.Controllers
         private readonly FormDBContext db;
         public const string SessionKeyName = "TransDateStrJm";
         private readonly TaxEligibilityService _taxEligibilityService;
-
+        private const decimal UMKM_LIMIT = 4_800_000_000m;
         private IHostingEnvironment Environment;
         private readonly ILogger<ClosingController> _logger;
 
@@ -125,8 +127,11 @@ namespace FinanceApp.Controllers
                             dt.debit = Convert.ToInt64(fld.Value_K_int);
                             db.ClosingValueTbl.Add(dt);
                         }
+                        char incomeacc = '4';
+
+                        var incomedata = datalr.Where(y => y.akun.FirstOrDefault() == incomeacc).ToList();
                         var fldld = new dbLd();
-                        fldld.value = Convert.ToInt64(labaditahan);
+                        fldld.value = datalr.Sum(y => (long)y.totalint);
                         fldld.company_id = datas.COMPANY_ID;
                         fldld.year = obj.year;
                         fldld.entry_user = User.Identity.Name;
@@ -134,6 +139,17 @@ namespace FinanceApp.Controllers
                         fldld.entry_date = DateTime.Now;
                         fldld.update_date = DateTime.Now;
                         db.LDTbl.Add(fldld);
+                        var warningflag = incomedata.Sum(y => y.totalint) <= UMKM_LIMIT && datas.taxflagpercentage == "Y";
+                        if (warningflag)
+                        {
+                            TempData["AlertMessage"] = "Omset sudah melebihi batas maksimal pajak UMKM, status eligibilitas di ubah untuk pajak non final";
+                            var datacompany = db.CustomerTbl.Where(y => y.COMPANY_ID == datas.COMPANY_ID).ToList();
+                            foreach(var fldz in datacompany)
+                            {
+                                fldz.taxflagpercentage = "N";
+                            }
+                        }
+                       
 
                         _taxEligibilityService.CalculateAnnualTaxEligibility(
                               datas.COMPANY_ID,
@@ -436,8 +452,11 @@ namespace FinanceApp.Controllers
                             dt.debit = Convert.ToInt32(flds.Value_K_int);
                             db.ClosingValueTbl.Add(dt);
                         }
+                        char incomeacc = '4';
+
+                        var incomedata = datalr.Where(y => y.akun.FirstOrDefault() == incomeacc).ToList();
                         var fldld = new dbLd();
-                        fldld.value = Convert.ToInt32(labaditahan);
+                        fldld.value = datalr.Sum(y => (long)y.totalint);
                         fldld.company_id = datas.COMPANY_ID;
                         fldld.year = fld.year;
                         fldld.entry_user = User.Identity.Name;
@@ -445,6 +464,18 @@ namespace FinanceApp.Controllers
                         fldld.entry_date = DateTime.Now;
                         fldld.update_date = DateTime.Now;
                         db.LDTbl.Add(fldld);
+                        var warningflag = incomedata.Sum(y => y.totalint) <= UMKM_LIMIT && datas.taxflagpercentage == "Y";
+                        if (warningflag)
+                        {
+                            TempData["AlertMessage"] = "Omset sudah melebihi batas maksimal pajak UMKM, status eligibilitas di ubah untuk pajak non final";
+
+                            var datacompany = db.CustomerTbl.Where(y => y.COMPANY_ID == datas.COMPANY_ID).ToList();
+                            foreach (var fldz in datacompany)
+                            {
+                                fldz.taxflagpercentage = "N";
+                            }
+                        }
+
 
                         _taxEligibilityService.CalculateAnnualTaxEligibility(
                               datas.COMPANY_ID,
