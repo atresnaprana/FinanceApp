@@ -1,0 +1,47 @@
+﻿@model FinanceApp.Models.FiscalAdjustmentViewModel
+@{
+    ViewData["Title"] = "Create Fiscal Override";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form asp-action="Create">
+            <!-- Hidden fields to pass back necessary data -->
+            <input type="hidden" asp-for="AccountNo" />
+            <input type="hidden" asp-for="CompanyId" />
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-plus-circle mr-2"></i>Create Fiscal Override</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Read-only info -->
+                    <div class="bg-light p-3 rounded border mb-3">
+                        <div class="row"><div class="col-sm-4 small text-uppercase font-weight-bold text-secondary">Account No</div><div class="col-sm-8 font-weight-bold">@Model.AccountNo</div></div>
+                        <div class="row"><div class="col-sm-4 small text-uppercase font-weight-bold text-secondary">Account Name</div><div class="col-sm-8">@Model.AccountName</div></div>
+                        <div class="row"><div class="col-sm-4 small text-uppercase font-weight-bold text-secondary">Default Type</div><div class="col-sm-8">@Model.DefaultFiscalType</div></div>
+                    </div>
+
+                    <!-- Form fields -->
+                    <div class="form-group">
+                        <label asp-for="OverrideFiscalType" class="font-weight-bold text-dark small text-uppercase"></label>
+                        @Html.DropDownListFor(m => m.OverrideFiscalType, new List<SelectListItem> {
+                        new SelectListItem("DEDUCTIBLE", "DEDUCTIBLE"),
+                                                new SelectListItem("NONDEDUCTIBLE", "NONDEDUCTIBLE")
+                                                }, "Select override type...", new { @class = "form-control" })
+                        <span asp-validation-for="OverrideFiscalType" class="text-danger small"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Reason" class="font-weight-bold text-dark small text-uppercase"></label>
+                        <textarea asp-for="Reason" class="form-control" rows="3" placeholder="Explain why this override is necessary..."></textarea>
+                        <span asp-validation-for="Reason" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary"><i class="fas fa-arrow-left mr-1"></i> Back to List</a>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm"><i class="fas fa-save mr-1"></i> Save Override</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -129,11 +129,157 @@ namespace FinanceApp.Controllers
         // -----------------------------------------
         // PDF PART (SINGKAT)
         // -----------------------------------------
+        //private byte[] GeneratePdfFromTaxResult(TaxSummaryResult tax, int year, bool iseligible)
+        //{
+        //    QuestPDF.Settings.License = LicenseType.Community;
+
+        //    var culture = new CultureInfo("id-ID");
+        //    using var stream = new MemoryStream();
+
+        //    Document.Create(container =>
+        //    {
+        //        container.Page(page =>
+        //        {
+        //            page.Size(PageSizes.A4);
+        //            page.Margin(20);
+
+        //            // ---------- HEADER ----------
+        //            page.Header().Column(col =>
+        //            {
+        //                col.Item().Text("Report Preview Laporan Pajak")
+        //                    .Bold().FontSize(12).AlignCenter();
+
+        //                col.Item().Text($"Tahun: {year}")
+        //                    .FontSize(9).AlignCenter();
+
+        //                col.Item().Text($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}")
+        //                    .FontSize(8)
+        //                    .FontColor(Colors.Grey.Medium)
+        //                    .AlignCenter();
+
+        //                col.Spacing(10);
+        //            });
+
+        //            // ---------- CONTENT ----------
+        //            page.Content().Table(table =>
+        //            {
+        //                table.ColumnsDefinition(columns =>
+        //                {
+        //                    columns.RelativeColumn(2);    // Bulan
+        //                    columns.RelativeColumn(1.5f); // Omzet
+        //                    columns.RelativeColumn(1.5f); // Pajak
+        //                });
+
+        //                void AddRow(string c1, string c2, string c3, bool isHeader = false)
+        //                {
+        //                    var fontSize = isHeader ? 8 : 7;
+        //                    var bg = isHeader ? Colors.Grey.Lighten3 : Colors.White;
+
+        //                    table.Cell().Border(1).Background(bg).Padding(4)
+        //                        .Text(c1).FontSize(fontSize);
+
+        //                    table.Cell().Border(1).Background(bg).Padding(4)
+        //                        .Text(c2).FontSize(fontSize).AlignRight();
+
+        //                    table.Cell().Border(1).Background(bg).Padding(4)
+        //                        .Text(c3).FontSize(fontSize).AlignRight();
+        //                }
+        //                if (iseligible) {
+        //                    // Header table
+        //                    AddRow("Bulan", "Peredaran Bruto", "Potongan Pajak", true);
+
+        //                    // Data
+        //                    foreach (var m in tax.Monthly)
+        //                    {
+        //                        decimal omzet = m.Omzet;
+
+        //                        // ✅ FIX: kalau Tax = 0 → hitung 0.5%
+        //                        decimal pajak = m.Tax > 0
+        //                            ? m.Tax
+        //                            : Math.Round(omzet * 0.005m, 2);
+
+        //                        AddRow(
+        //                            GetMonthName(m.Month),
+        //                            omzet.ToString("N2", culture),
+        //                            pajak.ToString("N2", culture)
+        //                        );
+        //                    }
+
+        //                    // ---------- TOTAL ----------
+        //                    decimal totalOmzet = tax.Monthly.Sum(x => x.Omzet);
+        //                    decimal totalTax = tax.Monthly.Sum(x =>
+        //                        x.Tax > 0 ? x.Tax : x.Omzet * 0.005m);
+
+        //                    AddRow(
+        //                        "TOTAL",
+        //                        totalOmzet.ToString("N2", culture),
+        //                        totalTax.ToString("N2", culture),
+        //                        true
+        //                    );
+        //                }
+        //                else
+        //                {
+        //                    //decimal totalOmzet = tax.TotalOmzet;
+        //                    //decimal totalTax = tax.NonFinalTaxAmount;
+        //                    //decimal profit = tax.AccountingProfit;
+
+        //                    //AddRow("Peredaran Bruto", "Profit", "Potongan Pajak", true);
+
+        //                    //AddRow(
+        //                    //    totalOmzet.ToString("N2", culture),
+        //                    //    profit.ToString("N2", culture),
+        //                    //    totalTax.ToString("N2", culture),
+        //                    //    true
+        //                    //);
+        //                    AddRow("Keterangan", "Nilai", " ", true);
+
+        //                    // ===== A. Pendapatan =====
+        //                    AddRow("Total Omzet", tax.TotalOmzet.ToString("N2", culture), "");
+
+        //                    // ===== B. Laba Akuntansi =====
+        //                    AddRow("Laba Akuntansi", tax.AccountingProfit.ToString("N2", culture), "");
+
+        //                    // ===== C. Koreksi Fiskal =====
+        //                    AddRow("Koreksi Fiskal (Non Deductible)", tax.FiscalAdjustmentTotal.ToString("N2", culture), "");
+
+        //                    // ===== D. Laba Fiskal =====
+        //                    AddRow("Laba Fiskal", tax.FiscalProfit.ToString("N2", culture), "");
+
+        //                    // ===== E. Tarif =====
+        //                    AddRow(
+        //                        "Tarif Pajak Terpakai",
+        //                        $"{tax.AppliedTaxRate * 100:N2}%",
+        //                        ""
+        //                    );
+
+        //                    // ===== F. Pajak Terutang =====
+        //                    AddRow(
+        //                        "Pajak Terutang",
+        //                        tax.NonFinalTaxAmount.ToString("N2", culture),
+        //                        "",
+        //                        true
+        //                    );
+        //                }
+
+        //            });
+
+        //            // ---------- FOOTER ----------
+        //            page.Footer().AlignCenter().Text(text =>
+        //            {
+        //                text.Span("Page ");
+        //                text.CurrentPageNumber();
+        //            });
+        //        });
+        //    }).GeneratePdf(stream);
+
+        //    return stream.ToArray();
+        //}
+
         private byte[] GeneratePdfFromTaxResult(TaxSummaryResult tax, int year, bool iseligible)
         {
             QuestPDF.Settings.License = LicenseType.Community;
-
             var culture = new CultureInfo("id-ID");
+
             using var stream = new MemoryStream();
 
             Document.Create(container =>
@@ -143,7 +289,9 @@ namespace FinanceApp.Controllers
                     page.Size(PageSizes.A4);
                     page.Margin(20);
 
-                    // ---------- HEADER ----------
+                    // ===========================================================
+                    // HEADER
+                    // ===========================================================
                     page.Header().Column(col =>
                     {
                         col.Item().Text("Report Preview Laporan Pajak")
@@ -160,82 +308,20 @@ namespace FinanceApp.Controllers
                         col.Spacing(10);
                     });
 
-                    // ---------- CONTENT ----------
-                    page.Content().Table(table =>
+                    // ===========================================================
+                    // CONTENT
+                    // ===========================================================
+                    page.Content().Element(content =>
                     {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.RelativeColumn(2);    // Bulan
-                            columns.RelativeColumn(1.5f); // Omzet
-                            columns.RelativeColumn(1.5f); // Pajak
-                        });
-
-                        void AddRow(string c1, string c2, string c3, bool isHeader = false)
-                        {
-                            var fontSize = isHeader ? 8 : 7;
-                            var bg = isHeader ? Colors.Grey.Lighten3 : Colors.White;
-
-                            table.Cell().Border(1).Background(bg).Padding(4)
-                                .Text(c1).FontSize(fontSize);
-
-                            table.Cell().Border(1).Background(bg).Padding(4)
-                                .Text(c2).FontSize(fontSize).AlignRight();
-
-                            table.Cell().Border(1).Background(bg).Padding(4)
-                                .Text(c3).FontSize(fontSize).AlignRight();
-                        }
-                        if (iseligible) {
-                            // Header table
-                            AddRow("Bulan", "Peredaran Bruto", "Potongan Pajak", true);
-
-                            // Data
-                            foreach (var m in tax.Monthly)
-                            {
-                                decimal omzet = m.Omzet;
-
-                                // ✅ FIX: kalau Tax = 0 → hitung 0.5%
-                                decimal pajak = m.Tax > 0
-                                    ? m.Tax
-                                    : Math.Round(omzet * 0.005m, 2);
-
-                                AddRow(
-                                    GetMonthName(m.Month),
-                                    omzet.ToString("N2", culture),
-                                    pajak.ToString("N2", culture)
-                                );
-                            }
-
-                            // ---------- TOTAL ----------
-                            decimal totalOmzet = tax.Monthly.Sum(x => x.Omzet);
-                            decimal totalTax = tax.Monthly.Sum(x =>
-                                x.Tax > 0 ? x.Tax : x.Omzet * 0.005m);
-
-                            AddRow(
-                                "TOTAL",
-                                totalOmzet.ToString("N2", culture),
-                                totalTax.ToString("N2", culture),
-                                true
-                            );
-                        }
+                        if (iseligible)
+                            BuildFinalUmkmTable(content, tax, culture);   // 3 kolom
                         else
-                        {
-                            decimal totalOmzet = tax.TotalOmzet;
-                            decimal totalTax = tax.NonFinalTaxAmount;
-                            decimal profit = tax.AccountingProfit;
-
-                            AddRow("Peredaran Bruto", "Profit", "Potongan Pajak", true);
-
-                            AddRow(
-                                totalOmzet.ToString("N2", culture),
-                                profit.ToString("N2", culture),
-                                totalTax.ToString("N2", culture),
-                                true
-                            );
-                        }
-                        
+                            BuildNonFinalTable(content, tax, culture);     // 2 kolom
                     });
 
-                    // ---------- FOOTER ----------
+                    // ===========================================================
+                    // FOOTER
+                    // ===========================================================
                     page.Footer().AlignCenter().Text(text =>
                     {
                         text.Span("Page ");
@@ -246,5 +332,99 @@ namespace FinanceApp.Controllers
 
             return stream.ToArray();
         }
+        private void BuildFinalUmkmTable(IContainer container, TaxSummaryResult tax, CultureInfo culture)
+        {
+            container.Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(2);    // Bulan
+                    columns.RelativeColumn(1.5f); // Omzet
+                    columns.RelativeColumn(1.5f); // Pajak
+                });
+
+                void AddRow(string c1, string c2, string c3, bool isHeader = false)
+                {
+                    var fontSize = isHeader ? 8 : 7;
+                    var bg = isHeader ? Colors.Grey.Lighten3 : Colors.White;
+
+                    table.Cell().Border(1).Background(bg).Padding(4)
+                        .Text(c1).FontSize(fontSize);
+
+                    table.Cell().Border(1).Background(bg).Padding(4)
+                        .Text(c2).FontSize(fontSize).AlignRight();
+
+                    table.Cell().Border(1).Background(bg).Padding(4)
+                        .Text(c3).FontSize(fontSize).AlignRight();
+                }
+
+                // Header
+                AddRow("Bulan", "Peredaran Bruto", "Potongan Pajak", true);
+
+                // Data per bulan
+                foreach (var m in tax.Monthly)
+                {
+                    decimal omzet = m.Omzet;
+
+                    // fallback: jika tax 0 → hitung 0.5%
+                    decimal pajak = m.Tax > 0 ? m.Tax : Math.Round(omzet * 0.005m, 2);
+
+                    AddRow(
+                        new DateTime(2000, m.Month, 1).ToString("MMMM", culture),
+                        omzet.ToString("N2", culture),
+                        pajak.ToString("N2", culture)
+                    );
+                }
+
+                // Total
+                decimal totalOmzet = tax.Monthly.Sum(x => x.Omzet);
+                decimal totalTax = tax.Monthly.Sum(x => x.Tax > 0 ? x.Tax : x.Omzet * 0.005m);
+
+                AddRow(
+                    "TOTAL",
+                    totalOmzet.ToString("N2", culture),
+                    totalTax.ToString("N2", culture),
+                    true
+                );
+            });
+        }
+        private void BuildNonFinalTable(IContainer container, TaxSummaryResult tax, CultureInfo culture)
+        {
+            container.Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3); // Keterangan
+                    columns.RelativeColumn(2); // Nilai
+                });
+
+                void AddRow(string c1, string c2, bool isHeader = false)
+                {
+                    var fontSize = isHeader ? 8 : 7;
+                    var bg = isHeader ? Colors.Grey.Lighten3 : Colors.White;
+
+                    table.Cell().Border(1).Background(bg).Padding(4)
+                        .Text(c1).FontSize(fontSize);
+
+                    table.Cell().Border(1).Background(bg).Padding(4)
+                        .Text(c2).FontSize(fontSize).AlignRight();
+                }
+
+                AddRow("Keterangan", "Nilai", true);
+
+                AddRow("Total Omzet", tax.TotalOmzet.ToString("N2", culture));
+                AddRow("Laba Akuntansi", tax.AccountingProfit.ToString("N2", culture));
+                AddRow("Koreksi Fiskal (Non Deductible)", tax.FiscalAdjustmentTotal.ToString("N2", culture));
+                AddRow("Laba Fiskal", tax.FiscalProfit.ToString("N2", culture));
+                AddRow("Tarif Pajak Terpakai", $"{tax.AppliedTaxRate * 100:N2}%");
+
+                AddRow(
+                    "Pajak Terutang",
+                    tax.NonFinalTaxAmount.ToString("N2", culture),
+                    true
+                );
+            });
+        }
+
     }
 }

@@ -1,0 +1,41 @@
+﻿@model FinanceApp.Models.dbFiscalAdjustment
+@{
+    ViewData["Title"] = "Delete Override";
+}
+
+<div class="row justify-content-center pt-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom-0 py-3">
+                <div class="d-flex align-items-center text-danger">
+                    <i class="fas fa-exclamation-triangle fa-lg mr-2"></i>
+                    <h5 class="m-0 font-weight-bold">Delete Confirmation</h5>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <p class="text-muted mb-4">Are you sure you want to delete this fiscal adjustment override?</p>
+                <div class="bg-light p-3 rounded mb-3">
+                    <div class="row mb-2">
+                        <div class="col-sm-4"><small class="text-uppercase font-weight-bold text-secondary">Account No</small></div>
+                        <div class="col-sm-8 text-dark font-weight-bold">@Model.account_no</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-4"><small class="text-uppercase font-weight-bold text-secondary">Override Type</small></div>
+                        <div class="col-sm-8 text-dark">@Model.override_fiscal_type</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"><small class="text-uppercase font-weight-bold text-secondary">Reason</small></div>
+                        <div class="col-sm-8 text-dark font-italic">"@Model.reason"</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white py-3">
+                <form asp-action="Delete" class="d-flex justify-content-between align-items-center">
+                    <input type="hidden" asp-for="id" />
+                    <a asp-action="Index" class="btn btn-outline-secondary"><i class="fas fa-arrow-left mr-1"></i> Cancel</a>
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm"><i class="fas fa-trash-alt mr-1"></i> Confirm Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
