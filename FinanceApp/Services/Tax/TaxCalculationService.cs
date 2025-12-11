@@ -13,15 +13,24 @@ namespace FinanceApp.Services.Tax
         private const decimal UMKM_LIMIT = 4_800_000_000m;
         private const decimal UMKM_TAX_RATE = 0.005m;
         private const decimal PPH_BADAN_RATE = 0.22m;
-
-        public TaxSummaryResult CalculateAnnualTax(
-            string companyId,
-            int year,
-            IEnumerable<dbJpn> jpn,
-            IEnumerable<dbJpb> jpb,
-            IEnumerable<dbJm> jm, string taxFlagPercentage, DateTime registrationDate, string customertype)
+        private readonly FormDBContext _context;
+        public TaxCalculationService(FormDBContext context)
         {
-            // 1️⃣ OMZET = Penjualan (JPN)
+            _context = context;
+        }
+
+        
+        public TaxSummaryResult CalculateAnnualTax(
+    string companyId,
+    int year,
+    IEnumerable<dbJpn> jpn,
+    IEnumerable<dbJpb> jpb,
+    IEnumerable<dbJm> jm,
+    string taxFlagPercentage,
+    DateTime registrationDate,
+    string customertype)
+        {
+            // ===== 1. HITUNG OMZET =====
             var omzetBulanan = jpn
                 .Where(x => x.TransDate.Year == year && x.company_id == companyId)
                 .GroupBy(x => x.TransDate.Month)
@@ -33,16 +42,19 @@ namespace FinanceApp.Services.Tax
                 .ToList();
 
             var totalOmzet = omzetBulanan.Sum(x => x.Omzet);
-            var eligibleUMKM = totalOmzet <= UMKM_LIMIT && taxFlagPercentage == "Y" && CanUseUmkmFinal(customertype, registrationDate, year);
+
+            bool isEligibleUMKM = totalOmzet <= UMKM_LIMIT
+                                  && taxFlagPercentage == "Y"
+                                  && CanUseUmkmFinal(customertype, registrationDate, year);
 
             var result = new TaxSummaryResult
             {
                 TotalOmzet = totalOmzet,
-                IsUMKMEligible = eligibleUMKM,
+                IsUMKMEligible = isEligibleUMKM
             };
 
-            // 2️⃣ JIKA UMKM FINAL
-            if (eligibleUMKM)
+            // ===== 2. JIKA FINAL (UMKM 0.5%) =====
+            if (isEligibleUMKM)
             {
                 foreach (var b in omzetBulanan)
                 {
@@ -58,19 +70,38 @@ namespace FinanceApp.Services.Tax
                 return result;
             }
 
-            // 3️⃣ NON FINAL (LABA RUGI)
+            // ===== 3. NON-FINAL, HITUNG LABA =====
             var totalRevenue = totalOmzet;
 
             var totalExpense =
                 jpb.Where(x => x.TransDate.Year == year && x.company_id == companyId)
                    .Sum(x => (decimal)x.Value)
-              + jm.Where(x => x.TransDate.Year == year && x.company_id == companyId)
+                + jm.Where(x => x.TransDate.Year == year && x.company_id == companyId)
                    .Sum(x => (decimal)(x.Debit - x.Credit));
 
             var profit = totalRevenue - totalExpense;
-
             result.AccountingProfit = profit;
-            result.NonFinalTaxAmount = profit > 0 ? profit * PPH_BADAN_RATE : 0;
+
+            // ===== 4. APLIKASIKAN LAYER PAJAK DARI DB =====
+            var taxLayer = _context.TaxConfigTbl
+                .Where(x => x.taxtype == "non-final" && x.flag_aktif == "1")
+                .OrderBy(x => x.taxlimitmin)
+                .ToList();
+
+            // fallback default: 22% bila tak ketemu layer
+            decimal applicableRate = 0.22m;
+
+            foreach (var layer in taxLayer)
+            {
+                if (profit >= layer.taxlimitmin && profit <= layer.taxlimitmax)
+                {
+                    applicableRate = layer.taxpercentage / 100m;
+                    break;
+                }
+            }
+
+            // ===== 5. FINAL RESULT =====
+            result.NonFinalTaxAmount = profit > 0 ? profit * applicableRate : 0;
 
             return result;
         }
