@@ -1,0 +1,116 @@
+﻿@model IEnumerable<FinanceApp.Models.dbTaxConfig>
+@{
+    ViewData["Title"] = "Tax Configuration";
+}
+
+<!-- FontAwesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+<div class="row">
+    <div class="col-12">
+
+        <!-- Main Card Container -->
+        <div class="card shadow-sm border-0">
+
+            <!-- Card Header -->
+            <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
+                <h5 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-cog mr-2"></i>Tax Configuration
+                </h5>
+
+                <a asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
+                    <i class="fas fa-plus fa-sm text-white-50 mr-2"></i> New Setting
+                </a>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered table-sm" id="IndexTbl" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr class="text-center">
+                                <th>Tax Type</th>
+                                <th>Mode</th>
+                                <th class="text-right">Limit / Range</th>
+                                <th class="text-right">Percentage</th>
+                                <th>Status</th>
+                                <th style="width: 15%">Entry Info</th>
+                                <th style="width: 10%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var dt in Model)
+                            {
+                                <tr>
+                                    <!-- Tax Type Badge -->
+                                    <td class="align-middle text-center">
+                                        <span class="badge badge-pill @(dt.taxtype == "final" ? "badge-info" : "badge-secondary")">@dt.taxtype</span>
+                                    </td>
+
+                                    <!-- Tax Mode Badge -->
+                                    <td class="align-middle text-center">
+                                        <span class="badge badge-light border text-secondary px-2">@dt.taxmode</span>
+                                    </td>
+
+                                    <!-- Limit / Range -->
+                                    <td class="align-middle text-right text-monospace">
+                                        @if (dt.taxmode == "fixed")
+                                        {
+                                            @dt.taxlimit.ToString("N0")
+                                        }
+                                        else if (dt.taxmode == "range")
+                                        {
+                                            <span>@dt.taxlimitmin.ToString("N0") - @dt.taxlimitmax.ToString("N0")</span>
+                                        }
+                                    </td>
+
+                                    <!-- Percentage -->
+                                    <td class="align-middle text-right font-weight-bold text-primary">
+                                        @dt.taxpercentage.ToString("F2") %
+                                    </td>
+
+                                    <!-- Status Badge -->
+                                    <td class="align-middle text-center">
+                                        @if (dt.flag_aktif == "1" || dt.flag_aktif == "Y")
+                                        {
+                                            <span class="badge badge-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary">Inactive</span>
+                                        }
+                                    </td>
+
+                                    <!-- Entry Info -->
+                                    <td class="align-middle small text-muted">
+                                        <div><i class="fas fa-user mr-1"></i> @dt.entry_user</div>
+                                        <div><i class="far fa-clock mr-1"></i> @dt.entry_date.ToString("dd/MM/yy")</div>
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="text-center align-middle">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@dt.id" class="btn btn-outline-primary btn-sm" title="Edit"><i class="fas fa-pen"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@dt.id" class="btn btn-outline-danger btn-sm ml-1" title="Delete"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#IndexTbl').DataTable({
+                stateSave: true,
+                "language": { "search": "Search:" }
+            });
+        });
+    </script>
+}

@@ -31,6 +31,9 @@ namespace BaseLineProject.Data
 
         public DbSet<TaxEligibility> TaxEligibilities { get; set; }
 
+        public DbSet<dbTaxConfig> TaxConfigTbl { get; set; }
+
+
         public FormDBContext(DbContextOptions<FormDBContext> options) : base(options)
         {
         }
@@ -358,6 +361,19 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<TaxEligibility>().Property(ug => ug.EligiblePp23).HasColumnType("char(1)").IsRequired(false);
             modelBuilder.Entity<TaxEligibility>().Property(ug => ug.CrossingDate).HasColumnType("datetime").IsRequired(false);
             modelBuilder.Entity<TaxEligibility>().Property(ug => ug.DetectionDate).HasColumnType("datetime").IsRequired(true);
+
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.taxtype).HasColumnType("varchar(255)");
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.taxmode).HasColumnType("varchar(255)");
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.taxlimit).HasColumnType("bigint(20)");
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.taxlimitmin).HasColumnType("bigint(20)");
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.taxlimitmax).HasColumnType("bigint(20)");
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.taxpercentage).HasColumnType("decimal(18,2)").IsRequired(true);
+
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.entry_user).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.update_user).HasColumnType("varchar(60)").IsRequired();
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.update_date).HasColumnType("date");
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.entry_date).HasColumnType("date");
 
             #endregion appmodel
 
