@@ -100,6 +100,7 @@ namespace BaseLineProject
             services.AddControllersWithViews();
             services.AddScoped<TaxEligibilityService>();
             services.AddScoped<ITaxCalculationService, TaxCalculationService>();
+            services.AddScoped<IFiscalService, FiscalService>();
 
             services.AddRazorPages();
         }

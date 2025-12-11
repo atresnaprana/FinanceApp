@@ -14,9 +14,12 @@ namespace FinanceApp.Services.Tax
         private const decimal UMKM_TAX_RATE = 0.005m;
         private const decimal PPH_BADAN_RATE = 0.22m;
         private readonly FormDBContext _context;
-        public TaxCalculationService(FormDBContext context)
+        private readonly IFiscalService _fiscalService;
+
+        public TaxCalculationService(FormDBContext context, IFiscalService fiscalService)
         {
             _context = context;
+            _fiscalService = fiscalService;
         }
 
         
@@ -79,8 +82,17 @@ namespace FinanceApp.Services.Tax
                 + jm.Where(x => x.TransDate.Year == year && x.company_id == companyId)
                    .Sum(x => (decimal)(x.Debit - x.Credit));
 
-            var profit = totalRevenue - totalExpense;
-            result.AccountingProfit = profit;
+            //var profit = totalRevenue - totalExpense;
+            //result.AccountingProfit = profit;
+            var accountingProfit = totalRevenue - totalExpense;
+            result.AccountingProfit = accountingProfit;
+
+            // ===== ⭐ Tambahkan koreksi fiskal di sini ⭐ =====
+            var fiscalCorrections = CalculateFiscalAdjustments(companyId, year, jpb, jm);
+
+            // Laba Fiskal = Laba Akuntansi + Koreksi Positif
+            var fiscalProfit = accountingProfit + fiscalCorrections;
+            result.FiscalProfit = fiscalProfit;   // tambahkan ke model kamu
 
             // ===== 4. APLIKASIKAN LAYER PAJAK DARI DB =====
             var taxLayer = _context.TaxConfigTbl
@@ -91,9 +103,13 @@ namespace FinanceApp.Services.Tax
             // fallback default: 22% bila tak ketemu layer
             decimal applicableRate = 0.22m;
 
+
             foreach (var layer in taxLayer)
             {
-                if (profit >= layer.taxlimitmin && profit <= layer.taxlimitmax)
+                bool minOk = fiscalProfit >= layer.taxlimitmin;
+                bool maxOk = layer.taxlimitmax == 0 || fiscalProfit <= layer.taxlimitmax;
+
+                if (minOk && maxOk)
                 {
                     applicableRate = layer.taxpercentage / 100m;
                     break;
@@ -101,9 +117,58 @@ namespace FinanceApp.Services.Tax
             }
 
             // ===== 5. FINAL RESULT =====
-            result.NonFinalTaxAmount = profit > 0 ? profit * applicableRate : 0;
+            //result.NonFinalTaxAmount = profit > 0 ? profit * applicableRate : 0;
+            result.NonFinalTaxAmount = fiscalProfit > 0
+    ? fiscalProfit * applicableRate
+    : 0;
+            result.FiscalAdjustmentTotal = fiscalCorrections;
 
             return result;
+        }
+
+        private decimal CalculateFiscalAdjustments(
+    string companyId,
+    int year,
+    IEnumerable<dbJpb> jpb,
+    IEnumerable<dbJm> jm)
+        {
+            decimal koreksi = 0;
+
+            // Gabungkan JPB + JM karena keduanya Expense
+            var allExpense = jpb
+                .Where(x => x.TransDate.Year == year && x.company_id == companyId)
+                .Select(x => new { Account = x.Akun_Debit, Value = (decimal)x.Value })
+                .ToList();
+
+            allExpense.AddRange(
+                jm.Where(x => x.TransDate.Year == year && x.company_id == companyId)
+                  .Select(x => new { Account = x.Akun_Debit, Value = (decimal)x.Debit })
+            );
+
+            foreach (var item in allExpense)
+            {
+                // 1. Tentukan fiscal type (default COA atau override)
+                string fiscalType = _fiscalService.ResolveFiscalType(companyId, item.Account);
+
+                if (fiscalType == null)
+                    continue;
+
+                switch (fiscalType.ToUpper())
+                {
+                    case "NONDEDUCTIBLE":
+                        koreksi += item.Value; // koreksi positif
+                        break;
+
+                    case "TEMPORARY_DIFFERENCE":
+                        // kalau kamu mau pisahkan, bisa taruh behavior di sini
+                        koreksi += item.Value;
+                        break;
+
+                        // DEDUCTIBLE → tidak ada perubahan
+                }
+            }
+
+            return koreksi;
         }
         private bool CanUseUmkmFinal(
         string customerType,

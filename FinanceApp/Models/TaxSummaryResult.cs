@@ -12,8 +12,11 @@ namespace FinanceApp.Models
 
         public decimal AccountingProfit { get; set; }
         public decimal NonFinalTaxAmount { get; set; }
-
+        public decimal FiscalProfit { get; set; }
+        public decimal FiscalAdjustmentTotal { get; set; }
         public List<TaxMonthlyBreakdown> Monthly { get; set; } = new List<TaxMonthlyBreakdown>();
+        public decimal AppliedTaxRate { get; set; }
+
     }
     public class TaxMonthlyBreakdown
     {

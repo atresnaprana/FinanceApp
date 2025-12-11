@@ -1,0 +1,72 @@
+﻿@model IEnumerable<FinanceApp.Models.FiscalAdjustmentViewModel>
+@{
+    ViewData["Title"] = "Fiscal Adjustments";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+        <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-gavel mr-2"></i>Fiscal Adjustments Overview</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-sm" id="adjustmentTable">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Account No</th>
+                        <th>Account Name</th>
+                        <th class="text-center">Default Type</th>
+                        <th class="text-center">Override Type</th>
+                        <th>Reason for Override</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="align-middle text-monospace">@item.AccountNo</td>
+                            <td class="align-middle font-weight-bold">@item.AccountName</td>
+                            <td class="align-middle text-center">
+                                <span class="badge badge-light border">@item.DefaultFiscalType</span>
+                            </td>
+                            <td class="align-middle text-center">
+                                @if (!string.IsNullOrEmpty(item.OverrideFiscalType))
+                                {
+                                    <span class="badge @(item.OverrideFiscalType.ToUpper() == "DEDUCTIBLE" ? "badge-success" : "badge-danger")">
+                                        @item.OverrideFiscalType
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">- None -</span>
+                                }
+                            </td>
+                            <td class="align-middle small font-italic">@item.Reason</td>
+                            <td class="align-middle text-center">
+                                @if (!string.IsNullOrEmpty(item.OverrideFiscalType))
+                                {
+                                    <!-- If override exists, show Edit/Delete -->
+                                    <div class="btn-group">
+                                        <a asp-action="Edit" asp-route-id="@item.id" class="btn btn-outline-primary btn-sm" title="Edit Override"><i class="fas fa-pen"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.id" class="btn btn-outline-danger btn-sm ml-1" title="Delete Override"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- If no override, show Create -->
+                                    <a asp-action="Create" asp-route-accountNo="@item.AccountNo" asp-route-companyId="@item.CompanyId" class="btn btn-success btn-sm">
+                                        <i class="fas fa-plus mr-1"></i> Create Override
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>$(document).ready(function() { $('#adjustmentTable').DataTable(); });</script>
+}

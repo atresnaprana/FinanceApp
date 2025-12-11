@@ -32,6 +32,7 @@ namespace BaseLineProject.Data
         public DbSet<TaxEligibility> TaxEligibilities { get; set; }
 
         public DbSet<dbTaxConfig> TaxConfigTbl { get; set; }
+        public DbSet<dbFiscalAdjustment> FiscalAdjustment { get; set; }
 
 
         public FormDBContext(DbContextOptions<FormDBContext> options) : base(options)
@@ -60,6 +61,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbClosing>().ToTable("dbClosing");
             modelBuilder.Entity<dbLd>().ToTable("dbLd");
             modelBuilder.Entity<dbClosedValue>().ToTable("dbClosedValue");
+            modelBuilder.Entity<dbFiscalAdjustment>().ToTable("dbFiscalAdjustment");
 
             modelBuilder.Entity<TaxEligibility>().HasKey(t => new { t.CustomerId, t.TaxYear });
 
@@ -362,6 +364,7 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<TaxEligibility>().Property(ug => ug.CrossingDate).HasColumnType("datetime").IsRequired(false);
             modelBuilder.Entity<TaxEligibility>().Property(ug => ug.DetectionDate).HasColumnType("datetime").IsRequired(true);
 
+            //tax config model
             modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
             modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.taxtype).HasColumnType("varchar(255)");
             modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.taxmode).HasColumnType("varchar(255)");
@@ -374,6 +377,20 @@ namespace BaseLineProject.Data
             modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.update_user).HasColumnType("varchar(60)").IsRequired();
             modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.update_date).HasColumnType("date");
             modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.entry_date).HasColumnType("date");
+            modelBuilder.Entity<dbTaxConfig>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)");
+
+            //fiscal rule model
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.id).HasColumnType("int").UseMySqlIdentityColumn().IsRequired();
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.company_id).HasColumnType("varchar(255)");
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.account_no).HasColumnType("int");
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.override_fiscal_type).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.reason).HasColumnType("varchar(255)").IsRequired(false);
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.flag_aktif).HasColumnType("varchar(1)");
+
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.entry_user).HasColumnType("varchar(50)").IsRequired(false);
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.update_user).HasColumnType("varchar(60)").IsRequired();
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.update_date).HasColumnType("date");
+            modelBuilder.Entity<dbFiscalAdjustment>().Property(ug => ug.entry_date).HasColumnType("date");
 
             #endregion appmodel
 
