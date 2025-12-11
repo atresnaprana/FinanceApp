@@ -1,0 +1,132 @@
+﻿@model FinanceApp.Models.dbTaxConfig
+
+@{
+    ViewData["Title"] = "New Tax Setting";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <form asp-action="Create" id="formcreate">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-plus-circle mr-2"></i>New Tax Setting</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <!-- Tax Type -->
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold text-dark small text-uppercase">Tax Type</label>
+                            @Html.DropDownListFor(m => m.taxtype, new List<SelectListItem> {
+                            new SelectListItem("final", "final"),
+                                                        new SelectListItem("non-final", "non-final")
+                                                        }, "Select type...", new { @class = "form-control" })
+                            <span asp-validation-for="taxtype" class="text-danger small"></span>
+                        </div>
+                        <!-- Tax Mode -->
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold text-dark small text-uppercase">Tax Mode</label>
+                            @Html.DropDownListFor(m => m.taxmode, new List<SelectListItem> {
+                                                        new SelectListItem("fixed", "fixed"),
+                                                        new SelectListItem("range", "range")
+                                                        }, "Select mode...", new { @class = "form-control", id = "taxModeDropdown" })
+                            <span asp-validation-for="taxmode" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <!-- Conditional Limit Fields -->
+                    <div id="fixedLimitSection" style="display: none;">
+                        <div class="form-group">
+                            <label class="font-weight-bold text-dark small text-uppercase">Tax Limit</label>
+                            <input asp-for="taxlimit" class="form-control" placeholder="0" />
+                            <span asp-validation-for="taxlimit" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div id="rangeLimitSection" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold text-dark small text-uppercase">Tax Limit Minimum</label>
+                                <input asp-for="taxlimitmin" class="form-control" placeholder="0" />
+                                <span asp-validation-for="taxlimitmin" class="text-danger small"></span>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold text-dark small text-uppercase">Tax Limit Maximum</label>
+                                <input asp-for="taxlimitmax" class="form-control" placeholder="0" />
+                                <span asp-validation-for="taxlimitmax" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <small id="rangeError" class="text-danger" style="display:none;">Minimum limit cannot be greater than maximum limit.</small>
+                    </div>
+
+                    <hr />
+
+                    <!-- Percentage -->
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label class="font-weight-bold text-dark small text-uppercase">Tax Percentage</label>
+                            <div class="input-group">
+                                <input asp-for="taxpercentage" class="form-control" placeholder="0.00" />
+                                <div class="input-group-append"><span class="input-group-text">%</span></div>
+                            </div>
+                            <span asp-validation-for="taxpercentage" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer bg-white d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary"><i class="fas fa-arrow-left mr-1"></i> Back to List</a>
+                    <!-- THE FIX: Changed to type="button" and added id="saveButton" -->
+                    <button type="button" id="saveButton" class="btn btn-primary px-4 shadow-sm"><i class="fas fa-save mr-1"></i> Save Setting</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            // Function to show/hide fields
+            function toggleLimitFields() {
+                var selectedMode = $('#taxModeDropdown').val();
+                if (selectedMode === 'fixed') { $('#fixedLimitSection').show(); $('#rangeLimitSection').hide(); }
+                else if (selectedMode === 'range') { $('#fixedLimitSection').hide(); $('#rangeLimitSection').show(); }
+                else { $('#fixedLimitSection').hide(); $('#rangeLimitSection').hide(); }
+            }
+
+            // Function to validate range
+            function validateRange() {
+                var min = parseInt($('input[name="taxlimitmin"]').val());
+                var max = parseInt($('input[name="taxlimitmax"]').val());
+                if (!isNaN(min) && !isNaN(max) && min > max) { $('#rangeError').show(); return false; }
+                else { $('#rangeError').hide(); return true; }
+            }
+
+            // Event Listeners
+            $('#taxModeDropdown').on('change', toggleLimitFields);
+            $('input[name="taxlimitmin"], input[name="taxlimitmax"]').on('blur', validateRange);
+
+            // --- THE FIX: Replaced the old broken submit handler with a simple click handler ---
+            $('#saveButton').on('click', function() {
+                // First, check if validation is needed and if it fails.
+                if ($('#taxModeDropdown').val() === 'range' && !validateRange()) {
+                    alert('Please correct the range values before submitting.');
+                    return; // Stop right here
+                }
+
+                // If everything is okay, submit the form to the controller.
+                $('#formcreate').submit();
+            });
+
+            // Initial call to set the view correctly on page load
+            toggleLimitFields();
+        });
+    </script>
+}

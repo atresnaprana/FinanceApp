@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<FinanceApp.Models.dbClosing>
+@using System.Text.Json
+
 @{
     ViewData["Title"] = "Closing Info";
 }
@@ -146,6 +148,10 @@
                        '<"row"<"col-sm-12"tr>>' +
                        '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
             });
+            var message = @Html.Raw(JsonSerializer.Serialize(TempData["AlertMessage"] ?? ""));
+            if (message && message.trim() !== "") {
+              alert(message);
+            }
         });
     </script>
 }

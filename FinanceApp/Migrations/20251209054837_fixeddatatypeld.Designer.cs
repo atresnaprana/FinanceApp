@@ -4,14 +4,16 @@ using BaseLineProject.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BaseLineProject.Migrations
 {
     [DbContext(typeof(FormDBContext))]
-    partial class FormDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251209054837_fixeddatatypeld")]
+    partial class fixeddatatypeld
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -866,52 +868,6 @@ namespace BaseLineProject.Migrations
                         .HasName("PK_LD");
 
                     b.ToTable("dbLd");
-                });
-
-            modelBuilder.Entity("FinanceApp.Models.dbTaxConfig", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("entry_date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("entry_user")
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("flag_aktif")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<long>("taxlimit")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("taxlimitmax")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("taxlimitmin")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("taxmode")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<decimal>("taxpercentage")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("taxtype")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime>("update_date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("update_user")
-                        .IsRequired()
-                        .HasColumnType("varchar(60)");
-
-                    b.HasKey("id");
-
-                    b.ToTable("TaxConfigTbl");
                 });
 #pragma warning restore 612, 618
         }
